@@ -5,6 +5,7 @@ import type { PotatoSession } from "@/types/timer";
 import type { TimerSession } from "@/types/session";
 import type { FuturePlan } from "@/types/futurePlan";
 import type { TodoCollection, TodoItem } from "@/types/todo";
+import { localDateKey } from "@/utils/date";
 
 type MockCheckinType = "wakeup" | "focus_today" | "sleep";
 
@@ -254,7 +255,7 @@ export const initialFuturePlans: FuturePlan[] = [
     id: "future-1",
     title: "毕业论文提交",
     note: "提前准备终稿和检查清单",
-    targetDate: new Date(Date.now() + 38 * DAY_MS).toISOString().slice(0, 10),
+    targetDate: localDateKey(new Date(Date.now() + 38 * DAY_MS)),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }

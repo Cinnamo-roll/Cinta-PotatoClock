@@ -5,7 +5,8 @@ import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { CuteEmptyState } from "@/components/common/CuteEmptyState";
-import { Input } from "@/components/common/Input";
+import { DatePicker } from "@/components/common/DatePicker";
+import { Input, Textarea } from "@/components/common/Input";
 import { PageHeader } from "@/components/common/PageHeader";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { useCreateFuturePlanMutation, useDeleteFuturePlanMutation, useFuturePlansQuery } from "@/hooks/useApiQueries";
@@ -13,21 +14,18 @@ import { successFeedback } from "@/services/hapticsService";
 import { cancelFuturePlanNotification, checkNotificationPermission, scheduleFuturePlanNotification } from "@/services/notificationService";
 import { useUiStore } from "@/stores/uiStore";
 import type { FuturePlan } from "@/types/futurePlan";
+import { formatLocalDate, isBeforeDateKey, localDateKey, parseLocalDate } from "@/utils/date";
 import { daysBetween } from "@/utils/todoMetrics";
 
-function todayInput() {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function formatDate(value: string) {
-  return new Date(`${value}T00:00:00`).toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\//g, "-");
+  return formatLocalDate(value);
 }
 
 function planState(plan: FuturePlan) {
   const today = new Date();
-  const target = new Date(`${plan.targetDate}T00:00:00`);
+  const target = parseLocalDate(plan.targetDate);
   const targetKey = plan.targetDate;
-  const todayKey = todayInput();
+  const todayKey = localDateKey();
   const isPast = targetKey < todayKey;
   const isToday = targetKey === todayKey;
   return {
@@ -46,7 +44,7 @@ export default function FutureCountdownPage() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
-  const [targetDate, setTargetDate] = useState(todayInput());
+  const [targetDate, setTargetDate] = useState(localDateKey());
   const [pendingDeletePlan, setPendingDeletePlan] = useState<FuturePlan | null>(null);
   const sortedPlans = useMemo(() => [...plans].sort((a, b) => a.targetDate.localeCompare(b.targetDate)), [plans]);
 
@@ -62,15 +60,18 @@ export default function FutureCountdownPage() {
   const reset = () => {
     setTitle("");
     setNote("");
-    setTargetDate(todayInput());
+    setTargetDate(localDateKey());
   };
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget as HTMLFormElement);
     const cleanTitle = title.trim();
     if (!cleanTitle) return;
-    const submittedDate = String(form.get("targetDate") || targetDate || todayInput());
+    const submittedDate = targetDate || localDateKey();
+    if (isBeforeDateKey(submittedDate, localDateKey())) {
+      toast({ title: "日期不能早于今天", description: "请选择今天或之后的日期。", tone: "error" });
+      return;
+    }
     void createPlan
       .mutateAsync({ title: cleanTitle, note: note.trim(), targetDate: submittedDate })
       .then((plan) => {
@@ -150,7 +151,7 @@ export default function FutureCountdownPage() {
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-40 bg-[rgba(38,35,42,0.22)]" />
-          <Dialog.Content className="app-dialog-panel app-modal-scroll z-50 max-h-[90vh] w-[calc(100%-34px)] max-w-[370px] rounded-[28px] p-4 shadow-[0_16px_36px_rgba(80,40,60,0.14)]">
+          <Dialog.Content className="app-dialog-panel app-modal-scroll z-50 w-[calc(100%-34px)] max-w-[370px] rounded-[28px] p-4 shadow-[0_16px_36px_rgba(80,40,60,0.14)]">
             <form onSubmit={submit}>
               <div className="mb-4 flex items-center justify-between">
                 <Dialog.Close className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--app-primary-soft)]" aria-label="关闭">
@@ -161,11 +162,8 @@ export default function FutureCountdownPage() {
               </div>
               <div className="space-y-3">
                 <Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="计划名称" />
-                <textarea className="min-h-20 w-full rounded-2xl border border-[var(--app-border)] bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-[var(--app-primary)]" value={note} onChange={(event) => setNote(event.target.value)} placeholder="备注，可选" />
-                <label className="grid gap-1 text-sm font-bold text-[var(--app-muted)]">
-                  日期
-                  <Input name="targetDate" type="date" value={targetDate} onInput={(event) => setTargetDate(event.currentTarget.value)} onChange={(event) => setTargetDate(event.target.value)} />
-                </label>
+                <Textarea className="min-h-20" value={note} onChange={(event) => setNote(event.target.value)} placeholder="备注，可选" />
+                <DatePicker label="日期" value={targetDate} minDate={localDateKey()} onChange={setTargetDate} />
               </div>
               <Button className="mt-5 w-full" type="submit">
                 添加

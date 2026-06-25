@@ -28,6 +28,7 @@ import { useTimerStore } from "@/stores/timerStore";
 import { useUiStore } from "@/stores/uiStore";
 import { formatSeconds } from "@/utils/format";
 import { isTodoCompleted, targetProgress, todayTodoMetrics, todoStreak } from "@/utils/todoMetrics";
+import { localDateKey } from "@/utils/date";
 import type { TimerState } from "@/types/timer";
 import type { TimerType } from "@/types/todo";
 
@@ -61,7 +62,7 @@ const stateLabel: Record<TimerState, string> = {
 };
 
 function dateInput(date: Date) {
-  return date.toISOString().slice(0, 10);
+  return localDateKey(date);
 }
 
 export default function FocusPage() {
@@ -412,7 +413,7 @@ export default function FocusPage() {
   };
 
   return (
-    <div className="app-screen-bg app-scroll mx-auto flex min-h-[100dvh] max-w-[430px] flex-col overflow-x-hidden overflow-y-auto px-5 pb-[calc(var(--safe-bottom)+18px)] pt-5 text-[var(--app-text)]">
+    <div className="app-screen-bg app-scroll mx-auto flex min-h-[100dvh] max-w-[430px] flex-col overflow-x-hidden overflow-y-auto px-5 pb-[calc(var(--safe-bottom)+18px)] pt-[calc(var(--safe-top)+1.25rem)] text-[var(--app-text)]">
       {shortTip ? (
         <div className="fixed left-1/2 top-5 z-50 flex w-[calc(100%-40px)] max-w-[390px] -translate-x-1/2 items-start gap-3 rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] p-4 text-[var(--app-text)] shadow-[0_12px_30px_rgba(80,40,60,0.10)]">
           <CheckCircle2 className="mt-0.5 text-[#48a568]" size={20} />

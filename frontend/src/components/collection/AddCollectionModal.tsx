@@ -27,14 +27,29 @@ const colors = [
 export function AddCollectionModal({ open, onOpenChange, onSubmit }: AddCollectionModalProps) {
   const [name, setName] = useState("");
   const [color, setColor] = useState(colors[3].value);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!name.trim()) return;
-    await onSubmit({ name: name.trim(), color });
-    setName("");
-    setColor(colors[3].value);
-    onOpenChange(false);
+    if (isSubmitting) return;
+    const cleanName = name.trim();
+    if (!cleanName) {
+      setError("先写一个待办集名称。");
+      return;
+    }
+    setIsSubmitting(true);
+    setError("");
+    try {
+      await onSubmit({ name: cleanName, color });
+      setName("");
+      setColor(colors[3].value);
+      onOpenChange(false);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "添加失败，请稍后再试。");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -48,7 +63,7 @@ export function AddCollectionModal({ open, onOpenChange, onSubmit }: AddCollecti
                 <X size={18} />
               </Dialog.Close>
               <Dialog.Title className="text-lg font-black text-[var(--app-text)]">添加待办集</Dialog.Title>
-              <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--app-primary)] text-[var(--app-text)]" type="submit" aria-label="确认">
+              <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--app-primary)] text-white disabled:opacity-60" type="submit" aria-label="确认" disabled={isSubmitting}>
                 <Check size={18} />
               </button>
             </div>
@@ -59,13 +74,27 @@ export function AddCollectionModal({ open, onOpenChange, onSubmit }: AddCollecti
                 <button
                   key={item.value}
                   type="button"
-                  className={cn("h-10 w-10 rounded-full border-4", color === item.value ? "border-[var(--app-text)]/60" : "border-white")}
+                  className={cn(
+                    "relative h-10 w-10 rounded-full border-4 shadow-[0_8px_18px_color-mix(in_srgb,var(--app-text)_8%,transparent)] transition active:scale-95",
+                    color === item.value ? "border-[var(--app-card)] ring-4 ring-[color-mix(in_srgb,var(--app-primary)_48%,transparent)]" : "border-white"
+                  )}
                   style={{ backgroundColor: item.value }}
-                  onClick={() => setColor(item.value)}
+                  onClick={() => {
+                    setColor(item.value);
+                    setError("");
+                  }}
                   aria-label={item.label}
-                />
+                  aria-pressed={color === item.value}
+                >
+                  {color === item.value ? (
+                    <span className="absolute inset-0 flex items-center justify-center text-white drop-shadow">
+                      <Check size={17} strokeWidth={3} />
+                    </span>
+                  ) : null}
+                </button>
               ))}
             </div>
+            {error ? <p className="mt-4 rounded-2xl bg-[color-mix(in_srgb,var(--app-danger)_10%,var(--app-card))] px-3 py-2 text-sm font-bold text-[var(--app-danger)]">{error}</p> : null}
           </form>
         </Dialog.Content>
       </Dialog.Portal>

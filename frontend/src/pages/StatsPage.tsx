@@ -23,9 +23,10 @@ import { YearStatsCard } from "@/components/stats/YearStatsCard";
 import { formatMinutes } from "@/components/stats/statsFormat";
 import { useStatsQuery, useTimerSessionsRangeQuery } from "@/hooks/useApiQueries";
 import type { CheckinLineItem, StatsDateRange, StatsRange } from "@/types/stats";
+import { daysInLocalMonth, localDateKey, localMonthKey } from "@/utils/date";
 
 function toDateInput(date: Date) {
-  return date.toISOString().slice(0, 10);
+  return localDateKey(date);
 }
 
 function formatDate(date: Date) {
@@ -33,7 +34,7 @@ function formatDate(date: Date) {
 }
 
 function formatMonth(date: Date) {
-  return date.toISOString().slice(0, 7);
+  return localMonthKey(date);
 }
 
 function formatShortDate(value: string) {
@@ -76,18 +77,14 @@ function shiftAnchor(date: Date, range: StatsRange, step: -1 | 1) {
   return next;
 }
 
-function daysInMonth(month: string) {
-  const [year, monthIndex] = month.split("-").map(Number);
-  return new Date(year, monthIndex, 0).getDate();
-}
-
 function retargetLineMonth(data: CheckinLineItem[], month: string): CheckinLineItem[] {
-  const byDay = new Map(data.map((item) => [Number(item.date.slice(-2)), item]));
-  return Array.from({ length: daysInMonth(month) }, (_, index) => {
+  const byDate = new Map(data.map((item) => [item.date, item]));
+  return Array.from({ length: daysInLocalMonth(month) }, (_, index) => {
     const day = index + 1;
-    const source = byDay.get(day) ?? data[index];
+    const date = `${month}-${String(day).padStart(2, "0")}`;
+    const source = byDate.get(date);
     return {
-      date: `${month}-${String(day).padStart(2, "0")}`,
+      date,
       time: source?.time ?? null,
       minutesOfDay: source?.minutesOfDay ?? null
     };
@@ -130,7 +127,7 @@ export default function StatsPage() {
   const monthLabel = formatMonth(statsMonthDate);
   const statsOptions = useMemo(() => ({ month: monthLabel, year: statsYear, collectionId, todoId }), [collectionId, monthLabel, statsYear, todoId]);
   const { data, error, isError, isFetching, isLoading, isPlaceholderData } = useStatsQuery(range, dateRange, statsOptions);
-  const todayKey = useMemo(() => toDateInput(new Date()), []);
+  const todayKey = useMemo(() => localDateKey(), []);
   const { data: collectionSessions = [], isFetching: isFetchingCollectionSessions } = useTimerSessionsRangeQuery(
     "1970-01-01",
     todayKey,

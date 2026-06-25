@@ -37,17 +37,20 @@ public class AuthService {
 
     @Transactional
     public UserResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.username())) {
+        String username = request.username().trim();
+        String nickname = request.nickname().trim();
+        String email = blankToNull(request.email());
+        if (userRepository.existsByUsername(username)) {
             throw new BusinessException(ErrorCode.USERNAME_EXISTS);
         }
-        if (request.email() != null && !request.email().isBlank() && userRepository.existsByEmail(request.email())) {
+        if (email != null && userRepository.existsByEmail(email)) {
             throw new BusinessException(ErrorCode.EMAIL_EXISTS);
         }
 
         User user = new User();
-        user.setUsername(request.username());
-        user.setNickname(request.nickname());
-        user.setEmail(blankToNull(request.email()));
+        user.setUsername(username);
+        user.setNickname(nickname);
+        user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setRole(UserRole.USER);
         user.setStatus(UserStatus.ACTIVE);
@@ -58,17 +61,18 @@ public class AuthService {
 
     @Transactional
     public LoginResponse login(LoginRequest request) {
-        if (loginAttemptService.isBlocked(request.username())) {
+        String username = request.username().trim();
+        if (loginAttemptService.isBlocked(username)) {
             throw new BusinessException(ErrorCode.LOGIN_TOO_MANY_ATTEMPTS);
         }
 
-        User user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> failLogin(request.username()));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> failLogin(username));
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash()) || user.getStatus() != UserStatus.ACTIVE) {
-            throw failLogin(request.username());
+            throw failLogin(username);
         }
 
-        loginAttemptService.reset(request.username());
+        loginAttemptService.reset(username);
         user.setLastLoginAt(LocalDateTime.now());
         JwtToken token = jwtService.generate(user);
         return new LoginResponse(token.token(), "Bearer", token.expiresIn(), UserResponse.from(user));
@@ -111,6 +115,6 @@ public class AuthService {
     }
 
     private String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value;
+        return value == null || value.isBlank() ? null : value.trim();
     }
 }

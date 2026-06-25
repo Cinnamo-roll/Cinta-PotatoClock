@@ -28,6 +28,7 @@ import { lightImpact, successFeedback } from "@/services/hapticsService";
 import { useTimerStore } from "@/stores/timerStore";
 import { useUiStore } from "@/stores/uiStore";
 import type { TodoInput, TodoItem } from "@/types/todo";
+import { localDateKey } from "@/utils/date";
 import { isTodoCompleted, todayTodoMetrics } from "@/utils/todoMetrics";
 
 function sameIds(a: number[], b: number[]) {
@@ -52,7 +53,7 @@ function findSortIdAt(clientX: number, clientY: number) {
 }
 
 function dateInput(date: Date) {
-  return date.toISOString().slice(0, 10);
+  return localDateKey(date);
 }
 
 export default function HomePage() {

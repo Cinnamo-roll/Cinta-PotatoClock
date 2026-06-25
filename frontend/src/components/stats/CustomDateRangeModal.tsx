@@ -1,5 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/common/Button";
+import { DatePicker } from "@/components/common/DatePicker";
 import type { StatsDateRange } from "@/types/stats";
 
 interface CustomDateRangeModalProps {
@@ -18,24 +19,8 @@ export function CustomDateRangeModal({ open, value, onChange, onClose }: CustomD
           <Dialog.Title className="text-lg font-black">自定日期</Dialog.Title>
           <p className="mt-1 text-sm font-bold text-[var(--app-muted)]">选择你想查看的专注统计范围。</p>
           <div className="mt-5 grid gap-3">
-            <label className="grid gap-2 text-sm font-bold text-[var(--app-muted)]">
-              开始日期
-              <input
-                className="h-12 rounded-2xl border border-[var(--app-border)] bg-white px-4 font-black text-[var(--app-text)] outline-none"
-                onChange={(event) => onChange({ ...value, startDate: event.target.value })}
-                type="date"
-                value={value.startDate ?? ""}
-              />
-            </label>
-            <label className="grid gap-2 text-sm font-bold text-[var(--app-muted)]">
-              结束日期
-              <input
-                className="h-12 rounded-2xl border border-[var(--app-border)] bg-white px-4 font-black text-[var(--app-text)] outline-none"
-                onChange={(event) => onChange({ ...value, endDate: event.target.value })}
-                type="date"
-                value={value.endDate ?? ""}
-              />
-            </label>
+            <DatePicker label="开始日期" value={value.startDate ?? ""} onChange={(startDate) => onChange({ ...value, startDate })} />
+            <DatePicker label="结束日期" value={value.endDate ?? ""} minDate={value.startDate} onChange={(endDate) => onChange({ ...value, endDate })} />
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3">
             <Button variant="secondary" onClick={onClose}>

@@ -23,6 +23,7 @@ import type {
   YearStats,
   StatsQueryOptions
 } from "@/types/stats";
+import { localDateKey, localMonthKey } from "@/utils/date";
 
 export interface CheckinUpdateInput {
   checkinTime?: string;
@@ -50,7 +51,7 @@ function queryPath(path: string, query: string) {
 }
 
 function currentMonth() {
-  return new Date().toISOString().slice(0, 7);
+  return localMonthKey();
 }
 
 function currentWeekRange(): StatsDateRange {
@@ -58,8 +59,8 @@ function currentWeekRange(): StatsDateRange {
   const start = new Date(end);
   start.setDate(end.getDate() - 6);
   return {
-    startDate: start.toISOString().slice(0, 10),
-    endDate: end.toISOString().slice(0, 10)
+    startDate: localDateKey(start),
+    endDate: localDateKey(end)
   };
 }
 
@@ -98,7 +99,7 @@ function todoScopedBundle(base: StatsBundle, sessions: RecentSession[], dateRang
   const completed = completedSessions(sorted);
   const abandoned = sorted.filter((session) => session.interrupted);
   const totalSeconds = completed.reduce((sum, session) => sum + sessionSeconds(session), 0);
-  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayKey = localDateKey();
   const todaySessions = sorted.filter((session) => session.startedAt.startsWith(todayKey));
   const todayCompleted = completedSessions(todaySessions);
   const todaySeconds = todayCompleted.reduce((sum, session) => sum + sessionSeconds(session), 0);

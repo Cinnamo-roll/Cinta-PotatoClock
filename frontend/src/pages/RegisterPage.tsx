@@ -18,10 +18,18 @@ export default function RegisterPage() {
   const setValue = (key: keyof typeof form, value: string) => setForm((current) => ({ ...current, [key]: value }));
 
   const validate = () => {
-    if (!form.username.trim()) return "用户名不能为空";
+    const username = form.username.trim();
+    const nickname = form.nickname.trim() || username;
+    const email = form.email.trim();
+    if (!username) return "用户名不能为空";
+    if (!/^[A-Za-z][A-Za-z0-9_]{2,19}$/.test(username)) return "用户名需为 3-20 位，以字母开头，只能包含字母、数字和下划线";
+    if (nickname.length > 20) return "昵称最多 20 个字符";
+    if (email.length > 100) return "邮箱最多 100 个字符";
     if (form.password.length < 6) return "密码至少 6 位";
+    if (form.password.length > 72) return "密码最多 72 位";
+    if (!/\S/.test(form.password)) return "密码不能全是空格";
     if (form.password !== form.confirmPassword) return "两次密码必须一致";
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "邮箱格式看起来不太对";
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "邮箱格式看起来不太对";
     return "";
   };
 
@@ -34,9 +42,9 @@ export default function RegisterPage() {
     }
     try {
       await register({
-        username: form.username,
-        nickname: form.nickname || form.username,
-        email: form.email || undefined,
+        username: form.username.trim(),
+        nickname: form.nickname.trim() || form.username.trim(),
+        email: form.email.trim() || undefined,
         password: form.password
       });
       toast({ title: "账号已创建", description: "去开始第一次专注吧", tone: "success" });
@@ -55,11 +63,11 @@ export default function RegisterPage() {
       </div>
       <Card className="mt-6">
         <form className="space-y-3" onSubmit={handleSubmit}>
-          <Input value={form.username} onChange={(event) => setValue("username", event.target.value)} placeholder="用户名" autoComplete="username" />
-          <Input value={form.nickname} onChange={(event) => setValue("nickname", event.target.value)} placeholder="昵称" />
-          <Input value={form.email} onChange={(event) => setValue("email", event.target.value)} placeholder="邮箱，可选" inputMode="email" />
-          <Input value={form.password} onChange={(event) => setValue("password", event.target.value)} placeholder="密码，至少 6 位" type="password" />
-          <Input value={form.confirmPassword} onChange={(event) => setValue("confirmPassword", event.target.value)} placeholder="确认密码" type="password" />
+          <Input value={form.username} onChange={(event) => setValue("username", event.target.value)} placeholder="用户名，3-20 位字母数字下划线" autoComplete="username" maxLength={20} />
+          <Input value={form.nickname} onChange={(event) => setValue("nickname", event.target.value)} placeholder="昵称，最多 20 字" maxLength={20} />
+          <Input value={form.email} onChange={(event) => setValue("email", event.target.value)} placeholder="邮箱，可选" inputMode="email" maxLength={100} />
+          <Input value={form.password} onChange={(event) => setValue("password", event.target.value)} placeholder="密码，6-72 位" type="password" maxLength={72} />
+          <Input value={form.confirmPassword} onChange={(event) => setValue("confirmPassword", event.target.value)} placeholder="确认密码" type="password" maxLength={72} />
           <Button className="w-full" disabled={isLoading} type="submit">
             {isLoading ? "正在种下..." : "注册"}
           </Button>

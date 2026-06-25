@@ -33,6 +33,7 @@ import { lightImpact, successFeedback } from "@/services/hapticsService";
 import { useTimerStore } from "@/stores/timerStore";
 import { useUiStore } from "@/stores/uiStore";
 import type { TodoCollection, TodoInput, TodoItem } from "@/types/todo";
+import { localDateKey } from "@/utils/date";
 import { isTodoCompleted, todayTodoMetrics } from "@/utils/todoMetrics";
 
 function sameIds(a: number[], b: number[]) {
@@ -57,7 +58,7 @@ function findNumericDatasetAt(clientX: number, clientY: number, selector: string
 }
 
 function dateInput(date: Date) {
-  return date.toISOString().slice(0, 10);
+  return localDateKey(date);
 }
 
 export default function CollectionsPage() {

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useTimerSessionsRangeQuery } from "@/hooks/useApiQueries";
 import type { TodoCollection, TodoItem } from "@/types/todo";
 import { cn } from "@/utils/cn";
+import { localDateKey } from "@/utils/date";
 import { deadlineText, targetProgress, todayTodoMetrics, todoStreak, todoTotalDays, totalTodoMetrics, weekHeat } from "@/utils/todoMetrics";
 
 interface TodoActionSheetProps {
@@ -19,7 +20,7 @@ interface TodoActionSheetProps {
 }
 
 function dateInput(date: Date) {
-  return date.toISOString().slice(0, 10);
+  return localDateKey(date);
 }
 
 function timerText(todo: TodoItem) {

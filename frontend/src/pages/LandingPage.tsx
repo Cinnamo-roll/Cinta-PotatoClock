@@ -38,18 +38,18 @@ const screenshots = [
 ];
 
 const softStats = [
-  ["10", "条 Flyway 迁移已校验"],
-  ["43", "个后端测试通过"],
-  ["2", "端安装包下载入口"],
-  ["1", "个统一官网域名"]
+  ["3", "种计时方式"],
+  ["5", "个常用页面"],
+  ["2", "端安装入口"],
+  ["1", "套柔和主题"]
 ];
 
 const faqs = [
   ["Android 可以直接安装 APK 吗？", "可以。下载 APK 后按系统提示允许安装即可，建议只从 clock.cinoo.xyz 下载。"],
-  ["iOS IPA 为什么不能直接点开安装？", "iOS IPA 需要自行签名，或后续通过 TestFlight / App Store 分发，不能像 Android APK 一样直接安装。"],
-  ["官网下载链接放在哪里？", "上线时把 APK 和 IPA 放到服务器项目目录的 downloads 文件夹，官网会通过 /downloads/... 提供下载。"],
-  ["数据保存在哪里？", "登录后的待办、专注记录、统计和设置都会通过后端 API 保存到 MySQL，Redis 用于缓存和登录辅助能力。"],
-  ["锁屏提醒可靠吗？", "App 端使用 Capacitor Local Notifications，比普通网页提醒可靠；用户仍需要在系统里授予通知权限。"]
+  ["iOS 可以怎么安装？", "当前提供 IPA 文件，适合已经具备签名或测试安装条件的用户使用。"],
+  ["数据会同步吗？", "登录后，待办、专注记录、统计和设置会同步保存，换设备也能继续使用。"],
+  ["提醒可靠吗？", "App 会使用系统本地通知提醒专注结束和未来计划，到点前请确认已经允许通知权限。"],
+  ["适合什么场景？", "学习、工作、阅读、运动、习惯养成和长期目标都可以用，重点是轻量记录，不制造额外压力。"]
 ];
 
 function toneClass(tone: string) {
@@ -114,7 +114,7 @@ export default function LandingPage() {
                 <ArrowRight size={18} />
               </a>
             </div>
-            <p className="relative z-10 mt-3 text-sm font-semibold text-[#8B7C84]">iOS IPA 需要自行签名或通过 TestFlight / App Store 分发。</p>
+            <p className="relative z-10 mt-3 text-sm font-semibold text-[#8B7C84]">iOS 版本需要完成签名后安装。</p>
 
             <div className="landing-phone-stage relative mt-12 flex w-full max-w-5xl items-end justify-center gap-4 overflow-hidden pb-5">
               <div className="landing-float hidden w-[185px] rotate-[-7deg] sm:block">
@@ -147,7 +147,7 @@ export default function LandingPage() {
               <p className="text-sm font-black text-[var(--app-primary-strong)]">APP 画面</p>
               <h2 className="mt-2 text-3xl font-black text-[#2E2730] sm:text-4xl">从待办到复盘，都有柔软的小界面</h2>
             </div>
-            <p className="max-w-md text-sm font-semibold leading-6 text-[#7E7179]">截图区补全了待办、新建、计时、统计、打卡、未来计划、设置和下载入口，用户进官网就能看懂 App 能做什么。</p>
+            <p className="max-w-md text-sm font-semibold leading-6 text-[#7E7179]">从创建任务到查看统计，主要流程都能在这里快速预览。</p>
           </div>
           <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {screenshots.map((shot, index) => (
@@ -185,7 +185,7 @@ export default function LandingPage() {
               <p className="text-sm font-black text-[#987238]">下载与安装</p>
               <h2 className="mt-2 text-3xl font-black text-[#2E2730] sm:text-4xl">官网统一提供 Android 和 iOS 安装包入口</h2>
               <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-[#716457]">
-                上线后把安装包放入服务器的 `downloads` 目录，用户即可从 `https://clock.cinoo.xyz/downloads/...` 下载。Android APK 可按系统提示安装；iOS IPA 需要签名或走 TestFlight / App Store。
+                选择你的设备版本下载安装。Android 用户下载 APK 后按系统提示完成安装；iOS 用户请使用已签名的 IPA 或适合自己的测试安装方式。
               </p>
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
                 <a className="group rounded-3xl border border-white/80 bg-white/78 p-5 shadow-[0_16px_34px_rgba(152,114,56,0.12)] transition hover:-translate-y-1" href={downloadLinks.androidApk}>
@@ -200,7 +200,7 @@ export default function LandingPage() {
                 <a className="group rounded-3xl border border-white/80 bg-white/78 p-5 shadow-[0_16px_34px_rgba(152,114,56,0.12)] transition hover:-translate-y-1" href={downloadLinks.iosIpa}>
                   <ShieldCheck className="text-[#987238]" size={28} />
                   <h3 className="mt-4 text-2xl font-black">iOS IPA</h3>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-[#716457]">需要自行签名，或后续接入 TestFlight / App Store。</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-[#716457]">适合已具备签名或测试安装条件的用户。</p>
                   <span className="mt-5 inline-flex items-center gap-2 font-black text-[#2E2730]">
                     下载 IPA
                     <ArrowRight className="transition group-hover:translate-x-1" size={18} />
@@ -228,8 +228,8 @@ export default function LandingPage() {
             </div>
             <div className="rounded-3xl bg-[#E8F3FF] p-6 text-[#2F506F] shadow-[0_18px_45px_rgba(61,111,156,0.12)]">
               <CheckCircle2 size={28} />
-              <h3 className="mt-4 text-2xl font-black">为上线准备</h3>
-              <p className="mt-3 text-sm font-semibold leading-7 text-[#4D6A84]">官网、下载、API、Docker、Caddy 反代和环境变量都按独立项目准备。</p>
+              <h3 className="mt-4 text-2xl font-black">随时开始</h3>
+              <p className="mt-3 text-sm font-semibold leading-7 text-[#4D6A84]">打开 App，写下眼前最小的一件事，剩下的交给计时和记录慢慢积累。</p>
             </div>
           </div>
         </section>
@@ -237,7 +237,7 @@ export default function LandingPage() {
         <section id="faq" className="bg-white/70 py-16">
           <div className="mx-auto max-w-4xl px-5">
             <p className="text-sm font-black text-[var(--app-primary-strong)]">FAQ</p>
-            <h2 className="mt-2 text-3xl font-black text-[#2E2730]">上线前常见问题</h2>
+            <h2 className="mt-2 text-3xl font-black text-[#2E2730]">常见问题</h2>
             <div className="mt-8 space-y-3">
               {faqs.map(([question, answer]) => (
                 <details key={question} className="group rounded-3xl border border-[#F1DDE5] bg-white p-5 shadow-[0_12px_28px_rgba(129,82,98,0.08)]">

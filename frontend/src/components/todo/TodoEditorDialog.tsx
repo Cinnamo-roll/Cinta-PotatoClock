@@ -1,10 +1,13 @@
 import { FormEvent, useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Check, X } from "lucide-react";
-import { Input } from "@/components/common/Input";
+import { DatePicker } from "@/components/common/DatePicker";
+import { Input, Textarea } from "@/components/common/Input";
+import { OptionPicker } from "@/components/common/OptionPicker";
 import { lightImpact } from "@/services/hapticsService";
 import type { TodoCategory, TodoInput, TodoItem, TimerType } from "@/types/todo";
 import { cn } from "@/utils/cn";
+import { isBeforeDateKey, localDateKey } from "@/utils/date";
 
 interface TodoEditorDialogProps {
   open: boolean;
@@ -26,6 +29,17 @@ const timerOptions: Array<{ value: TimerType; label: string }> = [
   { value: "none", label: "不计时" }
 ];
 
+const recurrenceOptions: Array<{ value: "每天" | "每周" | "每月"; label: string }> = [
+  { value: "每天", label: "每天" },
+  { value: "每周", label: "每周" },
+  { value: "每月", label: "每月" }
+];
+
+const targetUnitOptions: Array<{ value: "分钟" | "次"; label: string }> = [
+  { value: "分钟", label: "分钟" },
+  { value: "次", label: "次" }
+];
+
 const DEFAULT_BACKGROUND_STYLE = "default";
 
 export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpenChange, onSubmit }: TodoEditorDialogProps) {
@@ -36,9 +50,11 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
   const [countToStats, setCountToStats] = useState(true);
   const [note, setNote] = useState("");
   const [recurrence, setRecurrence] = useState<"每天" | "每周" | "每月">("每天");
-  const [targetAmount, setTargetAmount] = useState(25);
+  const [targetAmount, setTargetAmount] = useState("25");
   const [targetUnit, setTargetUnit] = useState<"分钟" | "次">("分钟");
   const [deadline, setDeadline] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dialogTitle = todo ? "编辑待办" : categoryOptions.find((item) => item.value === category)?.title ?? "添加待办";
 
@@ -50,9 +66,11 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
     setCountToStats(true);
     setNote("");
     setRecurrence("每天");
-    setTargetAmount(25);
+    setTargetAmount("25");
     setTargetUnit("分钟");
     setDeadline("");
+    setSubmitError("");
+    setIsSubmitting(false);
   };
 
   useEffect(() => {
@@ -68,19 +86,22 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
     setCountToStats(todo.countToStats ?? todo.includeInStats);
     setNote(todo.note ?? "");
     setRecurrence(todo.recurrence ?? "每天");
-    setTargetAmount(todo.timerType === "none" && todo.targetUnit !== "次" ? 1 : todo.targetAmount ?? (todo.timerType === "none" ? 1 : todo.durationMinutes || 25));
+    setTargetAmount(String(todo.timerType === "none" && todo.targetUnit !== "次" ? 1 : todo.targetAmount ?? (todo.timerType === "none" ? 1 : todo.durationMinutes || 25)));
     setTargetUnit(todo.timerType === "none" ? "次" : todo.targetUnit ?? "分钟");
     setDeadline(todo.deadline ?? "");
+    setSubmitError("");
+    setIsSubmitting(false);
   }, [open, todo]);
 
   const handleTimerChange = (value: TimerType) => {
     setTimerType(value);
+    setSubmitError("");
     if (value === "none") {
       setTargetUnit("次");
-      setTargetAmount(1);
+      setTargetAmount("1");
     } else if (targetUnit === "次") {
       setTargetUnit("分钟");
-      setTargetAmount(durationMinutes);
+      setTargetAmount(String(durationMinutes));
     }
     void lightImpact();
   };
@@ -89,8 +110,9 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
     setCategory(value);
     if (value !== "normal" && timerType === "none") {
       setTargetUnit("次");
-      setTargetAmount((amount) => Math.max(1, amount || 1));
+      setTargetAmount((amount) => String(Math.max(1, parsePositiveInt(amount, 1))));
     }
+    setSubmitError("");
     void lightImpact();
   };
 
@@ -98,30 +120,56 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
     if (!Number.isFinite(value)) return;
     const next = Math.max(1, Math.floor(value));
     setDurationMinutes(next);
-    if (targetUnit === "分钟" && (category === "habit" || category === "goal")) setTargetAmount(next);
+    if (targetUnit === "分钟" && (category === "habit" || category === "goal")) setTargetAmount(String(next));
+  };
+
+  const parsePositiveInt = (value: string, fallback = 1) => {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed)) return fallback;
+    return Math.max(1, Math.floor(parsed));
+  };
+
+  const handleTargetAmountChange = (value: string) => {
+    setTargetAmount(value.replace(/[^\d]/g, "").slice(0, 5));
   };
 
   const handleSubmit = async (event?: FormEvent) => {
     event?.preventDefault();
+    if (isSubmitting) return;
     const cleanTitle = title.trim();
-    if (!cleanTitle) return;
-    await onSubmit({
-      title: cleanTitle,
-      durationMinutes: timerType === "none" ? 0 : durationMinutes,
-      timerType,
-      category,
-      collectionId: todo ? todo.collectionId ?? null : defaultCollectionId,
-      backgroundStyle: DEFAULT_BACKGROUND_STYLE,
-      includeInStats: countToStats,
-      countToStats,
-      recurrence: category === "habit" ? recurrence : undefined,
-      targetAmount: category === "habit" || category === "goal" ? Math.max(1, Math.floor(targetAmount || 1)) : undefined,
-      targetUnit: category === "habit" || category === "goal" ? (timerType === "none" ? "次" : targetUnit) : undefined,
-      deadline: category === "goal" ? deadline : undefined,
-      note: note.trim()
-    });
-    reset();
-    onOpenChange(false);
+    if (!cleanTitle) {
+      setSubmitError("先写一个待办名称。");
+      return;
+    }
+    if (category === "goal" && deadline && isBeforeDateKey(deadline, localDateKey())) {
+      setSubmitError("截止日期不能早于今天。");
+      return;
+    }
+    setIsSubmitting(true);
+    setSubmitError("");
+    try {
+      await onSubmit({
+        title: cleanTitle,
+        durationMinutes: timerType === "countdown" ? durationMinutes : 0,
+        timerType,
+        category,
+        collectionId: todo ? todo.collectionId ?? null : defaultCollectionId,
+        backgroundStyle: DEFAULT_BACKGROUND_STYLE,
+        includeInStats: countToStats,
+        countToStats,
+        recurrence: category === "habit" ? recurrence : undefined,
+        targetAmount: category === "habit" || category === "goal" ? parsePositiveInt(targetAmount) : undefined,
+        targetUnit: category === "habit" || category === "goal" ? (timerType === "none" ? "次" : targetUnit) : undefined,
+        deadline: category === "goal" ? deadline || localDateKey() : undefined,
+        note: note.trim()
+      });
+      reset();
+      onOpenChange(false);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "保存失败，请稍后再试。");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -135,7 +183,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
                 <X size={18} />
               </Dialog.Close>
               <Dialog.Title className="text-lg font-black text-[var(--app-text)]">{dialogTitle}</Dialog.Title>
-              <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--app-primary)] text-white" type="submit" aria-label="保存">
+              <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--app-primary)] text-white disabled:opacity-60" type="submit" aria-label="保存" disabled={isSubmitting}>
                 <Check size={18} />
               </button>
             </div>
@@ -158,12 +206,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
             <div className="mt-4 space-y-3">
               <Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="待办名称" />
 
-              <textarea
-                className="min-h-20 w-full rounded-2xl border border-[var(--app-border)] bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-[var(--app-primary)]"
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="备注，可选"
-              />
+              <Textarea className="min-h-20" value={note} onChange={(event) => setNote(event.target.value)} placeholder="备注，可选" />
 
               <div>
                 <p className="mb-2 text-sm font-bold text-[var(--app-muted)]">计时方式</p>
@@ -184,7 +227,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
                 </div>
               </div>
 
-              {timerType !== "none" ? (
+              {timerType === "countdown" ? (
                 <div className="rounded-[22px] bg-[var(--app-primary-soft)] p-3">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <span className="text-sm font-bold text-[var(--app-muted)]">单次时长</span>
@@ -199,48 +242,29 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
 
               {category === "habit" ? (
                 <div className="space-y-3 rounded-[22px] bg-[var(--app-primary-soft)] p-3">
-                  <label className="flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-[var(--app-muted)]">
-                    习惯周期
-                    <select className="min-h-10 rounded-2xl bg-[var(--app-card)] px-3 text-[var(--app-text)]" value={recurrence} onChange={(event) => setRecurrence(event.target.value as "每天" | "每周" | "每月")}>
-                      <option>每天</option>
-                      <option>每周</option>
-                      <option>每月</option>
-                    </select>
-                  </label>
-                  <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-[var(--app-muted)]">
-                    计划完成
-                    <Input className="h-10 w-20 text-center" min={1} type="number" value={targetAmount} onChange={(event) => setTargetAmount(Number(event.target.value))} />
-                    <select
-                      className="min-h-10 rounded-2xl bg-[var(--app-card)] px-3 text-[var(--app-text)] disabled:opacity-70"
-                      value={timerType === "none" ? "次" : targetUnit}
-                      disabled={timerType === "none"}
-                      onChange={(event) => setTargetUnit(event.target.value as "分钟" | "次")}
-                    >
-                      <option>分钟</option>
-                      <option>次</option>
-                    </select>
+                  <div>
+                    <p className="mb-2 text-sm font-bold text-[var(--app-muted)]">习惯周期</p>
+                    <OptionPicker value={recurrence} options={recurrenceOptions} onChange={setRecurrence} ariaLabel="习惯周期" />
+                  </div>
+                  <div className="space-y-2 text-sm font-bold text-[var(--app-muted)]">
+                    <span>计划完成</span>
+                    <div className="grid grid-cols-[minmax(0,1fr)_minmax(126px,1.3fr)] gap-2">
+                      <Input className="h-10 text-center" inputMode="numeric" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
+                      <OptionPicker value={timerType === "none" ? "次" : targetUnit} options={targetUnitOptions} disabled={timerType === "none"} onChange={setTargetUnit} ariaLabel="计划单位" />
+                    </div>
                   </div>
                 </div>
               ) : null}
 
               {category === "goal" ? (
                 <div className="space-y-3 rounded-[22px] bg-[var(--app-primary-soft)] p-3">
-                  <label className="grid gap-1 text-sm font-bold text-[var(--app-muted)]">
-                    截止日期
-                    <Input className="h-10" type="date" value={deadline} onInput={(event) => setDeadline(event.currentTarget.value)} onChange={(event) => setDeadline(event.target.value)} />
-                  </label>
-                  <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-[var(--app-muted)]">
-                    总计划量
-                    <Input className="h-10 w-20 text-center" min={1} type="number" value={targetAmount} onChange={(event) => setTargetAmount(Number(event.target.value))} />
-                    <select
-                      className="min-h-10 rounded-2xl bg-[var(--app-card)] px-3 text-[var(--app-text)] disabled:opacity-70"
-                      value={timerType === "none" ? "次" : targetUnit}
-                      disabled={timerType === "none"}
-                      onChange={(event) => setTargetUnit(event.target.value as "分钟" | "次")}
-                    >
-                      <option>分钟</option>
-                      <option>次</option>
-                    </select>
+                  <DatePicker label="截止日期" value={deadline || localDateKey()} minDate={localDateKey()} onChange={setDeadline} />
+                  <div className="space-y-2 text-sm font-bold text-[var(--app-muted)]">
+                    <span>总计划量</span>
+                    <div className="grid grid-cols-[minmax(0,1fr)_minmax(126px,1.3fr)] gap-2">
+                      <Input className="h-10 text-center" inputMode="numeric" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
+                      <OptionPicker value={timerType === "none" ? "次" : targetUnit} options={targetUnitOptions} disabled={timerType === "none"} onChange={setTargetUnit} ariaLabel="目标单位" />
+                    </div>
                   </div>
                 </div>
               ) : null}
@@ -249,6 +273,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
                 计入统计
                 <input className="h-5 w-5 [accent-color:var(--app-primary)]" type="checkbox" checked={countToStats} onChange={(event) => setCountToStats(event.target.checked)} />
               </label>
+              {submitError ? <p className="rounded-2xl bg-[color-mix(in_srgb,var(--app-danger)_10%,var(--app-card))] px-3 py-2 text-sm font-bold text-[var(--app-danger)]">{submitError}</p> : null}
             </div>
           </form>
         </Dialog.Content>
