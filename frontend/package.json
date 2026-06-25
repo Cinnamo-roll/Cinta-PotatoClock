@@ -9,7 +9,7 @@
     "dev:app": "cross-env VITE_APP_TARGET=app vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "build:landing": "cross-env VITE_APP_TARGET=landing tsc -b && cross-env VITE_APP_TARGET=landing vite build",
-    "build:app": "cross-env VITE_APP_TARGET=app tsc -b && cross-env VITE_APP_TARGET=app vite build",
+    "build:app": "cross-env VITE_APP_TARGET=app VITE_API_BASE_URL=https://clock.cinoo.xyz/api VITE_USE_MOCK=false tsc -b && cross-env VITE_APP_TARGET=app VITE_API_BASE_URL=https://clock.cinoo.xyz/api VITE_USE_MOCK=false vite build",
     "preview": "vite preview --host 127.0.0.1",
     "cap:init": "cap init",
     "cap:sync": "pnpm build:app && cap sync",

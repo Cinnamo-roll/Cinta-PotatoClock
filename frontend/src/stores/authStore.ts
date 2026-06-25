@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { authApi } from "@/api/auth";
-import type { ChangePasswordRequest, LoginRequest, RegisterRequest, UpdateProfileRequest, User } from "@/types/auth";
+import type { ChangePasswordRequest, LoginRequest, LoginResponse, RegisterRequest, UpdateProfileRequest, User } from "@/types/auth";
 
 interface AuthState {
   token?: string;
@@ -16,6 +16,10 @@ interface AuthState {
   changePassword: (payload: ChangePasswordRequest) => Promise<void>;
 }
 
+function tokenFrom(result: LoginResponse) {
+  return result.accessToken;
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -27,7 +31,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const result = await authApi.login(payload);
-          set({ token: result.token, user: result.user, isAuthenticated: true, isLoading: false });
+          set({ token: tokenFrom(result), user: result.user, isAuthenticated: true, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -36,8 +40,9 @@ export const useAuthStore = create<AuthState>()(
       register: async (payload) => {
         set({ isLoading: true });
         try {
-          const result = await authApi.register(payload);
-          set({ token: result.token, user: result.user, isAuthenticated: true, isLoading: false });
+          await authApi.register(payload);
+          const result = await authApi.login({ username: payload.username, password: payload.password });
+          set({ token: tokenFrom(result), user: result.user, isAuthenticated: true, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
           throw error;

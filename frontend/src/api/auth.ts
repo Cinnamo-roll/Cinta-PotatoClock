@@ -6,7 +6,7 @@ export const authApi = {
   login: (payload: LoginRequest) =>
     useMockApi ? mockClient.login(payload) : http.post<never, LoginResponse>("/auth/login", payload),
   register: (payload: RegisterRequest) =>
-    useMockApi ? mockClient.register(payload) : http.post<never, LoginResponse>("/auth/register", payload),
+    useMockApi ? mockClient.register(payload) : http.post<never, User>("/auth/register", payload),
   logout: () => (useMockApi ? mockClient.logout() : http.post<never, void>("/auth/logout")),
   me: () => (useMockApi ? mockClient.me() : http.get<never, User>("/auth/me")),
   updateProfile: (payload: UpdateProfileRequest) =>

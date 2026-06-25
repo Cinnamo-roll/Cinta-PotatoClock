@@ -581,7 +581,7 @@ export const mockClient = {
   async login(payload: LoginRequest): Promise<LoginResponse> {
     if (!payload.username || !payload.password) throw new Error("登录失败啦，检查一下用户名或密码");
     const state = loadState();
-    return delay({ token: "mock-potato-token", user: state.user });
+    return delay({ accessToken: "mock-potato-token", tokenType: "Bearer", expiresIn: 86400, user: state.user });
   },
   async register(payload: RegisterRequest): Promise<LoginResponse> {
     if (!payload.username || payload.password.length < 6) throw new Error("账号信息还没填写完整");
@@ -593,7 +593,7 @@ export const mockClient = {
       email: payload.email
     };
     saveState(state);
-    return delay({ token: "mock-potato-token", user: state.user });
+    return delay({ accessToken: "mock-potato-token", tokenType: "Bearer", expiresIn: 86400, user: state.user });
   },
   async me(): Promise<User> {
     return delay(loadState().user);
