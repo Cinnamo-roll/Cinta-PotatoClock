@@ -38,19 +38,26 @@ jobs:
       - name: Sync Capacitor iOS project
         run: pnpm exec cap sync ios
 
+      - name: Show Xcode project info
+        run: |
+          xcodebuild \
+            -list \
+            -project ios/App/App.xcodeproj
+
       - name: Resolve Xcode packages
         run: |
           xcodebuild \
             -project ios/App/App.xcodeproj \
+            -scheme App \
             -resolvePackageDependencies
 
       - name: Build unsigned iOS app
         run: |
           xcodebuild \
             -project ios/App/App.xcodeproj \
-            -target App \
+            -scheme App \
             -configuration Release \
-            -sdk iphoneos \
+            -destination generic/platform=iOS \
             -derivedDataPath ios/build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
