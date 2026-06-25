@@ -90,7 +90,7 @@ export function PhoneMockup({ title, subtitle, variant = "list", compact = false
       <PhoneShell title={title} subtitle={subtitle} compact={compact}>
         <div className="mt-5 space-y-2">
           {[
-            [Palette, "主题颜色", "粉色土豆"],
+            [Palette, "主题颜色", "柔粉主题"],
             [Bell, "本地提醒", "已开启"],
             [TimerReset, "默认时长", "25 分钟"]
           ].map(([Icon, label, value]) => (

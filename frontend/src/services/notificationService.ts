@@ -100,7 +100,7 @@ export async function scheduleFocusEndNotification(params: { todoId: number; tod
     const timeoutMs = at.getTime() - Date.now();
     const timer = window.setTimeout(() => {
       webNotificationTimers.delete(key);
-      showWebNotification("土豆专注完成", `「${params.todoTitle}」到点了`);
+      showWebNotification("专注完成", `「${params.todoTitle}」到点了`);
     }, timeoutMs);
     webNotificationTimers.set(key, timer);
     return;
@@ -109,7 +109,7 @@ export async function scheduleFocusEndNotification(params: { todoId: number; tod
     notifications: [
       {
         id: focusNotificationId(params.todoId),
-        title: "土豆专注完成",
+        title: "专注完成",
         body: `「${params.todoTitle}」到点了，回来收个尾吧`,
         schedule: { at },
         sound: "default"

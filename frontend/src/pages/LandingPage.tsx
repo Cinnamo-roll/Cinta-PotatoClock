@@ -111,7 +111,7 @@ export default function LandingPage() {
                 <PhoneMockup title="今日待办" subtitle="3 件小事待开始" compact />
               </div>
               <div className="landing-float-delayed w-[230px] sm:w-[270px]">
-                <PhoneMockup title="专注计时" subtitle="土豆专注进行中" variant="timer" />
+                <PhoneMockup title="专注计时" subtitle="正在专注中" variant="timer" />
               </div>
               <div className="landing-float hidden w-[185px] rotate-[7deg] sm:block">
                 <PhoneMockup title="数据统计" subtitle="本月 28 次专注" variant="stats" compact />

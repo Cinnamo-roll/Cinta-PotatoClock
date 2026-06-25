@@ -1,61 +1,60 @@
 # 土豆时钟 Potato Clock
 
-土豆时钟是一个面向移动端和 Web 的专注管理应用，核心体验围绕待办、待办集、土豆专注计时、专注历史、统计分析、早起/睡前打卡、未来计划和本地提醒展开。项目采用前后端分离结构：`frontend/` 提供官网、移动端 Web App 与 Capacitor App 壳，`backend/` 提供 Spring Boot REST API、认证、数据持久化和上线运行能力。
+土豆时钟是一个面向移动端和 Web 的专注管理应用。它把待办、计时、统计、打卡和未来计划放在同一套体验里，让用户可以先确定今天要做什么，再开始一段不打扰的专注，并在结束后自然沉淀记录。
 
-## 当前状态
+本仓库采用前后端分离结构：
 
-- 前端 App 和官网已经支持独立构建：`build:app` 用于移动端应用，`build:landing` 用于官网。
-- 后端接口统一使用 `{"code":0,"message":"success","data":...}` 响应结构。
-- 专注记录相关命名统一为 `potato`：接口为 `/api/potato/sessions`，数据库表为 `potato_sessions`，任务字段为 `estimatedPotatoes` / `completedPotatoes`。
-- App 端使用 Capacitor Local Notifications 做本地提醒：待办倒计时结束会通知，未来计划到目标日会发一次普通通知。
-- 官网部署目标是 `clock.cinoo.xyz`，可展示产品介绍并提供 APK / IPA 下载入口。
+- `frontend/`：React + Vite + Capacitor，负责移动端 App、官网页面和安装包下载入口。
+- `backend/`：Spring Boot，负责认证、业务接口、数据持久化、统计和公开下载信息。
+- 根目录：生产部署编排、环境变量模板、Caddy 示例和阿里云部署说明。
+
+## 功能概览
+
+- 待办管理：普通待办、习惯、长期目标、待办集、排序和状态流转。
+- 专注计时：倒计时、正计时、不计时、暂停、继续、手动完成和放弃原因。
+- 记录与统计：今日、周、月、年、热力图、趋势图、任务排行和打断原因。
+- 打卡记录：早起、今日专注、睡前等日常记录。
+- 未来计划：重要日期倒计时，并在目标日发送一次普通提醒。
+- 移动端能力：Capacitor App、本地通知、震动反馈、主题与偏好存储。
+- 官网能力：品牌首页、功能截图、FAQ、APK/IPA 下载入口。
 
 ## 技术栈
 
-前端：
+| 层级 | 技术 |
+| --- | --- |
+| 前端 | React 19, TypeScript, Vite 7, React Router 7 |
+| 状态与请求 | Zustand, TanStack Query, Axios |
+| UI | Tailwind CSS, Radix UI, lucide-react, motion, Recharts |
+| 移动端 | Capacitor 8, Android, iOS, Local Notifications, Haptics |
+| 后端 | Java 21, Spring Boot 3.3, Spring Security, Spring Data JPA |
+| 数据 | MySQL 8, Redis, Flyway |
+| 文档与部署 | OpenAPI, Docker Compose, Nginx, Caddy |
 
-- React 19、TypeScript、Vite 7、React Router 7
-- Zustand、TanStack Query、Axios
-- Tailwind CSS、Radix Dialog/Tabs/Switch、lucide-react、motion、Recharts
-- Capacitor 8：Android、iOS、本地通知、震动、网络状态、偏好存储、状态栏、启动屏
-
-后端：
-
-- Java 21、Spring Boot 3.3
-- Spring Web、Spring Security、Spring Data JPA、Validation、Actuator
-- MySQL 8、Redis、Flyway
-- JWT、springdoc-openapi、Lombok
-- Maven、本地 `maven-settings.xml`
-
-部署：
-
-- Docker Compose
-- Nginx 前端静态站点和反向代理
-- Caddy 负责服务器统一入口、HTTPS 和多项目域名分流
-
-## 目录结构
+## 项目结构
 
 ```text
 .
-├── frontend/                 # React + Vite + Capacitor 前端
+├── frontend/                 # 前端、官网、Capacitor App
 ├── backend/                  # Spring Boot API 服务
-├── downloads/                # 官网下载文件挂载目录，APK/IPA 不提交
-├── docker-compose.prod.yml   # 生产环境编排示例
-├── Caddyfile.clock.example   # clock.cinoo.xyz 的 Caddy 配置示例
+├── downloads/                # 安装包挂载目录，正式 APK/IPA 不提交
+├── docker-compose.prod.yml   # 生产环境 Docker Compose
+├── Caddyfile.clock.example   # Caddy 站点配置示例
 ├── .env.production.example   # 生产环境变量模板
-├── DEPLOY_ALIYUN.md          # 阿里云 Docker 多项目部署指南
+├── DEPLOY_ALIYUN.md          # 阿里云部署说明
 └── README.md                 # 项目总览
 ```
 
-## 本地开发
+## 快速开始
 
-准备环境：
+环境要求：
 
-- Node.js 20+，推荐使用 Corepack 管理 pnpm
+- Node.js 20+
+- Corepack / pnpm 10+
 - Java 21
-- MySQL 8 和 Redis
+- MySQL 8
+- Redis
 
-前端：
+前端启动：
 
 ```bash
 cd frontend
@@ -63,67 +62,120 @@ corepack pnpm install
 corepack pnpm dev:app
 ```
 
-后端：
+后端启动：
 
 ```bash
 cd backend
 mvn -s maven-settings.xml spring-boot:run
 ```
 
-常用构建与验证：
+## 构建与测试
+
+前端 App 构建：
 
 ```bash
 cd frontend
 corepack pnpm build:app
-corepack pnpm build:landing
+```
 
-cd ../backend
+官网构建：
+
+```bash
+cd frontend
+corepack pnpm build:landing
+```
+
+后端测试：
+
+```bash
+cd backend
 mvn -s maven-settings.xml test
 ```
 
-## 前后端联调
+最近一次验证结果：
 
-前端通过 `frontend/src/api/http.ts` 统一处理 API 请求。开发时可以使用 mock，也可以接真实后端：
+- `corepack pnpm build:app` 通过
+- `corepack pnpm build:landing` 通过
+- `mvn -s maven-settings.xml test` 通过，43 个测试成功
 
-- `VITE_USE_MOCK=true`：使用前端 mock 数据。
-- `VITE_USE_MOCK=false`：请求后端 `/api`。
-- `VITE_API_BASE_URL=/api`：生产环境由 Nginx 反代到后端容器。
+## 环境变量
 
-后端默认允许本地 Vite、官网域名和 Capacitor 常见来源，配置项为 `CORS_ALLOWED_ORIGINS`。
+生产环境以根目录 `.env.production.example` 为模板，复制为 `.env.production` 后填写真实值。不要提交 `.env.production`、数据库密码、JWT 密钥和正式安装包。
 
-## 核心功能
+关键变量：
 
-- 待办管理：普通待办、习惯、长期目标、待办集、排序、完成状态。
-- 土豆专注：倒计时、正计时、手动完成、暂停、放弃原因、专注记录。
-- 统计分析：今日、周、月、年、日历、打断原因、时段分布、待办维度统计。
-- 打卡：早起、睡前、今日专注等记录，支持笔记和统计图表。
-- 未来计划：目标日期倒计时，到点发送普通本地通知。
-- 设置和账户：主题、声音、震动、通知偏好、用户信息和密码。
-- 官网：产品介绍、功能截图、下载入口、FAQ 和部署下载路径。
+```env
+MYSQL_DATABASE=potato_clock
+MYSQL_USER=potato_clock
+MYSQL_PASSWORD=<strong_password>
+MYSQL_ROOT_PASSWORD=<strong_root_password>
+JWT_SECRET=<at_least_32_chars_secret>
+CORS_ALLOWED_ORIGINS=https://clock.cinoo.xyz,capacitor://localhost,ionic://localhost,http://localhost,https://localhost
+VITE_APP_TARGET=landing
+VITE_API_BASE_URL=/api
+VITE_USE_MOCK=false
+```
 
-## 通知能力说明
+## 接口与命名约定
 
-当前 App 端依赖 Capacitor Local Notifications：
+后端统一返回：
 
-- 待办倒计时结束：发送本地通知，标题为“土豆专注完成”，正文包含待办标题。
-- 未来计划到点：在目标日 09:00 发送一次普通本地通知。
-- 网页端：浏览器支持 Notification API 时使用普通网页通知。
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {}
+}
+```
 
-当前实现不包含 iOS ActivityKit，因此不能保证锁屏实时倒计时或灵动岛实时更新。要实现灵动岛/锁屏 Live Activity，需要后续新增 iOS 原生能力或可靠的 Capacitor 插件，并补充原生端调试。
+专注记录的技术命名统一为 `potato`：
 
-## 部署入口
+- API：`/api/potato/sessions`
+- 兼容别名：`/api/sessions`
+- 数据表：`potato_sessions`
+- 前端类型：`PotatoSession`
+- 任务计数字段：`estimatedPotatoes`、`completedPotatoes`
 
-上线准备文件已经放在根目录：
+用户界面不刻意重复品牌名，普通操作提示以“专注完成”“未来计划到点”“资料已更新”等自然表达为主。
 
-- `docker-compose.prod.yml`：MySQL、Redis、后端、官网 Nginx。
-- `.env.production.example`：生产变量模板，复制为 `.env.production` 后填写强密码和域名。
-- `Caddyfile.clock.example`：挂到现有 Caddy 的站点配置示例。
-- `downloads/README.md`：APK / IPA 文件命名与下载路径说明。
-- `DEPLOY_ALIYUN.md`：从服务器准备到发布验证的完整步骤。
+## 通知能力
 
-## 验证记录
+当前使用 Capacitor Local Notifications：
 
-最近一次本地验证：
+- 待办倒计时结束：发送普通本地通知，标题为“专注完成”，正文包含待办标题。
+- 未来计划到点：目标日 09:00 发送一次普通本地通知。
+- Web 环境：浏览器支持 Notification API 时使用普通网页通知。
 
-- `corepack pnpm build:app`
-- `mvn -s maven-settings.xml test`
+当前版本没有接入 iOS ActivityKit，因此不提供灵动岛或锁屏 Live Activity 实时倒计时。后续如需该能力，需要新增 iOS 原生实现并在真机验证。
+
+## 部署
+
+根目录已经提供生产部署所需文件：
+
+- `docker-compose.prod.yml`：MySQL、Redis、后端和官网 Nginx。
+- `frontend/nginx.conf`：官网静态资源、下载目录和 `/api` 反向代理。
+- `Caddyfile.clock.example`：多项目服务器上的 `clock.cinoo.xyz` 配置示例。
+- `DEPLOY_ALIYUN.md`：阿里云 Docker 多项目部署步骤。
+
+部署流程简述：
+
+1. 配置 DNS，将 `clock.cinoo.xyz` 指向服务器公网 IP。
+2. 在服务器准备 Docker、Docker Compose、Caddy 和外部 `proxy` 网络。
+3. 克隆仓库，复制并填写 `.env.production`。
+4. 将 APK/IPA 放入 `downloads/`。
+5. 执行 `docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build`。
+6. 配置 Caddy 并访问 `https://clock.cinoo.xyz` 验证。
+
+## 维护建议
+
+- 修改前端体验后运行 `corepack pnpm build:app`。
+- 修改官网后运行 `corepack pnpm build:landing`。
+- 修改后端、数据库迁移或接口契约后运行 `mvn -s maven-settings.xml test`。
+- 修改通知相关逻辑后，需要在 Android/iOS 真机验证权限弹窗、前后台通知和系统设置行为。
+- 已执行过的 Flyway 迁移不要直接改动；生产库迁移失败时先检查 `flyway_schema_history`。
+
+## 相关文档
+
+- [前端说明](frontend/README.md)
+- [后端说明](backend/README.md)
+- [阿里云部署说明](DEPLOY_ALIYUN.md)

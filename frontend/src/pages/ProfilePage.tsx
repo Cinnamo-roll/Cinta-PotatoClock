@@ -163,7 +163,7 @@ export default function ProfilePage() {
   const feedbackHref = `mailto:${feedbackEmail}?subject=${encodeURIComponent("土豆时钟反馈")}`;
   const openOfficialSite = () => {
     toast({
-      title: "正在打开土豆时钟官网",
+      title: "正在打开官网",
       description: "会跳到手机浏览器，App 会留在当前页面。",
       durationMs: 3600
     });
@@ -187,7 +187,7 @@ export default function ProfilePage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-black text-[var(--app-primary-strong)]">我的账号</p>
-              <h1 className="mt-1 truncate text-xl font-black text-[var(--app-text)]">{user?.nickname || user?.username || "土豆用户"}</h1>
+              <h1 className="mt-1 truncate text-xl font-black text-[var(--app-text)]">{user?.nickname || user?.username || "未命名用户"}</h1>
               <p className="mt-1 truncate text-sm font-semibold text-[var(--app-muted)]">@{user?.username || "potato"}</p>
             </div>
             <button className="app-header-button" onClick={() => setProfileOpen(true)} aria-label="快速编辑资料" type="button">
@@ -223,7 +223,7 @@ export default function ProfilePage() {
           <div className="px-4 pb-2 pt-4">
             <h2 className="text-sm font-black text-[var(--app-text)]">关于与帮助</h2>
           </div>
-          <SettingRow icon={<Globe2 size={19} />} title="关于我们" description="用手机浏览器打开土豆时钟官网，App 会保持在当前页面。" onClick={openOfficialSite} />
+          <SettingRow icon={<Globe2 size={19} />} title="关于我们" description="用手机浏览器打开官网，App 会保持在当前页面。" onClick={openOfficialSite} />
           <Divider />
           <SettingRow icon={<HelpCircle size={19} />} title="使用说明" description="更完整的操作说明会在后续版本补充。" />
           <Divider />
