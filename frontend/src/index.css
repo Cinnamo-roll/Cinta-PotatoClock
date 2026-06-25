@@ -50,6 +50,24 @@ body {
   color: var(--app-text);
 }
 
+html.landing-scroll-root {
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto;
+}
+
+html.landing-scroll-root body,
+html.landing-scroll-root #root {
+  height: auto;
+  min-height: 100%;
+  overflow-y: visible;
+}
+
+body.landing-scroll-body {
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
 .dark body {
   background:
     linear-gradient(150deg, color-mix(in srgb, var(--app-bg) 92%, var(--app-card) 8%) 0%, color-mix(in srgb, var(--app-bg-soft) 68%, var(--app-card) 32%) 48%, color-mix(in srgb, var(--app-card) 76%, var(--app-primary-soft) 24%) 100%),

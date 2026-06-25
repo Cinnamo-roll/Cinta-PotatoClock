@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   ArrowRight,
   Bell,
@@ -59,8 +60,17 @@ function toneClass(tone: string) {
 }
 
 export default function LandingPage() {
+  useEffect(() => {
+    document.documentElement.classList.add("landing-scroll-root");
+    document.body.classList.add("landing-scroll-body");
+    return () => {
+      document.documentElement.classList.remove("landing-scroll-root");
+      document.body.classList.remove("landing-scroll-body");
+    };
+  }, []);
+
   return (
-    <div className="landing-page app-scroll h-dvh overflow-x-hidden overflow-y-auto bg-[#fff8fb] text-[var(--app-text)]">
+    <div className="landing-page min-h-dvh overflow-x-hidden bg-[#fff8fb] text-[var(--app-text)]">
       <header className="sticky top-0 z-40 border-b border-white/70 bg-white/78 backdrop-blur-2xl">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
           <a className="flex items-center gap-2 text-base font-black" href="#top" aria-label="土豆时钟首页">

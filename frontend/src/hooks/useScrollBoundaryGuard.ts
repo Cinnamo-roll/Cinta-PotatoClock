@@ -18,8 +18,10 @@ function scrollInsideBoundary(element: HTMLElement, deltaY: number) {
   element.scrollTop = Math.min(Math.max(element.scrollTop - deltaY, 0), maxTop);
 }
 
-export function useScrollBoundaryGuard(selector = DEFAULT_SELECTOR) {
+export function useScrollBoundaryGuard(selector = DEFAULT_SELECTOR, enabled = true) {
   useEffect(() => {
+    if (!enabled) return;
+
     let activeElement: HTMLElement | null = null;
     let activeModal: HTMLElement | null = null;
     let lastX = 0;
@@ -92,5 +94,5 @@ export function useScrollBoundaryGuard(selector = DEFAULT_SELECTOR) {
       document.removeEventListener("touchend", handleTouchEnd, { capture: true });
       document.removeEventListener("touchcancel", handleTouchEnd, { capture: true });
     };
-  }, [selector]);
+  }, [enabled, selector]);
 }

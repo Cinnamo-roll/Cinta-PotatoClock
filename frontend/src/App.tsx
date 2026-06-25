@@ -13,7 +13,7 @@ import { isLandingTarget } from "@/utils/env";
 export default function App() {
   const applyTheme = useSettingsStore((state) => state.applyTheme);
   const applyAppTheme = useThemeStore((state) => state.applyTheme);
-  useScrollBoundaryGuard();
+  useScrollBoundaryGuard(undefined, !isLandingTarget);
 
   useEffect(() => {
     if (isLandingTarget) return;
