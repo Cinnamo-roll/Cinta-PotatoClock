@@ -1,0 +1,4 @@
+clock.cinoo.xyz {
+    encode gzip
+    reverse_proxy clock-potato-clock:80
+}

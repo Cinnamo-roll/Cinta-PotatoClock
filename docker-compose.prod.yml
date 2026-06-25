@@ -1,0 +1,100 @@
+services:
+  mysql:
+    image: mysql:8.3
+    container_name: potato-clock-mysql
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-clock}
+      MYSQL_USER: ${MYSQL_USER:-clock_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-clock_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change_this_root_password}
+      TZ: Asia/Shanghai
+    expose:
+      - "3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER:-clock_user}", "-p${MYSQL_PASSWORD:-clock_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - potato-clock-internal
+
+  redis:
+    image: redis:7-alpine
+    container_name: potato-clock-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - potato-clock-internal
+
+  backend:
+    build:
+      context: ./backend
+    container_name: potato-clock-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    environment:
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: prod
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    expose:
+      - "8080"
+    networks:
+      - potato-clock-internal
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_APP_TARGET: landing
+        VITE_API_BASE_URL: /api
+        VITE_USE_MOCK: "false"
+        VITE_ANDROID_APK_URL: /downloads/tudou-clock.apk
+        VITE_IOS_IPA_URL: /downloads/tudou-clock.ipa
+        VITE_TESTFLIGHT_URL: ${APP_TESTFLIGHT_URL:-}
+        VITE_APP_STORE_URL: ${APP_STORE_URL:-}
+    container_name: potato-clock-nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+    expose:
+      - "80"
+    volumes:
+      - ./downloads:/usr/share/nginx/html/downloads:ro
+    networks:
+      potato-clock-internal:
+      proxy:
+        aliases:
+          - clock-potato-clock
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  potato-clock-internal:
+    name: potato-clock-internal
+  proxy:
+    external: true

@@ -1,0 +1,105 @@
+import confetti from "canvas-confetti";
+import { useState } from "react";
+import { statsApi } from "@/api/stats";
+import { useCreateCheckinMutation } from "@/hooks/useApiQueries";
+import { buildCheckinPayload, buildCheckinToast, checkinFailureHint, checkinNeedsNote, checkinWindowError, checkinWindowHint, type CheckinLineLike, type CheckinType } from "@/services/checkinService";
+import { lightImpact, successFeedback } from "@/services/hapticsService";
+import { useUiStore } from "@/stores/uiStore";
+
+function pad(value: number) {
+  return String(value).padStart(2, "0");
+}
+
+function monthKey(date: Date) {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
+}
+
+function previousMonthKey(date: Date) {
+  return monthKey(new Date(date.getFullYear(), date.getMonth() - 1, 1));
+}
+
+function celebrateCheckin(type: CheckinType) {
+  void successFeedback();
+  const x = type === "sleep" ? 0.72 : type === "wakeup" ? 0.28 : 0.5;
+  confetti({
+    colors: ["#F6AFC3", "#E8F7EF", "#ffffff", "#FFD7A8"],
+    origin: { x, y: 0.2 },
+    particleCount: type === "focus_today" ? 72 : 52,
+    scalar: 0.82,
+    spread: 58,
+    startVelocity: 34,
+    ticks: 120
+  });
+}
+
+async function checkinLineItems(type: CheckinType, date: Date): Promise<CheckinLineLike[]> {
+  if (type === "focus_today") return [];
+  const lineRequest = type === "wakeup" ? statsApi.wakeupLine : statsApi.sleepLine;
+  const [previous, current] = await Promise.all([lineRequest(previousMonthKey(date)), lineRequest(monthKey(date))]);
+  return [...previous, ...current];
+}
+
+export function useQuickCheckin() {
+  const createCheckin = useCreateCheckinMutation();
+  const toast = useUiStore((state) => state.toast);
+  const [noteType, setNoteType] = useState<CheckinType | null>(null);
+
+  const quickToast = (title: string, tone: "success" | "error" = "success", description?: string, durationMs?: number) => {
+    void lightImpact();
+    toast({ title, description, tone, durationMs });
+  };
+
+  const submitCheckin = async (type: CheckinType, note?: string) => {
+    const checkinDate = new Date();
+    const windowError = checkinWindowError(type, checkinDate);
+    if (windowError) {
+      quickToast(windowError, "error", checkinWindowHint(type), 8000);
+      return;
+    }
+
+    try {
+      await createCheckin.mutateAsync(buildCheckinPayload(type, checkinDate, note));
+      let lineItems: CheckinLineLike[] = [];
+      try {
+        lineItems = await checkinLineItems(type, checkinDate);
+      } catch {
+        lineItems = [];
+      }
+      const message = await buildCheckinToast(type, checkinDate, lineItems, note);
+      celebrateCheckin(type);
+      quickToast(message.title, "success", message.description, 12000);
+    } catch (error) {
+      const message = checkinFailureHint(type, error instanceof Error ? error.message : undefined);
+      quickToast(message.title, "error", message.description, 8000);
+    }
+  };
+
+  const startQuickCheckin = (type: CheckinType) => {
+    const checkinDate = new Date();
+    const windowError = checkinWindowError(type, checkinDate);
+    if (windowError) {
+      quickToast(windowError, "error", checkinWindowHint(type), 8000);
+      return;
+    }
+    if (checkinNeedsNote(type)) {
+      setNoteType(type);
+      return;
+    }
+    void submitCheckin(type);
+  };
+
+  const submitNoteCheckin = (note: string) => {
+    if (!noteType) return;
+    const type = noteType;
+    setNoteType(null);
+    void submitCheckin(type, note);
+  };
+
+  return {
+    noteType,
+    noteSubmitting: createCheckin.isPending,
+    closeNoteDialog: () => setNoteType(null),
+    startQuickCheckin,
+    submitNoteCheckin
+  };
+}

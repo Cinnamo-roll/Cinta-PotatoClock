@@ -1,0 +1,417 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --safe-bottom: env(safe-area-inset-bottom);
+  --app-bg: #FFF7FA;
+  --app-bg-soft: #FFEAF2;
+  --app-card: #FFFFFF;
+  --app-card-soft: #FFF0F6;
+  --app-primary: #F58CB2;
+  --app-primary-soft: #FFE1EC;
+  --app-primary-strong: #E86C9B;
+  --app-text: #28242B;
+  --app-muted: #8D7F88;
+  --app-border: #F3D9E3;
+  --app-success: #22C55E;
+  --app-danger: #EF4444;
+}
+
+.dark {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  overflow-x: hidden;
+  background:
+    linear-gradient(150deg, color-mix(in srgb, var(--app-bg) 92%, var(--app-card) 8%) 0%, color-mix(in srgb, var(--app-bg-soft) 68%, var(--app-card) 32%) 48%, color-mix(in srgb, var(--app-card) 76%, var(--app-primary-soft) 24%) 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--app-success) 7%, transparent) 0%, transparent 42%, color-mix(in srgb, var(--app-primary) 8%, transparent) 100%);
+  color: var(--app-text);
+}
+
+.dark body {
+  background:
+    linear-gradient(150deg, color-mix(in srgb, var(--app-bg) 92%, var(--app-card) 8%) 0%, color-mix(in srgb, var(--app-bg-soft) 68%, var(--app-card) 32%) 48%, color-mix(in srgb, var(--app-card) 76%, var(--app-primary-soft) 24%) 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--app-success) 7%, transparent) 0%, transparent 42%, color-mix(in srgb, var(--app-primary) 8%, transparent) 100%);
+  color: var(--app-text);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  border: 0;
+  background-color: transparent;
+  background-clip: padding-box;
+  color: inherit;
+}
+
+.potato-bg {
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--app-bg) 86%, var(--app-card) 14%) 0%, color-mix(in srgb, var(--app-bg-soft) 72%, var(--app-card) 28%) 58%, color-mix(in srgb, var(--app-card) 78%, var(--app-primary-soft) 22%) 100%);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.app-scroll {
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-modal-scroll {
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-modal-scroll * {
+  min-width: 0;
+}
+
+@keyframes app-dialog-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 10px)) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes app-sheet-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-dialog-panel {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  max-height: 90vh;
+  transform: translate(-50%, -50%);
+  overflow-y: auto;
+  border: 1px solid var(--app-border);
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--app-card) 94%, transparent) 0%, color-mix(in srgb, var(--app-card) 82%, var(--app-primary-soft) 18%) 100%);
+  color: var(--app-text);
+  box-shadow:
+    0 18px 46px color-mix(in srgb, var(--app-primary) 16%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--app-card) 88%, transparent);
+  outline: none;
+  animation: app-dialog-enter 180ms ease-out;
+}
+
+.app-sheet-panel {
+  animation: app-sheet-enter 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.app-screen-bg {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--app-primary) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(180deg, color-mix(in srgb, var(--app-card) 26%, transparent) 0%, transparent 44%),
+    linear-gradient(150deg, color-mix(in srgb, var(--app-bg) 88%, var(--app-card) 12%) 0%, color-mix(in srgb, var(--app-bg-soft) 58%, var(--app-card) 42%) 48%, color-mix(in srgb, var(--app-card) 76%, var(--app-primary-soft) 24%) 100%);
+  background-size: 30px 30px, 100% 100%, 100% 100%;
+}
+
+.app-page-header {
+  position: relative;
+  margin: -0.75rem -1rem 0;
+  overflow: visible;
+  padding: 0.92rem 1rem 0.98rem;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--app-card) 88%, transparent) 0%, color-mix(in srgb, var(--app-card) 66%, var(--app-primary-soft) 34%) 62%, color-mix(in srgb, var(--app-bg-soft) 72%, var(--app-card) 28%) 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--app-primary) 5%, transparent) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px;
+  border-bottom: 1px solid color-mix(in srgb, var(--app-border) 58%, transparent);
+  box-shadow:
+    0 10px 30px color-mix(in srgb, var(--app-primary) 9%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--app-card) 72%, transparent);
+  backdrop-filter: blur(18px) saturate(1.25);
+}
+
+.app-page-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, transparent 0 62%, color-mix(in srgb, var(--app-card) 30%, transparent) 62% 70%, transparent 70%),
+    linear-gradient(90deg, transparent 0 72%, color-mix(in srgb, var(--app-success) 7%, transparent) 72% 100%);
+  opacity: 0.68;
+}
+
+.app-page-header::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 0;
+  height: 42%;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--app-card) 42%, transparent));
+  pointer-events: none;
+}
+
+.app-page-title {
+  color: color-mix(in srgb, var(--app-text) 88%, var(--app-primary-strong) 12%);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--app-card) 70%, transparent);
+}
+
+.app-brand-title {
+  color: color-mix(in srgb, var(--app-text) 74%, var(--app-primary-strong) 26%);
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--app-card) 82%, transparent),
+    0 10px 24px color-mix(in srgb, var(--app-primary) 14%, transparent);
+}
+
+.app-brand-subtitle {
+  color: color-mix(in srgb, var(--app-muted) 86%, var(--app-primary-strong) 14%);
+}
+
+.app-page-header-icon {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--app-border) 72%, transparent);
+  background: color-mix(in srgb, var(--app-card) 76%, var(--app-primary-soft) 24%);
+  background-clip: padding-box;
+  color: var(--app-primary-strong);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--app-primary) 11%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.app-header-button {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--app-border) 72%, transparent);
+  background: color-mix(in srgb, var(--app-card) 78%, var(--app-primary-soft) 22%);
+  background-clip: padding-box;
+  color: var(--app-primary-strong);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--app-primary) 10%, transparent);
+  backdrop-filter: blur(18px);
+  transition: transform 150ms ease, background 150ms ease;
+}
+
+.app-header-button:active {
+  transform: scale(0.95);
+}
+
+.app-quick-menu {
+  border: 1px solid color-mix(in srgb, var(--app-border) 72%, transparent);
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--app-card) 90%, transparent), color-mix(in srgb, var(--app-card) 76%, var(--app-primary-soft) 24%));
+  box-shadow:
+    0 14px 38px color-mix(in srgb, var(--app-primary) 15%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--app-card) 90%, transparent);
+  backdrop-filter: blur(22px);
+}
+
+.app-surface-card {
+  background:
+    linear-gradient(165deg, color-mix(in srgb, var(--app-card) 94%, transparent) 0%, color-mix(in srgb, var(--app-card) 84%, var(--app-bg-soft) 16%) 58%, color-mix(in srgb, var(--app-card) 74%, var(--app-primary-soft) 26%) 100%);
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--app-primary) 8%, transparent),
+    0 2px 10px color-mix(in srgb, var(--app-text) 4%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--app-card) 92%, transparent);
+  backdrop-filter: blur(18px) saturate(1.18);
+}
+
+.app-metric-tile {
+  border: 1px solid color-mix(in srgb, var(--app-border) 48%, transparent);
+  background:
+    linear-gradient(155deg, color-mix(in srgb, var(--app-card) 70%, transparent), color-mix(in srgb, var(--app-card-soft) 78%, var(--app-card) 22%));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--app-card) 76%, transparent);
+}
+
+.app-button-primary {
+  border: 0;
+  background: var(--app-primary);
+  background-clip: padding-box;
+  color: var(--app-text);
+  box-shadow:
+    0 8px 18px color-mix(in srgb, var(--app-primary) 18%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--app-card) 36%, transparent);
+}
+
+.app-button-secondary {
+  border: 1px solid color-mix(in srgb, var(--app-border) 70%, transparent);
+  background: color-mix(in srgb, var(--app-primary-soft) 78%, var(--app-card) 22%);
+  background-clip: padding-box;
+  color: var(--app-primary-strong);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--app-primary) 7%, transparent);
+}
+
+.app-button-danger {
+  border: 0;
+  background: var(--app-danger);
+  background-clip: padding-box;
+  color: white;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--app-danger) 18%, transparent);
+}
+
+.app-bottom-nav-surface {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--app-card) 84%, var(--app-primary-soft) 16%) 0%,
+    color-mix(in srgb, var(--app-card) 62%, var(--app-primary-soft) 38%) 100%
+  );
+  box-shadow:
+    0 12px 34px color-mix(in srgb, var(--app-primary) 14%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--app-card) 92%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--app-primary) 14%, transparent);
+  backdrop-filter: blur(22px) saturate(1.5);
+}
+
+.app-bottom-nav-sheen {
+  background: color-mix(in srgb, var(--app-card) 28%, transparent);
+}
+
+.app-bottom-nav-icon-glow {
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--app-primary-soft) 76%, var(--app-card) 24%) 0%,
+    color-mix(in srgb, var(--app-primary-soft) 46%, transparent) 64%,
+    transparent 100%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--app-card) 90%, transparent),
+    0 7px 16px color-mix(in srgb, var(--app-primary) 16%, transparent);
+}
+
+@keyframes landing-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--phone-rotate, 0deg));
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(var(--phone-rotate, 0deg));
+  }
+}
+
+@keyframes landing-shot-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.landing-page {
+  scroll-behavior: smooth;
+}
+
+.landing-hero {
+  min-height: calc(100svh - 4rem);
+  background:
+    linear-gradient(135deg, rgba(255, 248, 251, 0.92), rgba(255, 225, 236, 0.62) 38%, rgba(232, 243, 255, 0.58) 72%, rgba(231, 245, 236, 0.72)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0));
+}
+
+.landing-grid {
+  background:
+    linear-gradient(90deg, rgba(129, 82, 98, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(129, 82, 98, 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.88), transparent 86%);
+}
+
+.landing-phone {
+  transform: translateZ(0);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.landing-phone:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 46px rgba(129, 82, 98, 0.18);
+}
+
+.landing-phone-stage {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.landing-float {
+  --phone-rotate: 0deg;
+  animation: landing-float 5.6s ease-in-out infinite;
+}
+
+.landing-float-delayed {
+  --phone-rotate: 0deg;
+  animation: landing-float 6.2s ease-in-out infinite;
+  animation-delay: 450ms;
+}
+
+.landing-shot {
+  animation: landing-shot-in 520ms ease both;
+}
+
+.text-balance {
+  text-wrap: balance;
+}

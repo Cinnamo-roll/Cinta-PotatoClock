@@ -1,0 +1,34 @@
+# Dependencies and package manager cache
+frontend/node_modules
+.pnpm-store
+
+# Build outputs
+frontend/dist
+backend/target
+*.tsbuildinfo
+
+# Local repositories and generated caches
+backend/maven-repo
+
+# Local environment files
+frontend/.env.local
+backend/.env
+.env.production
+
+# Release binaries uploaded to the server manually
+downloads/*.apk
+downloads/*.ipa
+
+# Logs
+*.log
+*.err.log
+
+# IDE and local agent metadata
+.idea
+backend/.idea
+.codex
+.agents
+
+# OS files
+.DS_Store
+Thumbs.db
