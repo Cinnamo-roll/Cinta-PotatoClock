@@ -74,8 +74,8 @@ export default function LandingPage() {
       <header className="sticky top-0 z-40 border-b border-white/70 bg-white/78 backdrop-blur-2xl">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
           <a className="flex items-center gap-2 text-base font-black" href="#top" aria-label="土豆时钟首页">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFE1EC] text-lg shadow-[0_8px_18px_rgba(245,140,178,0.18)]">豆</span>
-            <span>土豆时钟</span>
+            <img className="h-9 w-9 rounded-[22%] shadow-[0_8px_18px_rgba(152,114,56,0.18)]" src="/icons/app-icon-64.png" alt="" aria-hidden="true" />
+            <span>土豆时钟ToDo</span>
           </a>
           <div className="hidden items-center gap-6 text-sm font-bold text-[var(--app-muted)] sm:flex">
             <a className="transition hover:text-[var(--app-text)]" href="#screenshots">截图</a>
@@ -99,7 +99,7 @@ export default function LandingPage() {
               把今天切成更容易开始的一小块
             </div>
             <h1 className="relative z-10 mt-6 max-w-4xl text-balance text-5xl font-black leading-[1.05] text-[#2E2730] sm:text-6xl lg:text-7xl">
-              土豆时钟
+              土豆时钟ToDo
             </h1>
             <p className="relative z-10 mt-5 max-w-2xl text-balance text-lg font-bold leading-8 text-[#6F626B] sm:text-xl">
               一个可爱但不打扰的待办式专注工具。写下任务，开始计时，留下记录，再温柔地复盘自己的投入。
@@ -257,7 +257,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-[#F1DDE5] bg-[#2F2931] px-5 py-8 text-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 text-sm font-bold text-white/70 sm:flex-row sm:items-center sm:justify-between">
-          <p>土豆时钟 · clock.cinoo.xyz</p>
+          <p>土豆时钟ToDo · clock.cinoo.xyz</p>
           <div className="flex flex-wrap gap-4">
             <a href="#top">回到顶部</a>
             <a href="#download">下载 App</a>

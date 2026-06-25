@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">土豆时钟</string>
-    <string name="title_activity_main">土豆时钟</string>
+    <string name="app_name">土豆时钟ToDo</string>
+    <string name="title_activity_main">土豆时钟ToDo</string>
     <string name="package_name">com.cinoo.clock</string>
     <string name="custom_url_scheme">com.cinoo.clock</string>
 </resources>

@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "com.cinoo.clock",
-  appName: "土豆时钟",
+  appName: "土豆时钟ToDo",
   webDir: "dist",
   server: {
     androidScheme: "https"

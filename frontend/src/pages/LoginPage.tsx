@@ -39,7 +39,7 @@ export default function LoginPage() {
       <section className="w-full">
         <CutePotatoLogo size="lg" />
         <div className="mt-5 text-center">
-          <h1 className="app-brand-title text-[34px] font-black leading-none tracking-normal">土豆时钟</h1>
+          <h1 className="app-brand-title text-[34px] font-black leading-none tracking-normal">土豆时钟ToDo</h1>
           <p className="app-brand-subtitle mt-2 text-sm font-black">记录待办，开始专注</p>
         </div>
         <Card className="mt-7">
