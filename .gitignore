@@ -18,6 +18,8 @@ backend/.env
 # Release binaries uploaded to the server manually
 downloads/*.apk
 downloads/*.ipa
+deploy/
+potato-clock-deploy.zip
 
 # Logs
 *.log
