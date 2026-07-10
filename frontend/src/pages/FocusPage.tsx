@@ -263,7 +263,7 @@ export default function FocusPage() {
 
   if (isLoading) {
     return (
-      <div className="app-screen-bg mx-auto min-h-screen max-w-[430px] p-4">
+      <div className="app-screen-bg mx-auto min-h-screen max-w-[430px] px-4 pb-4 pt-[calc(var(--safe-top)+1rem)]">
         <CuteEmptyState title="正在加载计时" description="请稍候" />
       </div>
     );
@@ -271,7 +271,7 @@ export default function FocusPage() {
 
   if (isError || !todo) {
     return (
-      <div className="app-screen-bg mx-auto min-h-screen max-w-[430px] p-4">
+      <div className="app-screen-bg mx-auto min-h-screen max-w-[430px] px-4 pb-4 pt-[calc(var(--safe-top)+1rem)]">
         <CuteEmptyState
           title="计时数据加载失败"
           description={error instanceof Error ? error.message : "请返回首页重新选择一个待办。"}
@@ -428,7 +428,7 @@ export default function FocusPage() {
   return (
     <div className="app-screen-bg app-scroll mx-auto flex min-h-[100dvh] max-w-[430px] flex-col overflow-x-hidden overflow-y-auto px-5 pb-[calc(var(--safe-bottom)+18px)] pt-[calc(var(--safe-top)+1.25rem)] text-[var(--app-text)]">
       {shortTip ? (
-        <div className="fixed left-1/2 top-5 z-50 flex w-[calc(100%-40px)] max-w-[390px] -translate-x-1/2 items-start gap-3 rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] p-4 text-[var(--app-text)] shadow-[0_12px_30px_rgba(80,40,60,0.10)]">
+        <div className="fixed left-1/2 top-[calc(var(--safe-top)+1rem)] z-50 flex w-[calc(100%-40px)] max-w-[390px] -translate-x-1/2 items-start gap-3 rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] p-4 text-[var(--app-text)] shadow-[0_12px_30px_rgba(80,40,60,0.10)]">
           <CheckCircle2 className="mt-0.5 text-[#48a568]" size={20} />
           <div>
             <p className="font-black">提示</p>

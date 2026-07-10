@@ -42,7 +42,7 @@ export function QuickActionMenu({ open, onOpenChange, onWakeup, onFocusCheckin, 
           />
           <motion.div
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="app-quick-menu fixed top-[4rem] z-[80] w-60 max-w-[calc(100vw-2rem)] rounded-[22px] p-2"
+            className="app-quick-menu fixed top-[calc(var(--safe-top)+4rem)] z-[80] w-60 max-w-[calc(100vw-2rem)] rounded-[22px] p-2"
             exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.985, y: reduceMotion ? 0 : -4 }}
             initial={{ opacity: 0, scale: reduceMotion ? 1 : 0.985, y: reduceMotion ? 0 : -4 }}
             style={{ right: "max(1rem, calc((100vw - 430px) / 2 + 1rem))", transformOrigin: "top right" }}

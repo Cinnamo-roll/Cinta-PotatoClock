@@ -184,7 +184,7 @@ export default function StatsPage() {
       <AnimatedList className="space-y-3 pb-4" stagger={0.04}>
         <StatsHeader onOpenAchievements={() => setAchievementOpen(true)} onOpenShare={() => setShareOpen(true)} />
         {isFetching ? (
-          <div className="pointer-events-none fixed left-1/2 top-3 z-50 flex w-fit -translate-x-1/2 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--app-border)_62%,transparent)] bg-[color-mix(in_srgb,var(--app-card)_82%,transparent)] px-3 py-1.5 text-xs font-black text-[var(--app-primary-strong)] shadow-[0_8px_24px_color-mix(in_srgb,var(--app-primary)_12%,transparent)] backdrop-blur-[18px]">
+          <div className="pointer-events-none fixed left-1/2 top-[calc(var(--safe-top)+0.75rem)] z-50 flex w-fit -translate-x-1/2 items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--app-border)_62%,transparent)] bg-[color-mix(in_srgb,var(--app-card)_82%,transparent)] px-3 py-1.5 text-xs font-black text-[var(--app-primary-strong)] shadow-[0_8px_24px_color-mix(in_srgb,var(--app-primary)_12%,transparent)] backdrop-blur-[18px]">
             <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--app-primary)]" />
             {isPlaceholderData ? "正在更新" : "同步中"}
           </div>

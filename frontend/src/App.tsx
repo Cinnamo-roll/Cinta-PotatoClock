@@ -20,12 +20,19 @@ export default function App() {
     if (isLandingTarget) return;
     applyTheme();
     applyAppTheme();
-    void setupAppChrome();
+    let disposed = false;
+    let cleanupChrome: (() => void) | undefined;
+    void setupAppChrome().then((cleanup) => {
+      if (disposed) cleanup();
+      else cleanupChrome = cleanup;
+    });
     const cleanup = initAppLifecycle();
     const cleanupTimerActivity = initTimerActivitySync();
     return () => {
+      disposed = true;
       void cleanup?.();
       cleanupTimerActivity();
+      cleanupChrome?.();
     };
   }, [applyAppTheme, applyTheme]);
 

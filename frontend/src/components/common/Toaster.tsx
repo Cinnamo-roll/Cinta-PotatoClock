@@ -11,7 +11,7 @@ export function Toaster() {
   const dismiss = useUiStore((state) => state.dismissToast);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-4 z-50 mx-auto flex w-full max-w-[430px] flex-col gap-2 px-4">
+    <div className="pointer-events-none fixed inset-x-0 top-[calc(var(--safe-top)+0.75rem)] z-50 mx-auto flex w-full max-w-[430px] flex-col gap-2 px-4">
       <AnimatePresence>
         {toasts.map((toast) => {
           const Icon = toast.tone === "success" ? CheckCircle2 : toast.tone === "error" ? XCircle : Info;

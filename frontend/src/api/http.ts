@@ -36,10 +36,16 @@ http.interceptors.response.use(
     return payload?.data ?? response.data;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    const requestUrl = String(error.config?.url ?? "");
+    const isAuthAttempt = /\/auth\/(login|register)$/.test(requestUrl);
+    if (error.response?.status === 401 && !isAuthAttempt) {
       localStorage.removeItem("potato-auth");
-      window.location.assign("/login");
+      if (window.location.pathname !== "/login") window.location.assign("/login");
     }
-    return Promise.reject(new Error(friendlyError(error.response?.data?.message ?? error.message)));
+    const message =
+      error.response?.status >= 500
+        ? "服务暂时不可用，请稍后重试"
+        : error.response?.data?.message ?? error.message;
+    return Promise.reject(new Error(friendlyError(message)));
   }
 );

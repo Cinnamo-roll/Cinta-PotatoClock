@@ -63,7 +63,7 @@ export function ThemeColorPicker({ value, customColor, onChange, onCustomColorCh
             ))}
           </div>
           <input
-            className="mt-3 h-11 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] px-4 text-sm font-black uppercase text-[var(--app-text)] outline-none focus:border-[var(--app-primary)]"
+            className="mt-3 h-11 w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] px-4 text-base font-black uppercase text-[var(--app-text)] outline-none focus:border-[var(--app-primary)]"
             value={customColor}
             onChange={(event) => onCustomColorChange(event.target.value)}
             maxLength={7}

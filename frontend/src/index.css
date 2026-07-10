@@ -7,8 +7,12 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --safe-top: env(safe-area-inset-top);
-  --safe-bottom: env(safe-area-inset-bottom);
+  --native-safe-top: 0px;
+  --native-safe-bottom: 0px;
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--native-safe-top));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--native-safe-bottom));
+  --visual-viewport-height: 100dvh;
+  --visual-viewport-offset-top: 0px;
   --app-bg: #FFF7FA;
   --app-bg-soft: #FFEAF2;
   --app-card: #FFFFFF;
@@ -152,7 +156,7 @@ button {
   position: fixed;
   left: 50%;
   top: 50%;
-  max-height: min(90dvh, calc(100dvh - var(--safe-top) - var(--safe-bottom) - 1.5rem));
+  max-height: min(90dvh, calc(var(--visual-viewport-height) - var(--safe-top) - var(--safe-bottom) - 1.5rem));
   transform: translate(-50%, -50%);
   overflow-y: auto;
   border: 1px solid var(--app-border);
@@ -164,6 +168,13 @@ button {
     inset 0 1px 0 color-mix(in srgb, var(--app-card) 88%, transparent);
   outline: none;
   animation: app-dialog-enter 180ms ease-out;
+}
+
+body.keyboard-open .app-dialog-panel {
+  top: calc(var(--visual-viewport-offset-top) + var(--safe-top) + 0.75rem);
+  max-height: calc(var(--visual-viewport-height) - var(--safe-top) - 1.5rem);
+  transform: translate(-50%, 0);
+  animation: none;
 }
 
 .app-sheet-panel {

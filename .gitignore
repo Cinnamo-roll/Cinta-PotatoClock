@@ -18,8 +18,10 @@ backend/.env
 # Release binaries uploaded to the server manually
 downloads/*.apk
 downloads/*.ipa
+/tudou-clock.apk
 deploy/
 potato-clock-deploy.zip
+potato-clock-update-*.zip
 
 # Mobile build outputs and signing materials
 frontend/android/app/build/
