@@ -87,6 +87,7 @@ export default function FocusPage() {
   const expectedEndAt = useTimerStore((state) => state.expectedEndAt);
   const finishedAt = useTimerStore((state) => state.finishedAt);
   const completedReason = useTimerStore((state) => state.completedReason);
+  const recordedSessionKey = useTimerStore((state) => state.recordedSessionKey);
   const startTodo = useTimerStore((state) => state.startTodo);
   const start = useTimerStore((state) => state.start);
   const pause = useTimerStore((state) => state.pause);
@@ -95,6 +96,7 @@ export default function FocusPage() {
   const abandon = useTimerStore((state) => state.abandon);
   const reset = useTimerStore((state) => state.reset);
   const tick = useTimerStore((state) => state.tick);
+  const markSessionRecorded = useTimerStore((state) => state.markSessionRecorded);
   const [reasonPickerOpen, setReasonPickerOpen] = useState(false);
   const [instantCompleteOpen, setInstantCompleteOpen] = useState(false);
   const [shortTip, setShortTip] = useState(false);
@@ -159,6 +161,7 @@ export default function FocusPage() {
     if ((timerState !== "completed" && timerState !== "abandoned") || !activeTodo || !startedAt) return;
     const saveKey = `${activeTodo.id}-${timerState}-${finishedAt ?? ""}`;
     if (savedState.current === saveKey) return;
+    if (recordedSessionKey === saveKey) return;
     savedState.current = saveKey;
 
     const endedAt = new Date(finishedAt ?? Date.now());
@@ -174,24 +177,27 @@ export default function FocusPage() {
       return;
     }
 
-    createSession.mutate({
-      taskId: activeTodo.id,
-      collectionId: activeTodo.collectionId,
-      taskTitle: activeTodo.title,
-      mode: "focus",
-      timerType,
-      category: activeTodo.category,
-      plannedMinutes: activeTodo.durationMinutes,
-      actualMinutes: Math.max(1, Math.round(actualSeconds / 60)),
-      actualSeconds,
-      startedAt: new Date(startedAt).toISOString(),
-      endedAt: endedAt.toISOString(),
-      completed: timerState === "completed",
-      interrupted: timerState === "abandoned",
-      interruptReason: timerState === "abandoned" ? abandonReason.current : undefined,
-      countToStats: activeTodo.countToStats,
-      note: activeTodo.note
-    });
+    createSession.mutate(
+      {
+        taskId: activeTodo.id,
+        collectionId: activeTodo.collectionId,
+        taskTitle: activeTodo.title,
+        mode: "focus",
+        timerType,
+        category: activeTodo.category,
+        plannedMinutes: activeTodo.durationMinutes,
+        actualMinutes: Math.max(1, Math.round(actualSeconds / 60)),
+        actualSeconds,
+        startedAt: new Date(startedAt).toISOString(),
+        endedAt: endedAt.toISOString(),
+        completed: timerState === "completed",
+        interrupted: timerState === "abandoned",
+        interruptReason: timerState === "abandoned" ? abandonReason.current : undefined,
+        countToStats: activeTodo.countToStats,
+        note: activeTodo.note
+      },
+      { onSuccess: () => markSessionRecorded(saveKey) }
+    );
 
     if (timerState === "completed") {
       if (settings.vibrationEnabled) void successFeedback();
@@ -235,6 +241,8 @@ export default function FocusPage() {
     createSession,
     elapsedSeconds,
     finishedAt,
+    markSessionRecorded,
+    recordedSessionKey,
     reset,
     settings.soundEnabled,
     settings.vibrationEnabled,
@@ -396,6 +404,11 @@ export default function FocusPage() {
   };
 
   const handleBack = () => {
+    if (isFinished) {
+      reset();
+      navigate("/");
+      return;
+    }
     if (!isLocked) {
       navigate("/");
       return;

@@ -3,27 +3,27 @@ import { App as CapacitorApp } from "@capacitor/app";
 import { Network } from "@capacitor/network";
 import { toast } from "sonner";
 import { isNativeApp } from "@/lib/capacitor";
-import { useTimerStore } from "@/stores/timerStore";
-import { cancelFocusNotification } from "./notificationService";
 import { restoreTimerState, saveTimerState } from "./timerPersistenceService";
+import { syncTimerActivity } from "./timerActivityService";
 
-function pauseActiveTimerForBackground() {
-  const timer = useTimerStore.getState();
-  if (timer.state === "running") {
-    timer.pause();
-    if (timer.todo) void cancelFocusNotification(timer.todo.id);
-  }
-  void saveTimerState();
+let pendingSave: Promise<void> = Promise.resolve();
+
+function saveActiveTimerForBackground() {
+  pendingSave = saveTimerState().catch(() => undefined);
 }
 
 function restoreActiveTimer() {
-  void restoreTimerState();
+  void pendingSave
+    .then(() => restoreTimerState())
+    .then(() => syncTimerActivity());
 }
 
 export function initAppLifecycle() {
+  restoreActiveTimer();
+
   if (!isNativeApp) {
     const onVisibility = () => {
-      if (document.visibilityState === "hidden") pauseActiveTimerForBackground();
+      if (document.visibilityState === "hidden") saveActiveTimerForBackground();
       if (document.visibilityState === "visible") restoreActiveTimer();
     };
     document.addEventListener("visibilitychange", onVisibility);
@@ -33,13 +33,13 @@ export function initAppLifecycle() {
   const handles: PluginListenerHandle[] = [];
   void CapacitorApp.addListener("appStateChange", ({ isActive }) => {
     if (isActive) restoreActiveTimer();
-    else pauseActiveTimerForBackground();
+    else saveActiveTimerForBackground();
   }).then((handle) => handles.push(handle));
   void CapacitorApp.addListener("resume", () => {
     restoreActiveTimer();
   }).then((handle) => handles.push(handle));
   void CapacitorApp.addListener("pause", () => {
-    pauseActiveTimerForBackground();
+    saveActiveTimerForBackground();
   }).then((handle) => handles.push(handle));
   void Network.addListener("networkStatusChange", (status) => {
     if (!status.connected) toast.warning("当前网络不可用，部分同步可能延迟");

@@ -23,14 +23,17 @@ function ProtectedRoute({ children }: { children: ReactElement }) {
 
 function ActiveTimerRouteGuard({ children }: { children: ReactElement }) {
   const location = useLocation();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const activeTodo = useTimerStore((state) => state.todo);
   const timerState = useTimerStore((state) => state.state);
-  const isLocked = activeTodo && (timerState === "running" || timerState === "paused");
+  const needsFocusRoute =
+    activeTodo &&
+    (timerState === "running" || timerState === "paused" || timerState === "completed" || timerState === "abandoned");
   const focusPath = activeTodo ? `/focus/${activeTodo.id}` : "";
   const timerPath = activeTodo ? `/timer/${activeTodo.id}` : "";
   const isCurrentTimerRoute = location.pathname === focusPath || location.pathname === timerPath;
 
-  if (isLocked && !isCurrentTimerRoute) {
+  if (isAuthenticated && needsFocusRoute && !isCurrentTimerRoute) {
     return <Navigate to={focusPath} replace state={{ lockedByTimer: true }} />;
   }
 

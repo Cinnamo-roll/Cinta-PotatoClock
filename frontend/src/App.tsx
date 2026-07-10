@@ -6,6 +6,7 @@ import { AppRouter } from "@/router/AppRouter";
 import LandingPage from "@/pages/LandingPage";
 import { initAppLifecycle } from "@/services/appLifecycleService";
 import { setupAppChrome } from "@/services/appChromeService";
+import { initTimerActivitySync } from "@/services/timerActivityService";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useThemeStore } from "@/theme/themeStore";
 import { isLandingTarget } from "@/utils/env";
@@ -21,8 +22,10 @@ export default function App() {
     applyAppTheme();
     void setupAppChrome();
     const cleanup = initAppLifecycle();
+    const cleanupTimerActivity = initTimerActivitySync();
     return () => {
       void cleanup?.();
+      cleanupTimerActivity();
     };
   }, [applyAppTheme, applyTheme]);
 

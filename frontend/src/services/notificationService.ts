@@ -1,7 +1,8 @@
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { toast } from "sonner";
-import { isNativeApp } from "@/lib/capacitor";
+import { isNativeApp, platform } from "@/lib/capacitor";
 import { storageService } from "./storageService";
+import { syncTimerActivity } from "./timerActivityService";
 
 const FOCUS_NOTIFICATION_BASE_ID = 420000;
 const FUTURE_PLAN_NOTIFICATION_BASE_ID = 520000;
@@ -94,6 +95,9 @@ export async function scheduleFocusEndNotification(params: { todoId: number; tod
   if (!allowed) return;
   const at = new Date(params.endAt);
   if (at.getTime() <= Date.now()) return;
+  if (platform === "android") {
+    await syncTimerActivity(true);
+  }
   const key = focusNotificationKey(params.todoId);
   if (!isNativeApp) {
     await cancelFocusNotification(params.todoId);

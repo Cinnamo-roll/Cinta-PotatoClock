@@ -16,8 +16,8 @@ export default function LoginPage() {
   const isLoading = useAuthStore((state) => state.isLoading);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const toast = useUiStore((state) => state.toast);
-  const [username, setUsername] = useState("potato");
-  const [password, setPassword] = useState("123456");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (isAuthenticated) navigate((location.state as { from?: string } | null)?.from || "/", { replace: true });
@@ -25,8 +25,13 @@ export default function LoginPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const normalizedUsername = username.trim();
+    if (!normalizedUsername || !password) {
+      toast({ title: "请填写用户名和密码", tone: "error" });
+      return;
+    }
     try {
-      await login({ username, password });
+      await login({ username: normalizedUsername, password });
       toast({ title: "欢迎回来", description: "今天也要保持专注", tone: "success" });
       navigate("/", { replace: true });
     } catch (error) {
@@ -49,7 +54,7 @@ export default function LoginPage() {
                 <UserRound size={16} />
                 用户名
               </span>
-              <Input value={username} onChange={(event) => setUsername(event.target.value)} placeholder="输入用户名" autoComplete="username" />
+              <Input value={username} onChange={(event) => setUsername(event.target.value)} placeholder="输入用户名" autoComplete="username" autoCapitalize="none" spellCheck={false} />
             </label>
             <label className="block space-y-2">
               <span className="flex items-center gap-2 text-sm font-bold text-soil/75 dark:text-cream/75">

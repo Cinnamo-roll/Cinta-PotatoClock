@@ -21,7 +21,8 @@ export async function saveTimerState() {
       pausedRemainingSeconds: state.pausedRemainingSeconds,
       pausedElapsedSeconds: state.pausedElapsedSeconds,
       finishedAt: state.finishedAt,
-      completedReason: state.completedReason
+      completedReason: state.completedReason,
+      recordedSessionKey: state.recordedSessionKey
     })
   );
 }
@@ -30,7 +31,13 @@ export async function restoreTimerState() {
   const raw = await storageService.get(TIMER_STATE_KEY);
   if (raw) {
     try {
-      useTimerStore.getState().hydrateSnapshot(JSON.parse(raw));
+      const current = useTimerStore.getState();
+      const snapshot = JSON.parse(raw);
+      // WebView localStorage is the live source. Native Preferences is only a fallback
+      // when localStorage has no timer, so an older background snapshot cannot revive it.
+      if (!current.todo && snapshot?.todo) {
+        current.hydrateSnapshot(snapshot);
+      }
     } catch {
       // Corrupt snapshots should not block app resume.
     }

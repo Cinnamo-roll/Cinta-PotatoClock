@@ -18,6 +18,7 @@ interface TimerStoreState {
   pausedElapsedSeconds?: number;
   finishedAt?: number;
   completedReason?: "natural" | "manual";
+  recordedSessionKey?: string;
   startTodo: (todo: TodoItem) => void;
   start: () => void;
   pause: () => void;
@@ -26,6 +27,7 @@ interface TimerStoreState {
   abandon: () => void;
   reset: () => void;
   tick: () => void;
+  markSessionRecorded: (key?: string) => void;
   hydrateSnapshot: (snapshot: Partial<TimerStoreState>) => void;
 }
 
@@ -83,7 +85,8 @@ export const useTimerStore = create<TimerStoreState>()(
           pausedRemainingSeconds: undefined,
           pausedElapsedSeconds: undefined,
           finishedAt: undefined,
-          completedReason: undefined
+          completedReason: undefined,
+          recordedSessionKey: undefined
         });
       },
       start: () => {
@@ -111,7 +114,8 @@ export const useTimerStore = create<TimerStoreState>()(
           pausedRemainingSeconds: undefined,
           pausedElapsedSeconds: undefined,
           finishedAt: undefined,
-          completedReason: undefined
+          completedReason: undefined,
+          recordedSessionKey: undefined
         });
       },
       pause: () => {
@@ -188,7 +192,8 @@ export const useTimerStore = create<TimerStoreState>()(
           pausedRemainingSeconds: undefined,
           pausedElapsedSeconds: undefined,
           finishedAt: undefined,
-          completedReason: undefined
+          completedReason: undefined,
+          recordedSessionKey: undefined
         });
       },
       tick: () => {
@@ -207,6 +212,7 @@ export const useTimerStore = create<TimerStoreState>()(
         }
         set({ remainingSeconds, elapsedSeconds });
       },
+      markSessionRecorded: (key) => set({ recordedSessionKey: key }),
       hydrateSnapshot: (snapshot) => {
         set({
           todo: snapshot.todo,
@@ -222,7 +228,8 @@ export const useTimerStore = create<TimerStoreState>()(
           pausedRemainingSeconds: snapshot.pausedRemainingSeconds,
           pausedElapsedSeconds: snapshot.pausedElapsedSeconds,
           finishedAt: snapshot.finishedAt,
-          completedReason: snapshot.completedReason
+          completedReason: snapshot.completedReason,
+          recordedSessionKey: snapshot.recordedSessionKey
         });
       }
     }),
@@ -242,7 +249,8 @@ export const useTimerStore = create<TimerStoreState>()(
         pausedTotalSeconds: state.pausedTotalSeconds,
         pausedElapsedSeconds: state.pausedElapsedSeconds,
         finishedAt: state.finishedAt,
-        completedReason: state.completedReason
+        completedReason: state.completedReason,
+        recordedSessionKey: state.recordedSessionKey
       }),
       onRehydrateStorage: () => (state) => state?.tick()
     }
