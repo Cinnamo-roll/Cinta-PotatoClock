@@ -10,7 +10,7 @@ import {
   mockUser
 } from "./mockData";
 import { statsMock } from "./statsMock";
-import { checkinLabel, checkinWindowError, type CheckinPayload } from "@/services/checkinService";
+import { checkinBusinessDate, checkinLabel, checkinWindowError, type CheckinPayload } from "@/services/checkinService";
 import type { LoginRequest, LoginResponse, RegisterRequest, User } from "@/types/auth";
 import type { Task, TaskInput, TaskStatus } from "@/types/task";
 import type { UserSettings } from "@/types/settings";
@@ -255,17 +255,18 @@ function toRecentSession(session: TimerSession): RecentSession {
     endedAt: session.endedAt,
     completed: session.completed,
     interrupted: session.interrupted,
-    interruptReason: session.interruptReason ?? null
+    interruptReason: session.interruptReason ?? null,
+    countToStats: session.countToStats
   };
 }
 
 function buildCheckinLine(checkins: MockCheckin[], type: MockCheckinType, month: string) {
   return checkins
-    .filter((item) => item.type === type && item.checkedAt.startsWith(month))
+    .filter((item) => item.type === type && checkinBusinessDate(item.type, new Date(item.checkedAt)).startsWith(month))
     .map((item) => {
       const date = new Date(item.checkedAt);
       return {
-        date: toDateKey(date),
+        date: checkinBusinessDate(item.type, date),
         time: toTimeText(date),
         minutesOfDay: minutesOfDay(date, type)
       };
@@ -276,7 +277,7 @@ function buildCheckinLine(checkins: MockCheckin[], type: MockCheckinType, month:
 function buildCheckinDistribution(checkins: MockCheckin[], type: MockCheckinType, month: string) {
   const byHour = new Map<string, number>();
   checkins
-    .filter((item) => item.type === type && item.checkedAt.startsWith(month))
+    .filter((item) => item.type === type && checkinBusinessDate(item.type, new Date(item.checkedAt)).startsWith(month))
     .forEach((item) => {
       const date = new Date(item.checkedAt);
       const label = `${String(date.getHours()).padStart(2, "0")}:00`;
@@ -288,8 +289,8 @@ function buildCheckinDistribution(checkins: MockCheckin[], type: MockCheckinType
 }
 
 function buildMonthCheckins(checkins: MockCheckin[], month: string): MonthCheckinItem[] {
-  const wakeupDays = new Set(checkins.filter((item) => item.type === "wakeup" && item.checkedAt.startsWith(month)).map((item) => item.checkedAt.slice(0, 10)));
-  const sleepDays = new Set(checkins.filter((item) => item.type === "sleep" && item.checkedAt.startsWith(month)).map((item) => item.checkedAt.slice(0, 10)));
+  const wakeupDays = new Set(checkins.filter((item) => item.type === "wakeup").map((item) => checkinBusinessDate(item.type, new Date(item.checkedAt))).filter((date) => date.startsWith(month)));
+  const sleepDays = new Set(checkins.filter((item) => item.type === "sleep").map((item) => checkinBusinessDate(item.type, new Date(item.checkedAt))).filter((date) => date.startsWith(month)));
   return Array.from({ length: monthDays(month) }, (_, index) => {
     const date = `${month}-${String(index + 1).padStart(2, "0")}`;
     return {
@@ -884,8 +885,8 @@ export const mockClient = {
     const windowError = checkinWindowError(input.type, checkedDate);
     if (windowError) throw new Error(windowError);
 
-    const dateKey = checkedAt.slice(0, 10);
-    if (state.checkins.some((item) => item.type === input.type && item.checkedAt.slice(0, 10) === dateKey)) {
+    const dateKey = checkinBusinessDate(input.type, checkedDate);
+    if (state.checkins.some((item) => item.type === input.type && checkinBusinessDate(item.type, new Date(item.checkedAt)) === dateKey)) {
       throw new Error(`${checkinLabel(input.type)}今天已经完成了`);
     }
 
@@ -901,7 +902,7 @@ export const mockClient = {
   async getCheckins(startDate: string, endDate: string): Promise<CheckinRecordItem[]> {
     const checkins = loadState().checkins
       .filter((item) => {
-        const date = item.checkedAt.slice(0, 10);
+        const date = checkinBusinessDate(item.type, new Date(item.checkedAt));
         return date >= startDate && date <= endDate;
       })
       .sort((a, b) => b.checkedAt.localeCompare(a.checkedAt))
@@ -921,8 +922,8 @@ export const mockClient = {
       const checkedDate = new Date(input.checkinTime);
       const windowError = checkinWindowError(checkin.type, checkedDate);
       if (windowError) throw new Error(windowError);
-      const dateKey = input.checkinTime.slice(0, 10);
-      if (state.checkins.some((item) => item.id !== id && item.type === checkin.type && item.checkedAt.slice(0, 10) === dateKey)) {
+      const dateKey = checkinBusinessDate(checkin.type, checkedDate);
+      if (state.checkins.some((item) => item.id !== id && item.type === checkin.type && checkinBusinessDate(item.type, new Date(item.checkedAt)) === dateKey)) {
         throw new Error(`${checkinLabel(checkin.type)}今天已经完成了`);
       }
       checkin.checkedAt = input.checkinTime;

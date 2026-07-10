@@ -20,6 +20,7 @@ import { Button } from "@/components/common/Button";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { CuteEmptyState } from "@/components/common/CuteEmptyState";
 import { useCreateTimerSessionMutation, useTimerSessionsRangeQuery, useTodoQuery, useUpdateTodoStatusMutation } from "@/hooks/useApiQueries";
+import { useTodayKey } from "@/hooks/useTodayKey";
 import { lightImpact, successFeedback, warningFeedback } from "@/services/hapticsService";
 import { cancelFocusNotification, scheduleFocusEndNotification } from "@/services/notificationService";
 import { playFocusDoneSound } from "@/services/soundService";
@@ -27,10 +28,13 @@ import { useSettingsStore } from "@/stores/settingsStore";
 import { useTimerStore } from "@/stores/timerStore";
 import { useUiStore } from "@/stores/uiStore";
 import { formatSeconds } from "@/utils/format";
+import { cn } from "@/utils/cn";
 import { isTodoCompleted, targetProgress, todayTodoMetrics, todoStreak } from "@/utils/todoMetrics";
-import { localDateKey } from "@/utils/date";
+import { localDateTime } from "@/utils/date";
+import { noTimerCompletion } from "@/utils/session";
 import type { TimerState } from "@/types/timer";
 import type { TimerType } from "@/types/todo";
+import type { TimerSessionInput } from "@/types/session";
 
 const abandonReasons = ["计划有变", "被打断", "太累了", "不想做了", "其他"];
 
@@ -61,16 +65,12 @@ const stateLabel: Record<TimerState, string> = {
   skipped: "已跳过"
 };
 
-function dateInput(date: Date) {
-  return localDateKey(date);
-}
-
 export default function FocusPage() {
   const navigate = useNavigate();
   const params = useParams();
   const todoId = Number(params.todoId);
   const { data: todo, error, isError, isLoading } = useTodoQuery(todoId);
-  const today = useMemo(() => dateInput(new Date()), []);
+  const today = useTodayKey();
   const { data: timerSessions = [] } = useTimerSessionsRangeQuery("1970-01-01", today, { todoId }, Number.isFinite(todoId));
   const updateStatus = useUpdateTodoStatusMutation();
   const createSession = useCreateTimerSessionMutation();
@@ -177,8 +177,7 @@ export default function FocusPage() {
       return;
     }
 
-    createSession.mutate(
-      {
+    const sessionPayload: TimerSessionInput = {
         taskId: activeTodo.id,
         collectionId: activeTodo.collectionId,
         taskTitle: activeTodo.title,
@@ -188,16 +187,14 @@ export default function FocusPage() {
         plannedMinutes: activeTodo.durationMinutes,
         actualMinutes: Math.max(1, Math.round(actualSeconds / 60)),
         actualSeconds,
-        startedAt: new Date(startedAt).toISOString(),
-        endedAt: endedAt.toISOString(),
+        startedAt: localDateTime(new Date(startedAt)),
+        endedAt: localDateTime(endedAt),
         completed: timerState === "completed",
         interrupted: timerState === "abandoned",
         interruptReason: timerState === "abandoned" ? abandonReason.current : undefined,
         countToStats: activeTodo.countToStats,
         note: activeTodo.note
-      },
-      { onSuccess: () => markSessionRecorded(saveKey) }
-    );
+      };
 
     if (timerState === "completed") {
       if (settings.vibrationEnabled) void successFeedback();
@@ -221,8 +218,8 @@ export default function FocusPage() {
               plannedMinutes: activeTodo.durationMinutes,
               actualMinutes: Math.max(1, Math.round(actualSeconds / 60)),
               actualSeconds,
-              startedAt: new Date(startedAt).toISOString(),
-              endedAt: endedAt.toISOString(),
+              startedAt: localDateTime(new Date(startedAt)),
+              endedAt: localDateTime(endedAt),
               completed: true,
               interrupted: false,
               countToStats: activeTodo.countToStats,
@@ -230,11 +227,27 @@ export default function FocusPage() {
             }
           ]
         : timerSessions;
-    void updateStatus.mutateAsync({ id: activeTodo.id, status: timerState === "completed" && isTodoCompleted(activeTodo, nextSessions) ? "done" : "todo" });
-    toast({
-      title: timerState === "completed" ? "已完成" : "已放弃",
-      description: `记录 ${formatSeconds(actualSeconds)}`,
-      tone: timerState === "completed" ? "success" : "default"
+    const nextStatus = timerState === "completed" && isTodoCompleted(activeTodo, nextSessions) ? "done" : "todo";
+    createSession.mutate(sessionPayload, {
+      onSuccess: () => {
+        markSessionRecorded(saveKey);
+        void updateStatus.mutateAsync({ id: activeTodo.id, status: nextStatus });
+        toast({
+          title: timerState === "completed" ? "已完成" : "已放弃",
+          description: `本次记录 ${formatSeconds(actualSeconds)}`,
+          tone: timerState === "completed" ? "success" : "default"
+        });
+      },
+      onError: (saveError) => {
+        savedState.current = null;
+        void updateStatus.mutateAsync({ id: activeTodo.id, status: "todo" });
+        toast({
+          title: "本次记录尚未保存",
+          description: saveError instanceof Error ? saveError.message : "请检查网络后重试。",
+          tone: "error",
+          durationMs: 7000
+        });
+      }
     });
   }, [
     activeTodo,
@@ -319,53 +332,21 @@ export default function FocusPage() {
   };
 
   const handleInstantComplete = async () => {
+    if (createSession.isPending) return;
     const item = activeTodo ?? todo;
-    const startedAt = new Date();
-    const endedAt = new Date(startedAt.getTime() + 5000);
-    await createSession.mutateAsync({
-      taskId: item.id,
-      collectionId: item.collectionId,
-      taskTitle: item.title,
-      mode: "focus",
-      timerType: item.timerType,
-      category: item.category,
-      plannedMinutes: 0,
-      actualMinutes: 0,
-      actualSeconds: 5,
-      startedAt: startedAt.toISOString(),
-      endedAt: endedAt.toISOString(),
-      completed: true,
-      interrupted: false,
-      countToStats: item.countToStats,
-      note: item.note
-    });
-    const completed = isTodoCompleted(item, [
-      ...timerSessions,
-      {
-        id: -Date.now(),
-        taskId: item.id,
-        collectionId: item.collectionId,
-        taskTitle: item.title,
-        mode: "focus" as const,
-        timerType: item.timerType,
-        category: item.category,
-        plannedMinutes: 0,
-        actualMinutes: 0,
-        actualSeconds: 5,
-        startedAt: startedAt.toISOString(),
-        endedAt: endedAt.toISOString(),
-        completed: true,
-        interrupted: false,
-        countToStats: item.countToStats,
-        note: item.note
-      }
-    ]);
-    await updateStatus.mutateAsync({ id: item.id, status: completed ? "done" : "todo" });
-    if (settings.vibrationEnabled) void successFeedback();
-    toast({ title: "已完成", description: `今日第 ${focusToday.completedCount + 1} 次`, tone: "success" });
-    setInstantCompleteOpen(false);
-    reset();
-    navigate("/");
+    try {
+      const completion = noTimerCompletion(item);
+      await createSession.mutateAsync(completion);
+      const completed = isTodoCompleted(item, [...timerSessions, { id: -Date.now(), ...completion }]);
+      await updateStatus.mutateAsync({ id: item.id, status: completed ? "done" : "todo" });
+      if (settings.vibrationEnabled) void successFeedback();
+      toast({ title: "已完成", description: `今日第 ${focusToday.completedCount + 1} 次`, tone: "success" });
+      setInstantCompleteOpen(false);
+      reset();
+      navigate("/");
+    } catch (completeError) {
+      toast({ title: "完成记录没有保存", description: completeError instanceof Error ? completeError.message : "请检查网络后再试。", tone: "error" });
+    }
   };
 
   const handlePrimary = () => {
@@ -509,19 +490,32 @@ export default function FocusPage() {
               </div>
             </div>
           </section>
-        ) : (
-          <section
-            className="overflow-hidden rounded-[30px] border border-[var(--app-border)] bg-[var(--app-card)] text-center shadow-[0_16px_36px_rgba(80,40,60,0.10)]"
-            style={{ boxShadow: `0 16px 36px rgba(80,40,60,0.10), inset 0 4px 0 ${meta.accent}` }}
-          >
-            <div className="flex min-h-[238px] flex-col items-center justify-center px-5 py-8">
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--app-primary-soft)]" style={{ color: meta.accent }}>
-                {timerType === "countup" ? <Clock3 size={28} /> : <Sparkles size={28} />}
+        ) : timerType === "countup" ? (
+          <section className="flex flex-col items-center py-1">
+            <div className="relative flex aspect-square w-[clamp(244px,74vw,300px)] items-center justify-center rounded-full border border-[color-mix(in_srgb,#22A06B_24%,var(--app-border))] bg-[linear-gradient(155deg,color-mix(in_srgb,#E8F7EF_74%,var(--app-card)_26%),var(--app-card))] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_18px_42px_rgba(34,160,107,0.12)]">
+              {Array.from({ length: 12 }, (_, index) => (
+                <span key={index} className="absolute inset-3" style={{ transform: `rotate(${index * 30}deg)` }}>
+                  <span className="mx-auto block h-3 w-1 rounded-full bg-[color-mix(in_srgb,#22A06B_42%,transparent)]" />
+                </span>
+              ))}
+              <div className="relative flex h-[72%] w-[72%] flex-col items-center justify-center rounded-full border border-white/80 bg-[color-mix(in_srgb,var(--app-card)_88%,transparent)] px-4 shadow-[0_12px_32px_rgba(34,160,107,0.10)]">
+                <div className="mb-3 flex items-center gap-2 text-sm font-black text-[#168458]">
+                  <span className={cn("h-2.5 w-2.5 rounded-full bg-[#22A06B]", isRunning && "animate-pulse")} />
+                  {stateLabel[timerState]}
+                </div>
+                <p className="whitespace-nowrap text-[clamp(2.8rem,14vw,3.75rem)] font-black leading-none tabular-nums text-[var(--app-text)]">{displayTime}</p>
+                <p className="mt-4 text-xs font-black text-[var(--app-muted)]">已专注</p>
               </div>
-              <p className="text-sm font-black text-[var(--app-muted)]">{meta.timeLabel}</p>
-              <p className="mt-4 whitespace-nowrap text-[clamp(3rem,15vw,4rem)] font-black leading-none tabular-nums text-[var(--app-text)]">
-                {timerType === "none" ? (isLocked ? "进行中" : "待开始") : displayTime}
-              </p>
+            </div>
+          </section>
+        ) : (
+          <section className="overflow-hidden rounded-[28px] border border-[var(--app-border)] bg-[linear-gradient(150deg,var(--app-card),var(--app-primary-soft))] text-center shadow-[0_16px_36px_rgba(80,40,60,0.09)]">
+            <div className="flex min-h-[230px] flex-col items-center justify-center px-5 py-8">
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[22px] bg-[var(--app-card)] text-[var(--app-primary-strong)] shadow-[0_10px_24px_rgba(80,40,60,0.08)]">
+                <Sparkles size={29} />
+              </div>
+              <p className="text-sm font-black text-[var(--app-muted)]">不计时</p>
+              <p className="mt-3 text-[2rem] font-black leading-none text-[var(--app-text)]">{isFinished ? "已完成" : "准备好了"}</p>
             </div>
           </section>
         )}

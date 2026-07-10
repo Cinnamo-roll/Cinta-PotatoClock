@@ -73,7 +73,7 @@ function pageContent<T>(value: T[] | PageResponse<T>) {
 }
 
 function completedSessions(sessions: RecentSession[]) {
-  return sessions.filter((session) => session.completed && !session.interrupted);
+  return sessions.filter((session) => session.completed && !session.interrupted && session.countToStats !== false && sessionSeconds(session) >= 5);
 }
 
 function sessionSeconds(session: RecentSession) {

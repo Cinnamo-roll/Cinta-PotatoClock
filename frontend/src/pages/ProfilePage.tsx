@@ -190,7 +190,7 @@ export default function ProfilePage() {
               <h1 className="mt-1 truncate text-xl font-black text-[var(--app-text)]">{user?.nickname || user?.username || "未命名用户"}</h1>
               <p className="mt-1 truncate text-sm font-semibold text-[var(--app-muted)]">@{user?.username || "potato"}</p>
             </div>
-            <button className="app-header-button" onClick={() => setProfileOpen(true)} aria-label="快速编辑资料" type="button">
+            <button className="app-card-action-button" onClick={() => setProfileOpen(true)} aria-label="快速编辑资料" type="button">
               <PenLine size={18} />
             </button>
           </div>

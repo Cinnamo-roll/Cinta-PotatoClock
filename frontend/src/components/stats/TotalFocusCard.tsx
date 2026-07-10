@@ -1,6 +1,6 @@
 import { Card } from "@/components/common/Card";
 import { MetricTile } from "@/components/common/MetricTile";
-import { formatMinutes } from "@/components/stats/statsFormat";
+import { formatDuration, formatMinutes } from "@/components/stats/statsFormat";
 import type { StatsSummary } from "@/types/stats";
 
 export function TotalFocusCard({ summary }: { summary: StatsSummary }) {
@@ -9,7 +9,7 @@ export function TotalFocusCard({ summary }: { summary: StatsSummary }) {
       <div className="absolute -right-8 -top-10 h-24 w-24 rounded-full bg-white/60 blur-2xl" />
       <div className="relative">
         <p className="text-sm font-black text-[var(--app-text)]">累计专注</p>
-        <p className="mt-3 truncate text-[30px] font-black leading-none text-[var(--app-primary-strong)]">{formatMinutes(summary.totalFocusMinutes)}</p>
+        <p className="mt-3 truncate text-[30px] font-black leading-none text-[var(--app-primary-strong)]">{formatDuration(summary.totalFocusSeconds, summary.totalFocusMinutes)}</p>
         <p className="mt-2 text-xs font-bold text-[var(--app-muted)]">所有完成专注累计时长</p>
       </div>
       <div className="relative mt-4 grid grid-cols-2 gap-2">

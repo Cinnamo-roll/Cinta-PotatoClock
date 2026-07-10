@@ -106,6 +106,32 @@ class CheckinServiceTest {
 
         assertThat(response.type()).isEqualTo(CheckinType.sleep);
         verify(repository).save(argThat(record -> record.getCheckinTime().getHour() == 1));
+        verify(repository).existsByUserIdAndTypeAndCheckinTimeBetween(
+                7L,
+                CheckinType.sleep,
+                LocalDateTime.of(2026, 6, 23, 20, 0),
+                LocalDateTime.of(2026, 6, 24, 2, 0).minusNanos(1)
+        );
+    }
+
+    @Test
+    void sleepCheckinRejectsSecondEntryAcrossMidnight() {
+        TestSecurity.loginAs(7L);
+        CheckinRecordRepository repository = mock(CheckinRecordRepository.class);
+        when(repository.existsByUserIdAndTypeAndCheckinTimeBetween(
+                eq(7L), eq(CheckinType.sleep), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(true);
+        CheckinService service = new CheckinService(repository);
+
+        assertThatThrownBy(() -> service.create(new CheckinCreateRequest(
+                CheckinType.sleep,
+                LocalDateTime.of(2026, 6, 24, 1, 15),
+                null
+        )))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("今天已经完成");
+
+        verify(repository, never()).save(any());
     }
 
     @Test

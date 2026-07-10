@@ -1,21 +1,21 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { Card } from "@/components/common/Card";
-import { formatMinutes } from "@/components/stats/statsFormat";
+import { formatDuration } from "@/components/stats/statsFormat";
 import type { YearStats } from "@/types/stats";
 
-function DurationInline({ minutes }: { minutes: number }) {
+function DurationInline({ minutes, seconds }: { minutes: number; seconds?: number }) {
   return (
-    <p className="overflow-hidden whitespace-nowrap text-right text-[11px] font-extrabold leading-4 text-[var(--app-text)]">{formatMinutes(minutes)}</p>
+    <p className="overflow-hidden whitespace-nowrap text-right text-[11px] font-extrabold leading-4 text-[var(--app-text)]">{formatDuration(seconds, minutes)}</p>
   );
 }
 
 export function YearStatsCard({ yearly, onShiftYear }: { yearly: YearStats; onShiftYear: (step: -1 | 1) => void }) {
   const reduceMotion = useReducedMotion();
-  const maxMinutes = Math.max(1, ...yearly.monthlyTrend.map((item) => item.focusMinutes));
+  const maxSeconds = Math.max(60, ...yearly.monthlyTrend.map((item) => item.focusSeconds ?? item.focusMinutes * 60));
   const summary = [
     { label: "完成专注", value: `${yearly.focusCount} 次` },
-    { label: "专注时长", value: formatMinutes(yearly.focusMinutes) },
+    { label: "专注时长", value: formatDuration(yearly.focusSeconds, yearly.focusMinutes) },
     { label: "放弃专注", value: `${yearly.abandonedCount} 次` },
     { label: "活跃天数", value: `${yearly.activeDays} 天` },
     { label: "最长连续", value: `${yearly.longestStreakDays} 天` },
@@ -45,13 +45,13 @@ export function YearStatsCard({ yearly, onShiftYear }: { yearly: YearStats; onSh
             <p className="text-xs font-black text-[var(--app-muted)]">{item.label ?? `${index + 1}月`}</p>
             <div className="h-3 overflow-hidden rounded-full bg-white">
               <motion.div
-                animate={{ width: `${Math.max(4, (item.focusMinutes / maxMinutes) * 100)}%` }}
+                animate={{ width: `${Math.max(4, ((item.focusSeconds ?? item.focusMinutes * 60) / maxSeconds) * 100)}%` }}
                 className="h-full rounded-full bg-[var(--app-primary)]"
-                initial={{ width: reduceMotion ? `${Math.max(4, (item.focusMinutes / maxMinutes) * 100)}%` : "0%" }}
+                initial={{ width: reduceMotion ? `${Math.max(4, ((item.focusSeconds ?? item.focusMinutes * 60) / maxSeconds) * 100)}%` : "0%" }}
                 transition={{ delay: reduceMotion ? 0 : index * 0.025, duration: reduceMotion ? 0 : 0.46, ease: "easeOut" }}
               />
             </div>
-            <DurationInline minutes={item.focusMinutes} />
+            <DurationInline minutes={item.focusMinutes} seconds={item.focusSeconds} />
           </div>
         ))}
       </div>

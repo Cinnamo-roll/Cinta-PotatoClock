@@ -10,6 +10,7 @@ jobs:
   build:
     name: Build unsigned IPA
     runs-on: macos-15
+    timeout-minutes: 30
 
     defaults:
       run:
@@ -17,10 +18,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
 
@@ -84,3 +85,4 @@ jobs:
           name: tudou-clock-unsigned-ipa
           path: frontend/ios/ipa/tudou-clock-unsigned.ipa
           if-no-files-found: error
+          retention-days: 14

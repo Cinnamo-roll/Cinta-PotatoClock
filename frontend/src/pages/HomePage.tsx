@@ -24,12 +24,13 @@ import {
   useUpdateTodoSortMutation
 } from "@/hooks/useApiQueries";
 import { useQuickCheckin } from "@/hooks/useQuickCheckin";
+import { useTodayKey } from "@/hooks/useTodayKey";
 import { lightImpact, successFeedback } from "@/services/hapticsService";
 import { useTimerStore } from "@/stores/timerStore";
 import { useUiStore } from "@/stores/uiStore";
 import type { TodoInput, TodoItem } from "@/types/todo";
-import { localDateKey } from "@/utils/date";
 import { isTodoCompleted, todayTodoMetrics } from "@/utils/todoMetrics";
+import { noTimerCompletion } from "@/utils/session";
 
 function sameIds(a: number[], b: number[]) {
   return a.length === b.length && a.every((id, index) => id === b[index]);
@@ -52,10 +53,6 @@ function findSortIdAt(clientX: number, clientY: number) {
   return Number.isFinite(id) ? id : null;
 }
 
-function dateInput(date: Date) {
-  return localDateKey(date);
-}
-
 export default function HomePage() {
   const navigate = useNavigate();
   const { data: todos = [], isLoading } = useTodosQuery();
@@ -66,7 +63,7 @@ export default function HomePage() {
   const deleteTodo = useDeleteTodoMutation();
   const updateTodoSort = useUpdateTodoSortMutation();
   const createSession = useCreateTimerSessionMutation();
-  const today = useMemo(() => dateInput(new Date()), []);
+  const today = useTodayKey();
   const { data: timerSessions = [] } = useTimerSessionsRangeQuery("1970-01-01", today);
   const { noteType, noteSubmitting, closeNoteDialog, startQuickCheckin, submitNoteCheckin } = useQuickCheckin();
   const startTodo = useTimerStore((state) => state.startTodo);
@@ -120,50 +117,18 @@ export default function HomePage() {
   };
 
   const handleCompleteNoTimer = async (todo: TodoItem) => {
-    const startedAt = new Date();
-    const endedAt = new Date(startedAt.getTime() + 5000);
-    await createSession.mutateAsync({
-      taskId: todo.id,
-      collectionId: todo.collectionId,
-      taskTitle: todo.title,
-      mode: "focus",
-      timerType: todo.timerType,
-      category: todo.category,
-      plannedMinutes: 0,
-      actualMinutes: 0,
-      actualSeconds: 5,
-      startedAt: startedAt.toISOString(),
-      endedAt: endedAt.toISOString(),
-      completed: true,
-      interrupted: false,
-      countToStats: todo.countToStats,
-      note: todo.note
-    });
-    const completed = isTodoCompleted(todo, [
-      ...timerSessions,
-      {
-        id: -Date.now(),
-        taskId: todo.id,
-        collectionId: todo.collectionId,
-        taskTitle: todo.title,
-        mode: "focus" as const,
-        timerType: todo.timerType,
-        category: todo.category,
-        plannedMinutes: 0,
-        actualMinutes: 0,
-        actualSeconds: 5,
-        startedAt: startedAt.toISOString(),
-        endedAt: endedAt.toISOString(),
-        completed: true,
-        interrupted: false,
-        countToStats: todo.countToStats,
-        note: todo.note
-      }
-    ]);
-    await updateTodoStatus.mutateAsync({ id: todo.id, status: completed ? "done" : "todo" });
-    setPendingCompleteTodo(undefined);
-    void successFeedback();
-    toast({ title: "已完成", description: `今日第 ${todayTodoMetrics(todo, timerSessions).completedCount + 1} 次`, tone: "success" });
+    if (createSession.isPending) return;
+    try {
+      const completion = noTimerCompletion(todo);
+      await createSession.mutateAsync(completion);
+      const completed = isTodoCompleted(todo, [...timerSessions, { id: -Date.now(), ...completion }]);
+      await updateTodoStatus.mutateAsync({ id: todo.id, status: completed ? "done" : "todo" });
+      setPendingCompleteTodo(undefined);
+      void successFeedback();
+      toast({ title: "已完成", description: `今日第 ${todayTodoMetrics(todo, timerSessions).completedCount + 1} 次`, tone: "success" });
+    } catch (completeError) {
+      toast({ title: "完成记录没有保存", description: completeError instanceof Error ? completeError.message : "请检查网络后再试。", tone: "error" });
+    }
   };
 
   const openEditor = () => {

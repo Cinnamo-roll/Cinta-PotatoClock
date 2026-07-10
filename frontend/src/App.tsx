@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/common/Toaster";
 import { AppToast } from "@/components/common/AppToast";
 import { useScrollBoundaryGuard } from "@/hooks/useScrollBoundaryGuard";
@@ -10,10 +10,12 @@ import { initTimerActivitySync } from "@/services/timerActivityService";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useThemeStore } from "@/theme/themeStore";
 import { isLandingTarget } from "@/utils/env";
+import { isNativeApp } from "@/lib/capacitor";
 
 export default function App() {
   const applyTheme = useSettingsStore((state) => state.applyTheme);
   const applyAppTheme = useThemeStore((state) => state.applyTheme);
+  const [chromeReady, setChromeReady] = useState(!isNativeApp || isLandingTarget);
   useScrollBoundaryGuard(undefined, !isLandingTarget);
 
   useEffect(() => {
@@ -24,7 +26,10 @@ export default function App() {
     let cleanupChrome: (() => void) | undefined;
     void setupAppChrome().then((cleanup) => {
       if (disposed) cleanup();
-      else cleanupChrome = cleanup;
+      else {
+        cleanupChrome = cleanup;
+        setChromeReady(true);
+      }
     });
     const cleanup = initAppLifecycle();
     const cleanupTimerActivity = initTimerActivitySync();
@@ -37,6 +42,8 @@ export default function App() {
   }, [applyAppTheme, applyTheme]);
 
   if (isLandingTarget) return <LandingPage />;
+
+  if (!chromeReady) return <div className="h-dvh w-full bg-[var(--app-bg)]" aria-hidden="true" />;
 
   return (
     <>

@@ -130,7 +130,8 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
   };
 
   const handleTargetAmountChange = (value: string) => {
-    setTargetAmount(value.replace(/[^\d]/g, "").slice(0, 5));
+    const digits = value.replace(/[^\d]/g, "").slice(0, 5);
+    setTargetAmount(digits.replace(/^0+(?=\d)/, ""));
   };
 
   const handleSubmit = async (event?: FormEvent) => {
@@ -155,8 +156,8 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
         category,
         collectionId: todo ? todo.collectionId ?? null : defaultCollectionId,
         backgroundStyle: DEFAULT_BACKGROUND_STYLE,
-        includeInStats: countToStats,
-        countToStats,
+        includeInStats: timerType === "none" ? false : countToStats,
+        countToStats: timerType === "none" ? false : countToStats,
         recurrence: category === "habit" ? recurrence : undefined,
         targetAmount: category === "habit" || category === "goal" ? parsePositiveInt(targetAmount) : undefined,
         targetUnit: category === "habit" || category === "goal" ? (timerType === "none" ? "次" : targetUnit) : undefined,
@@ -204,9 +205,9 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
               ))}
             </div>
             <div className="mt-4 space-y-3">
-              <Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="待办名称" />
+              <Input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} placeholder="待办名称" />
 
-              <Textarea className="min-h-20" value={note} onChange={(event) => setNote(event.target.value)} placeholder="备注，可选" />
+              <Textarea className="min-h-20" value={note} onChange={(event) => setNote(event.target.value)} maxLength={500} placeholder="备注，可选" />
 
               <div>
                 <p className="mb-2 text-sm font-bold text-[var(--app-muted)]">计时方式</p>
@@ -249,7 +250,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
                   <div className="space-y-2 text-sm font-bold text-[var(--app-muted)]">
                     <span>计划完成</span>
                     <div className="grid grid-cols-[minmax(0,1fr)_minmax(126px,1.3fr)] gap-2">
-                      <Input className="h-10 text-center" inputMode="numeric" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
+                      <Input aria-label="计划完成数量" className="h-10 text-center" inputMode="numeric" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
                       <OptionPicker value={timerType === "none" ? "次" : targetUnit} options={targetUnitOptions} disabled={timerType === "none"} onChange={setTargetUnit} ariaLabel="计划单位" />
                     </div>
                   </div>
@@ -262,17 +263,19 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
                   <div className="space-y-2 text-sm font-bold text-[var(--app-muted)]">
                     <span>总计划量</span>
                     <div className="grid grid-cols-[minmax(0,1fr)_minmax(126px,1.3fr)] gap-2">
-                      <Input className="h-10 text-center" inputMode="numeric" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
+                      <Input aria-label="目标计划数量" className="h-10 text-center" inputMode="numeric" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
                       <OptionPicker value={timerType === "none" ? "次" : targetUnit} options={targetUnitOptions} disabled={timerType === "none"} onChange={setTargetUnit} ariaLabel="目标单位" />
                     </div>
                   </div>
                 </div>
               ) : null}
 
-              <label className="flex min-h-12 items-center justify-between rounded-[18px] bg-[var(--app-primary-soft)] px-3 text-sm font-bold text-[var(--app-text)]">
-                计入统计
-                <input className="h-5 w-5 [accent-color:var(--app-primary)]" type="checkbox" checked={countToStats} onChange={(event) => setCountToStats(event.target.checked)} />
-              </label>
+              {timerType !== "none" ? (
+                <label className="flex min-h-12 items-center justify-between rounded-[18px] bg-[var(--app-primary-soft)] px-3 text-sm font-bold text-[var(--app-text)]">
+                  计入专注统计
+                  <input className="h-5 w-5 [accent-color:var(--app-primary)]" type="checkbox" checked={countToStats} onChange={(event) => setCountToStats(event.target.checked)} />
+                </label>
+              ) : null}
               {submitError ? <p className="rounded-2xl bg-[color-mix(in_srgb,var(--app-danger)_10%,var(--app-card))] px-3 py-2 text-sm font-bold text-[var(--app-danger)]">{submitError}</p> : null}
             </div>
           </form>

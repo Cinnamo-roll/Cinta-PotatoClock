@@ -35,6 +35,21 @@
   box-sizing: border-box;
 }
 
+body:not(.landing-scroll-body),
+body:not(.landing-scroll-body) * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body:not(.landing-scroll-body) input,
+body:not(.landing-scroll-body) textarea,
+body:not(.landing-scroll-body) [contenteditable="true"] {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 html,
 body,
 #root {
@@ -290,6 +305,20 @@ body.keyboard-open .app-dialog-panel {
   transform: scale(0.95);
 }
 
+.app-card-action-button {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--app-border) 66%, transparent);
+  background: color-mix(in srgb, var(--app-card-soft) 82%, var(--app-card) 18%);
+  color: var(--app-primary-strong);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--app-card) 72%, transparent);
+}
+
 .app-quick-menu {
   border: 1px solid color-mix(in srgb, var(--app-border) 72%, transparent);
   background:
@@ -385,33 +414,26 @@ body.keyboard-open .app-dialog-panel {
 
 @keyframes landing-shot-in {
   from {
-    opacity: 0;
     transform: translateY(18px) scale(0.985);
   }
 
   to {
-    opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
 .landing-page {
+  overflow-x: clip;
   scroll-behavior: smooth;
 }
 
-.landing-hero {
-  min-height: calc(100svh - 4rem);
-  background:
-    linear-gradient(135deg, rgba(255, 248, 251, 0.92), rgba(255, 225, 236, 0.62) 38%, rgba(232, 243, 255, 0.58) 72%, rgba(231, 245, 236, 0.72)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0));
+.landing-page section[id] {
+  scroll-margin-top: 65px;
 }
 
-.landing-grid {
-  background:
-    linear-gradient(90deg, rgba(129, 82, 98, 0.08) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(129, 82, 98, 0.07) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.88), transparent 86%);
+.landing-hero {
+  height: min(760px, calc(100svh - 7rem));
+  min-height: 620px;
 }
 
 .landing-phone {
@@ -424,23 +446,40 @@ body.keyboard-open .app-dialog-panel {
   box-shadow: 0 22px 46px rgba(129, 82, 98, 0.18);
 }
 
-.landing-phone-stage {
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-}
-
-.landing-float {
+.landing-device {
   --phone-rotate: 0deg;
-  animation: landing-float 5.6s ease-in-out infinite;
+  animation: landing-float 6.4s ease-in-out infinite;
 }
 
-.landing-float-delayed {
-  --phone-rotate: 0deg;
-  animation: landing-float 6.2s ease-in-out infinite;
-  animation-delay: 450ms;
+.landing-device-back {
+  animation-delay: 620ms;
 }
 
-.landing-shot {
+.landing-reveal {
   animation: landing-shot-in 520ms ease both;
+}
+
+.landing-download-option {
+  min-height: 178px;
+}
+
+@media (max-width: 639px) {
+  .landing-hero {
+    height: calc(100svh - 6.5rem);
+    min-height: 650px;
+  }
+
+  .landing-hero-copy {
+    align-self: flex-start;
+  }
+
+  .landing-hero-mark {
+    right: -8rem;
+    top: auto;
+    bottom: -5rem;
+    width: 25rem;
+    opacity: 0.08;
+  }
 }
 
 .text-balance {

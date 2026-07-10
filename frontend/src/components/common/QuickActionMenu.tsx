@@ -1,6 +1,7 @@
 import { CheckCheck, CheckCircle2, Moon, Sunrise } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { createPortal } from "react-dom";
+import { checkinLabel, checkinMenuDescription } from "@/services/checkinService";
 
 export interface QuickActionMenuProps {
   open: boolean;
@@ -21,9 +22,9 @@ export function QuickActionMoreButton({ open, onClick }: { open: boolean; onClic
 export function QuickActionMenu({ open, onOpenChange, onWakeup, onFocusCheckin, onSleep }: QuickActionMenuProps) {
   const reduceMotion = useReducedMotion();
   const items = [
-    { label: "起床打卡", description: "记录今天醒来的时间", icon: Sunrise, action: onWakeup },
-    { label: "今日专注打卡", description: "给今天的专注留个标记", icon: CheckCircle2, action: onFocusCheckin },
-    { label: "睡眠打卡", description: "记录准备休息的时间", icon: Moon, action: onSleep }
+    { type: "wakeup" as const, icon: Sunrise, action: onWakeup, tone: "#EFAF52" },
+    { type: "focus_today" as const, icon: CheckCircle2, action: onFocusCheckin, tone: "var(--app-primary-strong)" },
+    { type: "sleep" as const, icon: Moon, action: onSleep, tone: "#6E78B7" }
   ];
 
   return createPortal(
@@ -59,7 +60,7 @@ export function QuickActionMenu({ open, onOpenChange, onWakeup, onFocusCheckin, 
                   animate={{ opacity: 1 }}
                   className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-bold text-[var(--app-text)] transition hover:bg-[var(--app-primary-soft)]"
                   initial={{ opacity: 0 }}
-                  key={item.label}
+                  key={item.type}
                   onClick={() => {
                     item.action();
                     onOpenChange(false);
@@ -67,12 +68,12 @@ export function QuickActionMenu({ open, onOpenChange, onWakeup, onFocusCheckin, 
                   transition={{ duration: reduceMotion ? 0 : 0.12 }}
                   type="button"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--app-primary-soft)] text-[var(--app-primary-strong)]">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[var(--app-primary-soft)]" style={{ color: item.tone }}>
                     <Icon size={16} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block font-black">{item.label}</span>
-                    <span className="mt-0.5 block truncate text-xs font-semibold text-[var(--app-muted)]">{item.description}</span>
+                    <span className="block font-black">{checkinLabel(item.type)}</span>
+                    <span className="mt-0.5 block text-xs font-semibold leading-4 text-[var(--app-muted)]">{checkinMenuDescription(item.type)}</span>
                   </span>
                 </motion.button>
               );

@@ -1,7 +1,7 @@
 import { Badge } from "@/components/common/Badge";
 import { Card } from "@/components/common/Card";
 import { StatsEmptyState } from "@/components/stats/StatsEmptyState";
-import { formatMinutes, timeText } from "@/components/stats/statsFormat";
+import { formatDuration, timeText } from "@/components/stats/statsFormat";
 import type { RecentSession } from "@/types/stats";
 
 const timerTypeText = {
@@ -28,7 +28,7 @@ export function RecentSessionsCard({ sessions }: { sessions: RecentSession[] }) 
                 </Badge>
               </div>
               <p className="mt-1 text-xs font-semibold text-[var(--app-muted)]">
-                {timerTypeText[session.timerType]} · {timeText(session.startedAt)}-{timeText(session.endedAt)} · {formatMinutes(session.actualMinutes)}
+                {timerTypeText[session.timerType]} · {timeText(session.startedAt)}-{timeText(session.endedAt)} · {formatDuration(session.actualSeconds, session.actualMinutes)}
               </p>
               {session.interruptReason ? <p className="mt-1 text-xs font-bold text-[var(--app-primary-strong)]">原因：{session.interruptReason}</p> : null}
             </div>

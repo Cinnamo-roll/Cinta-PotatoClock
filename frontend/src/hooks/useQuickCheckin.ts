@@ -1,22 +1,9 @@
 import confetti from "canvas-confetti";
 import { useState } from "react";
-import { statsApi } from "@/api/stats";
 import { useCreateCheckinMutation } from "@/hooks/useApiQueries";
-import { buildCheckinPayload, buildCheckinToast, checkinFailureHint, checkinNeedsNote, checkinWindowError, checkinWindowHint, type CheckinLineLike, type CheckinType } from "@/services/checkinService";
+import { buildCheckinPayload, buildCheckinToast, checkinFailureHint, checkinNeedsNote, checkinWindowError, checkinWindowHint, type CheckinType } from "@/services/checkinService";
 import { lightImpact, successFeedback } from "@/services/hapticsService";
 import { useUiStore } from "@/stores/uiStore";
-
-function pad(value: number) {
-  return String(value).padStart(2, "0");
-}
-
-function monthKey(date: Date) {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
-}
-
-function previousMonthKey(date: Date) {
-  return monthKey(new Date(date.getFullYear(), date.getMonth() - 1, 1));
-}
 
 function celebrateCheckin(type: CheckinType) {
   void successFeedback();
@@ -30,13 +17,6 @@ function celebrateCheckin(type: CheckinType) {
     startVelocity: 34,
     ticks: 120
   });
-}
-
-async function checkinLineItems(type: CheckinType, date: Date): Promise<CheckinLineLike[]> {
-  if (type === "focus_today") return [];
-  const lineRequest = type === "wakeup" ? statsApi.wakeupLine : statsApi.sleepLine;
-  const [previous, current] = await Promise.all([lineRequest(previousMonthKey(date)), lineRequest(monthKey(date))]);
-  return [...previous, ...current];
 }
 
 export function useQuickCheckin() {
@@ -59,15 +39,9 @@ export function useQuickCheckin() {
 
     try {
       await createCheckin.mutateAsync(buildCheckinPayload(type, checkinDate, note));
-      let lineItems: CheckinLineLike[] = [];
-      try {
-        lineItems = await checkinLineItems(type, checkinDate);
-      } catch {
-        lineItems = [];
-      }
-      const message = await buildCheckinToast(type, checkinDate, lineItems, note);
+      const message = buildCheckinToast(type, checkinDate);
       celebrateCheckin(type);
-      quickToast(message.title, "success", message.description, 12000);
+      quickToast(message.title, "success", message.description, 6000);
     } catch (error) {
       const message = checkinFailureHint(type, error instanceof Error ? error.message : undefined);
       quickToast(message.title, "error", message.description, 8000);

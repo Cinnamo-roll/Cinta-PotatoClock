@@ -50,11 +50,10 @@ public class PotatoSessionService {
             task = taskRepository.findByIdAndUserIdAndDeletedFalse(taskId, userId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.TASK_NOT_FOUND));
         }
-        validateCreateRequest(request);
-
         TimerType timerType = request.timerType() == null
                 ? (task == null ? TimerType.countdown : task.getTimerType())
                 : request.timerType();
+        validateCreateRequest(request, timerType);
         TodoCategory category = request.category() == null
                 ? (task == null ? TodoCategory.normal : task.getCategory())
                 : request.category();
@@ -66,7 +65,9 @@ public class PotatoSessionService {
         }
         boolean interrupted = Boolean.TRUE.equals(request.interrupted());
         boolean completed = Boolean.TRUE.equals(request.completed());
-        boolean countToStats = task != null && Boolean.FALSE.equals(task.getCountToStats())
+        boolean countToStats = timerType == TimerType.none
+                ? false
+                : task != null && Boolean.FALSE.equals(task.getCountToStats())
                 ? false
                 : request.countToStats() == null || Boolean.TRUE.equals(request.countToStats());
 
@@ -108,7 +109,7 @@ public class PotatoSessionService {
                                             int size) {
         Long userId = SecurityUtils.currentUserId();
         int safePage = Math.max(0, page);
-        int safeSize = Math.max(1, Math.min(size, 100));
+        int safeSize = Math.max(1, Math.min(size, 500));
         DateRange dateRange = resolveDateRange(startDate, endDate, monthValue);
         Specification<PotatoSession> spec = sessionSpec(userId, dateRange.start(), dateRange.end(), taskId, collectionId, completed, interrupted);
         Page<PotatoSession> result = sessionRepository.findAll(spec, PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "startedAt")));
@@ -214,11 +215,12 @@ public class PotatoSessionService {
         clearTodayStats(userId, statsDate);
     }
 
-    private void validateCreateRequest(PotatoSessionCreateRequest request) {
-        if (request.actualSeconds() < 5) {
+    private void validateCreateRequest(PotatoSessionCreateRequest request, TimerType timerType) {
+        boolean noTimerCompletion = timerType == TimerType.none && Boolean.TRUE.equals(request.completed());
+        if (!noTimerCompletion && request.actualSeconds() < 5) {
             throw new BusinessException(ErrorCode.PARAM_ERROR, "Focus sessions shorter than 5 seconds are not recorded");
         }
-        if (!request.endedAt().isAfter(request.startedAt())) {
+        if (request.endedAt().isBefore(request.startedAt()) || (!noTimerCompletion && !request.endedAt().isAfter(request.startedAt()))) {
             throw new BusinessException(ErrorCode.PARAM_ERROR, "endedAt must be after startedAt");
         }
         long wallClockSeconds = java.time.Duration.between(request.startedAt(), request.endedAt()).getSeconds();

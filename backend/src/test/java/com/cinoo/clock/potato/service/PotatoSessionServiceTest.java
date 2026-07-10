@@ -4,6 +4,7 @@ import com.cinoo.clock.TestSecurity;
 import com.cinoo.clock.collection.repository.TodoCollectionRepository;
 import com.cinoo.clock.common.enums.ErrorCode;
 import com.cinoo.clock.common.enums.SessionMode;
+import com.cinoo.clock.common.enums.TimerType;
 import com.cinoo.clock.common.exception.BusinessException;
 import com.cinoo.clock.potato.dto.PotatoSessionCreateRequest;
 import com.cinoo.clock.potato.dto.PotatoSessionUpdateRequest;
@@ -73,6 +74,37 @@ class PotatoSessionServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.PARAM_ERROR);
+    }
+
+    @Test
+    void noTimerCompletionCanRecordZeroSecondsWithoutEnteringStats() {
+        TestSecurity.loginAs(1L);
+        PotatoSessionRepository sessionRepository = mock(PotatoSessionRepository.class);
+        TaskRepository taskRepository = mock(TaskRepository.class);
+        FocusTask task = new FocusTask();
+        task.setId(2L);
+        task.setUserId(1L);
+        task.setTitle("喝水");
+        task.setTimerType(TimerType.none);
+        task.setCountToStats(true);
+        task.setCompletedPotatoes(0);
+        when(taskRepository.findByIdAndUserIdAndDeletedFalse(2L, 1L)).thenReturn(Optional.of(task));
+        when(sessionRepository.save(any(PotatoSession.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        PotatoSessionService service = new PotatoSessionService(
+                sessionRepository,
+                taskRepository,
+                mock(TodoCollectionRepository.class),
+                mock(StringRedisTemplate.class)
+        );
+        LocalDateTime completedAt = LocalDateTime.of(2026, 7, 11, 9, 30);
+
+        var response = service.create(new PotatoSessionCreateRequest(
+                2L, null, null, SessionMode.focus, TimerType.none, null, 0, 0, 0,
+                completedAt, completedAt, true, false, null, true, null));
+
+        assertThat(response.actualSeconds()).isZero();
+        assertThat(response.countToStats()).isFalse();
+        assertThat(task.getCompletedPotatoes()).isZero();
     }
 
     @Test

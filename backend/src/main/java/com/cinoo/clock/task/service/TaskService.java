@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -38,7 +39,7 @@ public class TaskService {
         }
         FocusTask task = new FocusTask();
         task.setUserId(userId);
-        task.setTitle(request.title());
+        task.setTitle(request.title().trim());
         task.setDescription(request.description());
         task.setCollectionId(ownedCollectionId(request.collectionId(), userId));
         task.setTimerType(request.timerType() == null ? TimerType.countdown : request.timerType());
@@ -46,13 +47,14 @@ public class TaskService {
         task.setCategory(request.category() == null ? TodoCategory.normal : request.category());
         task.setPriority(request.priority() == null ? TaskPriority.medium : request.priority());
         task.setBackgroundStyle(blankToDefault(request.backgroundStyle(), "default"));
-        task.setCountToStats(request.countToStats() == null || request.countToStats());
+        task.setCountToStats(task.getTimerType() != TimerType.none && (request.countToStats() == null || request.countToStats()));
         task.setSortOrder(request.sortOrder() == null ? 0 : request.sortOrder());
         task.setHabitFrequency(request.habitFrequency());
         task.setTargetAmount(request.targetAmount());
         task.setTargetUnit(blankToNull(request.targetUnit()));
         task.setTargetDeadline(request.targetDeadline());
         task.setCurrent(Boolean.TRUE.equals(request.isCurrent()));
+        normalizeTargetRules(task);
         return toResponse(taskRepository.save(task));
     }
 
@@ -64,7 +66,7 @@ public class TaskService {
     @Transactional
     public TaskResponse update(Long id, TaskUpdateRequest request) {
         FocusTask task = findOwned(id);
-        if (request.title() != null && !request.title().isBlank()) task.setTitle(request.title());
+        if (request.title() != null && !request.title().isBlank()) task.setTitle(request.title().trim());
         if (request.description() != null) task.setDescription(request.description());
         if (Boolean.TRUE.equals(request.clearCollection())) {
             task.setCollectionId(null);
@@ -84,6 +86,7 @@ public class TaskService {
         if (request.targetAmount() != null) task.setTargetAmount(request.targetAmount());
         if (request.targetUnit() != null) task.setTargetUnit(blankToNull(request.targetUnit()));
         if (request.targetDeadline() != null) task.setTargetDeadline(request.targetDeadline());
+        normalizeTargetRules(task);
         return toResponse(task);
     }
 
@@ -148,8 +151,8 @@ public class TaskService {
     }
 
     private Integer resolveDuration(Integer durationMinutes, TimerType timerType) {
-        if (timerType == TimerType.none) {
-            return durationMinutes == null ? 0 : durationMinutes;
+        if (timerType != TimerType.countdown) {
+            return 0;
         }
         Integer value = durationMinutes == null ? 25 : durationMinutes;
         if (timerType == TimerType.countdown && (value < 1 || value > 180)) {
@@ -159,6 +162,40 @@ public class TaskService {
             throw new BusinessException(ErrorCode.PARAM_ERROR, "计时时长需要在 0 到 180 分钟之间");
         }
         return value;
+    }
+
+    private void normalizeTargetRules(FocusTask task) {
+        if (task.getTimerType() != TimerType.countdown) {
+            task.setDurationMinutes(0);
+        }
+        if (task.getTimerType() == TimerType.none) {
+            task.setCountToStats(false);
+        }
+        if (task.getCategory() == TodoCategory.normal) {
+            task.setHabitFrequency(null);
+            task.setTargetAmount(null);
+            task.setTargetUnit(null);
+            task.setTargetDeadline(null);
+            return;
+        }
+        if (task.getTargetAmount() == null || task.getTargetAmount() < 1 || task.getTargetAmount() > 100000) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "计划量需要在 1 到 100000 之间");
+        }
+        task.setTargetUnit(task.getTimerType() == TimerType.none ? "次" : blankToDefault(task.getTargetUnit(), "分钟"));
+        if (!"次".equals(task.getTargetUnit()) && !"分钟".equals(task.getTargetUnit())) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "计划单位只能是分钟或次");
+        }
+        if (task.getCategory() == TodoCategory.habit) {
+            task.setHabitFrequency(task.getHabitFrequency() == null ? HabitFrequency.daily : task.getHabitFrequency());
+            task.setTargetDeadline(null);
+            return;
+        }
+        task.setHabitFrequency(null);
+        LocalDate deadline = task.getTargetDeadline() == null ? LocalDate.now() : task.getTargetDeadline();
+        if (deadline.isBefore(LocalDate.now())) {
+            throw new BusinessException(ErrorCode.PARAM_ERROR, "截止日期不能早于今天");
+        }
+        task.setTargetDeadline(deadline);
     }
 
     private TaskResponse toResponse(FocusTask task) {

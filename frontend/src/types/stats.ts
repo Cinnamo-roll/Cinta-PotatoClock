@@ -72,6 +72,7 @@ export interface RecentSession {
   completed: boolean;
   interrupted: boolean;
   interruptReason?: string | null;
+  countToStats?: boolean;
 }
 
 export interface TaskStatsItem {

@@ -18,7 +18,7 @@ interface AchievementItem {
 }
 
 function numberValue(value: number | undefined | null) {
-  return Number.isFinite(value) ? Math.max(0, Math.round(value ?? 0)) : 0;
+  return Number.isFinite(value) ? Math.max(0, value ?? 0) : 0;
 }
 
 function clampPercent(current: number, target: number) {
@@ -29,16 +29,17 @@ function clampPercent(current: number, target: number) {
 function progressText(item: AchievementItem) {
   const current = numberValue(item.current);
   const target = numberValue(item.target);
-  if (item.suffix === "%") return `${current}/${target}%`;
-  if (item.unit === "分钟") return `${formatMinutes(current)}/${formatMinutes(target)}`;
-  if (item.unit === "分钟/天") return `${formatMinutes(current)}/${formatMinutes(target)}/天`;
-  return `${current}/${target} ${item.unit}`;
+  const shownCurrent = Math.min(target, Math.round(current));
+  if (item.suffix === "%") return `${shownCurrent}/${target}%`;
+  if (item.unit === "分钟") return `${formatMinutes(shownCurrent)}/${formatMinutes(target)}`;
+  if (item.unit === "分钟/天") return `${formatMinutes(shownCurrent)}/${formatMinutes(target)}/天`;
+  return `${shownCurrent}/${target} ${item.unit}`;
 }
 
 function remainingText(item: AchievementItem) {
   const current = numberValue(item.current);
   const target = numberValue(item.target);
-  const remaining = Math.max(0, target - current);
+  const remaining = Math.max(0, Math.ceil(target - current));
   if (remaining <= 0) return "已完成";
   if (item.suffix === "%") return `还差 ${remaining}%`;
   if (item.unit === "分钟") return `还差 ${formatMinutes(remaining)}`;
@@ -114,7 +115,9 @@ export function AchievementEntry({ open, summary, stats, onClose }: { open: bool
   const achievements = buildAchievements(summary, stats);
   const categories: AchievementCategory[] = ["累计专注", "近期节奏", "年度稳定", "打卡习惯"];
   const unlockedCount = achievements.filter((item) => item.current >= item.target).length;
-  const nextAchievement = achievements.find((item) => item.current < item.target);
+  const nextAchievement = achievements
+    .filter((item) => item.current < item.target)
+    .sort((a, b) => b.current / b.target - a.current / a.target || a.target - b.target)[0];
 
   return (
     <Dialog.Root open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>

@@ -6,35 +6,45 @@ struct FocusLiveActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: FocusActivityAttributes.self) { context in
             LockScreenTimerView(context: context)
-                .activityBackgroundTint(Color(red: 1.0, green: 0.95, blue: 0.78))
-                .activitySystemActionForegroundColor(Color(red: 0.32, green: 0.22, blue: 0.16))
+                .activityBackgroundTint(Color(red: 1.0, green: 0.96, blue: 0.84))
+                .activitySystemActionForegroundColor(Color(red: 0.30, green: 0.22, blue: 0.14))
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Image(systemName: "timer")
-                        .foregroundStyle(Color(red: 0.40, green: 0.67, blue: 0.47))
+                    HStack(spacing: 6) {
+                        Image(systemName: "clock.fill")
+                        Text("土豆时钟")
+                            .font(.system(.caption, design: .rounded).weight(.bold))
+                    }
+                    .foregroundStyle(Color(red: 0.95, green: 0.65, blue: 0.20))
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     TimerValueView(state: context.state, compact: true)
                         .font(.system(.headline, design: .rounded).monospacedDigit())
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text(context.state.title)
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                        .lineLimit(1)
+                    HStack(spacing: 8) {
+                        Text(context.state.title)
+                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .lineLimit(1)
+                        Spacer(minLength: 4)
+                        Text(context.state.state == "paused" ? "已暂停" : "专注中")
+                            .font(.system(.caption2, design: .rounded).weight(.bold))
+                            .foregroundStyle(.secondary)
+                    }
                 }
             } compactLeading: {
-                Image(systemName: "timer")
-                    .foregroundStyle(Color(red: 0.40, green: 0.67, blue: 0.47))
+                Image(systemName: "clock.fill")
+                    .foregroundStyle(Color(red: 0.95, green: 0.65, blue: 0.20))
             } compactTrailing: {
                 TimerValueView(state: context.state, compact: true)
                     .font(.system(.caption, design: .rounded).monospacedDigit())
                     .frame(maxWidth: 52)
             } minimal: {
-                Image(systemName: "timer")
-                    .foregroundStyle(Color(red: 0.40, green: 0.67, blue: 0.47))
+                Image(systemName: "clock.fill")
+                    .foregroundStyle(Color(red: 0.95, green: 0.65, blue: 0.20))
             }
-            .keylineTint(Color(red: 0.40, green: 0.67, blue: 0.47))
+            .keylineTint(Color(red: 0.95, green: 0.65, blue: 0.20))
         }
     }
 }
@@ -45,10 +55,10 @@ private struct LockScreenTimerView: View {
     var body: some View {
         HStack(spacing: 14) {
             ZStack {
-                Circle().fill(Color(red: 0.88, green: 0.96, blue: 0.89))
-                Image(systemName: "timer")
+                Circle().fill(Color(red: 1.0, green: 0.88, blue: 0.56))
+                Image(systemName: "clock.fill")
                     .font(.title3.weight(.bold))
-                    .foregroundStyle(Color(red: 0.34, green: 0.60, blue: 0.40))
+                    .foregroundStyle(Color(red: 0.48, green: 0.31, blue: 0.14))
             }
             .frame(width: 44, height: 44)
 
@@ -65,6 +75,9 @@ private struct LockScreenTimerView: View {
 
             TimerValueView(state: context.state, compact: false)
                 .font(.system(.title3, design: .rounded).weight(.bold).monospacedDigit())
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(.white.opacity(0.55), in: Capsule())
         }
         .padding(16)
     }

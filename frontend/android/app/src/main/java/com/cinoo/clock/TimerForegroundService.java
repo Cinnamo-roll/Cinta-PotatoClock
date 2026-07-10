@@ -73,12 +73,15 @@ public class TimerForegroundService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ACTIVE_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_icon)
             .setContentTitle(snapshot.title)
+            .setSubText("土豆时钟ToDo")
             .setContentIntent(appPendingIntent())
             .setCategory(NotificationCompat.CATEGORY_STOPWATCH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
             .setOngoing(true)
             .setSilent(true)
+            .setColor(0xFFF0A43C)
+            .setColorized(false)
             .setShowWhen(true)
             .setPriority(NotificationCompat.PRIORITY_LOW);
 
@@ -88,13 +91,13 @@ public class TimerForegroundService extends Service {
                 .setUsesChronometer(false);
         } else if ("countdown".equals(snapshot.timerType)) {
             builder
-                .setContentText("专注中 · 剩余时间")
+                .setContentText("倒计时进行中")
                 .setWhen(snapshot.endAt)
                 .setUsesChronometer(true)
                 .setChronometerCountDown(true);
         } else if ("countup".equals(snapshot.timerType)) {
             builder
-                .setContentText("专注中 · 已用时间")
+                .setContentText("正计时进行中")
                 .setWhen(snapshot.startedAt > 0 ? snapshot.startedAt : System.currentTimeMillis())
                 .setUsesChronometer(true);
         } else {

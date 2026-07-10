@@ -39,8 +39,8 @@ public class CheckinService {
     public CheckinResponse create(CheckinCreateRequest request) {
         Long userId = SecurityUtils.currentUserId();
         validateCheckinTime(request.type(), request.checkinTime());
-        LocalDate checkinDate = request.checkinTime().toLocalDate();
-        if (checkinRepository.existsByUserIdAndTypeAndCheckinTimeBetween(userId, request.type(), checkinDate.atStartOfDay(), checkinDate.atTime(LocalTime.MAX))) {
+        CheckinRange range = checkinRange(request.type(), request.checkinTime());
+        if (checkinRepository.existsByUserIdAndTypeAndCheckinTimeBetween(userId, request.type(), range.start(), range.end())) {
             throw new BusinessException(ErrorCode.PARAM_ERROR, checkinLabel(request.type()) + "今天已经完成了");
         }
 
@@ -85,8 +85,8 @@ public class CheckinService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
         if (request.checkinTime() != null) {
             validateCheckinTime(record.getType(), request.checkinTime());
-            LocalDate checkinDate = request.checkinTime().toLocalDate();
-            if (checkinRepository.existsByUserIdAndTypeAndCheckinTimeBetweenAndIdNot(userId, record.getType(), checkinDate.atStartOfDay(), checkinDate.atTime(LocalTime.MAX), id)) {
+            CheckinRange range = checkinRange(record.getType(), request.checkinTime());
+            if (checkinRepository.existsByUserIdAndTypeAndCheckinTimeBetweenAndIdNot(userId, record.getType(), range.start(), range.end(), id)) {
                 throw new BusinessException(ErrorCode.PARAM_ERROR, checkinLabel(record.getType()) + "今天已经完成了");
             }
             record.setCheckinTime(request.checkinTime());
@@ -108,7 +108,7 @@ public class CheckinService {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("checkinTime"), startDate.atStartOfDay()));
             }
             if (endDate != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("checkinTime"), endDate.atTime(LocalTime.MAX)));
+                predicates.add(cb.lessThan(root.get("checkinTime"), endDate.plusDays(1).atTime(SLEEP_END)));
             }
             return cb.and(predicates.toArray(Predicate[]::new));
         };
@@ -128,6 +128,15 @@ public class CheckinService {
         return !time.isBefore(SLEEP_START) || time.isBefore(SLEEP_END);
     }
 
+    private CheckinRange checkinRange(CheckinType type, LocalDateTime checkinTime) {
+        LocalDate date = checkinTime.toLocalDate();
+        if (type == CheckinType.sleep) {
+            LocalDate sleepDate = checkinTime.toLocalTime().isBefore(SLEEP_END) ? date.minusDays(1) : date;
+            return new CheckinRange(sleepDate.atTime(SLEEP_START), sleepDate.plusDays(1).atTime(SLEEP_END).minusNanos(1));
+        }
+        return new CheckinRange(date.atStartOfDay(), date.atTime(LocalTime.MAX));
+    }
+
     private String checkinLabel(CheckinType type) {
         return switch (type) {
             case wakeup -> "起床打卡";
@@ -138,5 +147,8 @@ public class CheckinService {
 
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value;
+    }
+
+    private record CheckinRange(LocalDateTime start, LocalDateTime end) {
     }
 }

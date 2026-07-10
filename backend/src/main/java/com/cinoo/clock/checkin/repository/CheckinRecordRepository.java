@@ -21,7 +21,12 @@ public interface CheckinRecordRepository extends JpaRepository<CheckinRecord, Lo
     @Query(value = """
             select hour(checkin_time), count(*)
             from checkin_records
-            where user_id = :userId and type = :type and checkin_time between :start and :end
+            where user_id = :userId and type = :type
+              and (case
+                    when type = 'sleep' and time(checkin_time) < '02:00:00'
+                      then date_sub(date(checkin_time), interval 1 day)
+                    else date(checkin_time)
+                   end) between date(:start) and date(:end)
             group by hour(checkin_time)
             order by hour(checkin_time)
             """, nativeQuery = true)
@@ -31,11 +36,22 @@ public interface CheckinRecordRepository extends JpaRepository<CheckinRecord, Lo
                                    @Param("end") LocalDateTime end);
 
     @Query(value = """
-            select date(checkin_time), type, count(*)
+            select (case
+                      when type = 'sleep' and time(checkin_time) < '02:00:00'
+                        then date_sub(date(checkin_time), interval 1 day)
+                      else date(checkin_time)
+                    end) as checkin_date,
+                   type,
+                   count(*)
             from checkin_records
-            where user_id = :userId and checkin_time between :start and :end
-            group by date(checkin_time), type
-            order by date(checkin_time)
+            where user_id = :userId
+              and (case
+                    when type = 'sleep' and time(checkin_time) < '02:00:00'
+                      then date_sub(date(checkin_time), interval 1 day)
+                    else date(checkin_time)
+                   end) between date(:start) and date(:end)
+            group by checkin_date, type
+            order by checkin_date
             """, nativeQuery = true)
     List<Object[]> aggregateByDateAndType(@Param("userId") Long userId,
                                           @Param("start") LocalDateTime start,
@@ -53,11 +69,21 @@ public interface CheckinRecordRepository extends JpaRepository<CheckinRecord, Lo
                               @Param("end") LocalDateTime end);
 
     @Query(value = """
-            select date(checkin_time), max(checkin_time)
+            select (case
+                      when time(checkin_time) < '02:00:00'
+                        then date_sub(date(checkin_time), interval 1 day)
+                      else date(checkin_time)
+                    end) as sleep_date,
+                   max(checkin_time)
             from checkin_records
-            where user_id = :userId and type = 'sleep' and checkin_time between :start and :end
-            group by date(checkin_time)
-            order by date(checkin_time)
+            where user_id = :userId and type = 'sleep'
+              and (case
+                    when time(checkin_time) < '02:00:00'
+                      then date_sub(date(checkin_time), interval 1 day)
+                    else date(checkin_time)
+                   end) between date(:start) and date(:end)
+            group by sleep_date
+            order by sleep_date
             """, nativeQuery = true)
     List<Object[]> sleepLine(@Param("userId") Long userId,
                              @Param("start") LocalDateTime start,

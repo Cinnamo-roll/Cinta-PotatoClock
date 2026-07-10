@@ -10,6 +10,16 @@ export function localMonthKey(date = new Date()) {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}`;
 }
 
+export function localDateTime(date = new Date()) {
+  return `${localDateKey(date)}T${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
+}
+
+export function addLocalDays(dateKey: string, days: number) {
+  const next = parseLocalDate(dateKey);
+  next.setDate(next.getDate() + days);
+  return localDateKey(next);
+}
+
 export function parseLocalDate(value: string) {
   const [year, month, day] = value.split("-").map(Number);
   return new Date(year, (month || 1) - 1, day || 1);

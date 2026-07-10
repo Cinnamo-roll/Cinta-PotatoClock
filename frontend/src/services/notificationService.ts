@@ -104,7 +104,7 @@ export async function scheduleFocusEndNotification(params: { todoId: number; tod
     const timeoutMs = at.getTime() - Date.now();
     const timer = window.setTimeout(() => {
       webNotificationTimers.delete(key);
-      showWebNotification("专注完成", `「${params.todoTitle}」到点了`);
+      showWebNotification("专注完成了", `「${params.todoTitle}」已到点`);
     }, timeoutMs);
     webNotificationTimers.set(key, timer);
     return;
@@ -113,8 +113,8 @@ export async function scheduleFocusEndNotification(params: { todoId: number; tod
     notifications: [
       {
         id: focusNotificationId(params.todoId),
-        title: "专注完成",
-        body: `「${params.todoTitle}」到点了，回来收个尾吧`,
+        title: "专注完成了",
+        body: `「${params.todoTitle}」已到点，回来确认完成吧`,
         schedule: { at },
         sound: "default"
       }
@@ -153,7 +153,7 @@ export async function scheduleFuturePlanNotification(params: { planId: string | 
     await cancelFuturePlanNotification(params.planId);
     const timer = window.setTimeout(() => {
       webNotificationTimers.delete(key);
-      showWebNotification("未来计划到点", `「${params.title}」就是今天`);
+      showWebNotification("今天的计划到了", `「${params.title}」就在今天`);
     }, at.getTime() - Date.now());
     webNotificationTimers.set(key, timer);
     return;
@@ -162,8 +162,8 @@ export async function scheduleFuturePlanNotification(params: { planId: string | 
     notifications: [
       {
         id: futurePlanNotificationId(params.planId),
-        title: "未来计划到点",
-        body: `「${params.title}」就是今天`,
+        title: "今天的计划到了",
+        body: `「${params.title}」就在今天`,
         schedule: { at },
         sound: "default"
       }

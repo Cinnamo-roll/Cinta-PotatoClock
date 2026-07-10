@@ -1,14 +1,14 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { Card } from "@/components/common/Card";
-import { formatMinutes } from "@/components/stats/statsFormat";
+import { formatDuration } from "@/components/stats/statsFormat";
 import type { MonthlyStats } from "@/types/stats";
 
 export function MonthStatsCard({ monthly, onShiftMonth }: { monthly: MonthlyStats; onShiftMonth: (step: -1 | 1) => void }) {
   const reduceMotion = useReducedMotion();
   const rows = [
     { label: "完成专注", value: `${monthly.focusCount} 次`, progress: Math.min(100, monthly.focusCount * 4) },
-    { label: "专注时长", value: formatMinutes(monthly.focusMinutes), progress: Math.min(100, monthly.focusMinutes / 12) },
+    { label: "专注时长", value: formatDuration(monthly.focusSeconds, monthly.focusMinutes), progress: Math.min(100, monthly.focusMinutes / 12) },
     { label: "放弃专注", value: `${monthly.abandonedCount} 次`, progress: Math.min(100, monthly.abandonedCount * 12) },
     { label: "完成率", value: `${monthly.completionRate}%`, progress: monthly.completionRate },
     { label: "专注天数", value: `${monthly.activeDays} 天`, progress: Math.min(100, (monthly.activeDays / 30) * 100) }

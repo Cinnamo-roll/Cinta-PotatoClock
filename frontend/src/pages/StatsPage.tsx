@@ -20,8 +20,9 @@ import { TotalFocusCard } from "@/components/stats/TotalFocusCard";
 import { WakeupCheckinLineChartCard } from "@/components/stats/WakeupCheckinLineChartCard";
 import { WeeklySummaryModal } from "@/components/stats/WeeklySummaryModal";
 import { YearStatsCard } from "@/components/stats/YearStatsCard";
-import { formatMinutes } from "@/components/stats/statsFormat";
+import { formatDuration } from "@/components/stats/statsFormat";
 import { useStatsQuery, useTimerSessionsRangeQuery } from "@/hooks/useApiQueries";
+import { useTodayKey } from "@/hooks/useTodayKey";
 import type { CheckinLineItem, StatsDateRange, StatsRange } from "@/types/stats";
 import { daysInLocalMonth, localDateKey, localMonthKey } from "@/utils/date";
 
@@ -127,7 +128,7 @@ export default function StatsPage() {
   const monthLabel = formatMonth(statsMonthDate);
   const statsOptions = useMemo(() => ({ month: monthLabel, year: statsYear, collectionId, todoId }), [collectionId, monthLabel, statsYear, todoId]);
   const { data, error, isError, isFetching, isLoading, isPlaceholderData } = useStatsQuery(range, dateRange, statsOptions);
-  const todayKey = useMemo(() => localDateKey(), []);
+  const todayKey = useTodayKey();
   const { data: collectionSessions = [], isFetching: isFetchingCollectionSessions } = useTimerSessionsRangeQuery(
     "1970-01-01",
     todayKey,
@@ -142,7 +143,7 @@ export default function StatsPage() {
     const focusSeconds = completedSessions.reduce((sum, session) => sum + completedSeconds(session), 0);
     return {
       completedSessions,
-      focusMinutes: Math.floor(focusSeconds / 60),
+      focusSeconds,
       activeDays: new Set(completedSessions.map((session) => session.startedAt.slice(0, 10))).size
     };
   }, [collectionSessions]);
@@ -197,7 +198,7 @@ export default function StatsPage() {
             {isFetchingCollectionSessions ? <p className="mt-2 text-xs font-bold text-[var(--app-muted)]">正在同步待办集历史记录...</p> : null}
             <div className="mt-4 grid grid-cols-3 gap-2">
               <MetricTile label="完成次数" value={collectionStats.completedSessions.length} valueClassName="text-lg" />
-              <MetricTile label="专注时长" value={formatMinutes(collectionStats.focusMinutes)} valueClassName="text-lg" />
+              <MetricTile label="专注时长" value={formatDuration(collectionStats.focusSeconds)} valueClassName="text-lg" />
               <MetricTile label="活跃天数" value={collectionStats.activeDays} valueClassName="text-lg" />
             </div>
           </Card>

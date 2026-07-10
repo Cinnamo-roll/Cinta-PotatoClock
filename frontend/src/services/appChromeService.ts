@@ -46,7 +46,6 @@ export async function setupAppChrome(): Promise<() => void> {
       StatusBar.setBackgroundColor({ color: "#FDECF2" }),
       StatusBar.setStyle({ style: Style.Light })
     ]);
-    await SplashScreen.hide().catch(() => undefined);
   }
 
   const refresh = () => void applyViewportMetrics();
@@ -62,6 +61,7 @@ export async function setupAppChrome(): Promise<() => void> {
   };
 
   await applyViewportMetrics();
+  if (isNativeApp) await SplashScreen.hide().catch(() => undefined);
   window.visualViewport?.addEventListener("resize", refresh);
   window.visualViewport?.addEventListener("scroll", refresh);
   window.addEventListener("orientationchange", refresh);

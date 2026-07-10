@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { CalendarDays, ChevronLeft, ChevronRight, Clock3, Pencil, Trash2, X } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Clock3, MoreHorizontal, Pencil, Trash2, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { sessionsApi } from "@/api/sessions";
 import { statsApi } from "@/api/stats";
@@ -8,11 +8,14 @@ import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { StatsEmptyState } from "@/components/stats/StatsEmptyState";
-import { formatMinutes, timeText } from "@/components/stats/statsFormat";
+import { formatDuration, formatMinutes, timeText } from "@/components/stats/statsFormat";
 import { useDeleteCheckinMutation, useDeleteTimerSessionMutation, useUpdateCheckinMutation, useUpdateTimerSessionMutation } from "@/hooks/useApiQueries";
 import { useUiStore } from "@/stores/uiStore";
 import type { CheckinRecordItem } from "@/types/stats";
 import type { TimerSession } from "@/types/session";
+import { checkinBusinessDate } from "@/services/checkinService";
+import { addLocalDays } from "@/utils/date";
+import { formatSeconds } from "@/utils/format";
 
 type HistoryRecord =
   | { kind: "focus"; id: number; date: string; time: string; session: TimerSession }
@@ -88,10 +91,20 @@ function localDateTime(date: string, time: string) {
   return `${date}T${time}:00`;
 }
 
-function minutesBetween(date: string, startTime: string, endTime: string) {
+function timeRange(date: string, startTime: string, endTime: string) {
   const startedAt = new Date(localDateTime(date, startTime));
-  const endedAt = new Date(localDateTime(date, endTime));
-  return Math.floor((endedAt.getTime() - startedAt.getTime()) / 60000);
+  const endDate = endTime <= startTime ? addLocalDays(date, 1) : date;
+  const endedAt = new Date(localDateTime(endDate, endTime));
+  return {
+    minutes: Math.floor((endedAt.getTime() - startedAt.getTime()) / 60000),
+    startedAt: localDateTime(date, startTime),
+    endedAt: localDateTime(endDate, endTime)
+  };
+}
+
+function checkinDateTime(record: Extract<HistoryRecord, { kind: "checkin" }>, time: string) {
+  const date = record.checkin.type === "sleep" && time < "02:00" ? addLocalDays(record.date, 1) : record.date;
+  return localDateTime(date, time);
 }
 
 function checkinWindowText(record: HistoryRecord | null) {
@@ -118,7 +131,9 @@ function focusStatusText(session: TimerSession) {
 }
 
 function focusMinutesText(session: TimerSession) {
-  return formatMinutes(Math.floor((session.actualSeconds ?? session.actualMinutes * 60) / 60));
+  if (session.timerType === "none") return "完成记录";
+  const seconds = session.actualSeconds ?? session.actualMinutes * 60;
+  return seconds < 60 ? formatSeconds(seconds) : formatMinutes(Math.floor(seconds / 60));
 }
 
 function recordNoteText(value?: string | null) {
@@ -141,7 +156,7 @@ function toRecords(sessions: TimerSession[], checkins: CheckinRecordItem[]): His
     ...checkins.map((checkin) => ({
       kind: "checkin" as const,
       id: checkin.id,
-      date: checkin.checkinTime.slice(0, 10),
+      date: checkinBusinessDate(checkin.type, new Date(checkin.checkinTime)),
       time: checkin.checkinTime.slice(11, 16),
       checkin
     }))
@@ -159,28 +174,14 @@ function RecordBadge({ record }: { record: HistoryRecord }) {
   );
 }
 
-function RecordCard({ record, onLongPress }: { record: HistoryRecord; onLongPress: (record: HistoryRecord) => void }) {
-  const timerRef = useRef<number | null>(null);
-
-  const clearTimer = () => {
-    if (timerRef.current != null) window.clearTimeout(timerRef.current);
-    timerRef.current = null;
-  };
-
+function RecordCard({ record, onOpen }: { record: HistoryRecord; onOpen: (record: HistoryRecord) => void }) {
   return (
-    <button
-      className="w-full rounded-[18px] bg-[var(--app-card-soft)] p-3 text-left transition active:scale-[0.99]"
-      onPointerDown={() => {
-        clearTimer();
-        timerRef.current = window.setTimeout(() => onLongPress(record), 520);
-      }}
-      onPointerLeave={clearTimer}
-      onPointerUp={clearTimer}
-      onPointerCancel={clearTimer}
-      type="button"
-    >
+    <article className="relative w-full rounded-[18px] bg-[var(--app-card-soft)] p-3 pr-12 text-left">
+      <button className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--app-card)] text-[var(--app-muted)]" onClick={() => onOpen(record)} type="button" aria-label="记录操作">
+        <MoreHorizontal size={17} />
+      </button>
       <div className="flex items-center justify-between gap-3">
-        <p className="min-w-0 flex-1 truncate text-sm font-black">{record.kind === "focus" ? record.session.taskTitle || "未命名待办" : checkinText[record.checkin.type]}</p>
+        <p className="min-w-0 flex-1 truncate pr-1 text-sm font-black">{record.kind === "focus" ? record.session.taskTitle || "未命名待办" : checkinText[record.checkin.type]}</p>
         <RecordBadge record={record} />
       </div>
       {record.kind === "focus" ? (
@@ -206,7 +207,7 @@ function RecordCard({ record, onLongPress }: { record: HistoryRecord; onLongPres
           {record.checkin.updatedAt ? <p className="rounded-xl bg-white/70 px-2 py-1">最近修改：{fullDateTime(record.checkin.updatedAt)}</p> : null}
         </div>
       )}
-    </button>
+    </article>
   );
 }
 
@@ -264,11 +265,13 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
   const selectedRecords = recordsByDate[selectedDate] ?? [];
   const selectedSummary = useMemo(() => {
     const focusRecords = selectedRecords.filter((record) => record.kind === "focus");
-    const completed = focusRecords.filter((record) => record.session.completed && !record.session.interrupted);
+    const completed = focusRecords.filter(
+      (record) => record.session.completed && !record.session.interrupted && record.session.timerType !== "none" && record.session.countToStats !== false
+    );
     const seconds = completed.reduce((sum, record) => sum + (record.session.actualSeconds ?? record.session.actualMinutes * 60), 0);
     return {
       focusCount: completed.length,
-      focusMinutes: Math.floor(seconds / 60),
+      focusSeconds: seconds,
       abandonedCount: focusRecords.filter((record) => record.session.interrupted || !record.session.completed).length,
       checkinCount: selectedRecords.filter((record) => record.kind === "checkin").length
     };
@@ -307,7 +310,8 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
   const saveEdit = async () => {
     if (!editingRecord) return;
     if (editingRecord.kind === "focus") {
-      const actualMinutes = minutesBetween(editingRecord.date, startTimeText, endTimeText);
+      const range = timeRange(editingRecord.date, startTimeText, endTimeText);
+      const actualMinutes = range.minutes;
       if (!startTimeText || !endTimeText || actualMinutes < 1 || actualMinutes > 1440) {
         toast({ title: "请选择有效的开始和结束时间", description: "结束时间需要晚于开始时间，最长 24 小时。", tone: "error" });
         return;
@@ -316,8 +320,8 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
         await updateSession.mutateAsync({
           id: editingRecord.id,
           payload: {
-            startedAt: localDateTime(editingRecord.date, startTimeText),
-            endedAt: localDateTime(editingRecord.date, endTimeText)
+            startedAt: range.startedAt,
+            endedAt: range.endedAt
           }
         });
         toast({ title: "专注时间段已更新", tone: "success" });
@@ -333,7 +337,7 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
       return;
     }
     try {
-      await updateCheckin.mutateAsync({ id: editingRecord.id, payload: { checkinTime: localDateTime(editingRecord.date, checkinTimeText) } });
+      await updateCheckin.mutateAsync({ id: editingRecord.id, payload: { checkinTime: checkinDateTime(editingRecord, checkinTimeText) } });
       toast({ title: "打卡时间已更新", tone: "success" });
       setEditingRecord(null);
     } catch (error) {
@@ -355,7 +359,7 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
                 </Dialog.Title>
                 <p className="mt-1 text-xs font-bold text-[var(--app-muted)]">{month}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 pr-11">
                 <button className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--app-primary-soft)] text-[var(--app-primary-strong)]" onClick={() => setMonthDate((date) => shiftMonth(date, -1))} type="button" aria-label="上个月">
                   <ChevronLeft size={17} />
                 </button>
@@ -363,6 +367,9 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
                   <ChevronRight size={17} />
                 </button>
               </div>
+              <Dialog.Close className="absolute right-4 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--app-primary-soft)] text-[var(--app-text)]" aria-label="关闭历史记录">
+                <X size={16} />
+              </Dialog.Close>
             </div>
 
             <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[11px] font-black text-[var(--app-muted)]">
@@ -400,7 +407,7 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
                   <p className="text-[10px] font-bold text-[var(--app-muted)]">完成</p>
                 </div>
                 <div className="rounded-[16px] bg-[var(--app-card-soft)] px-2 py-2 text-center">
-                  <p className="text-sm font-black">{formatMinutes(selectedSummary.focusMinutes)}</p>
+                  <p className="text-sm font-black">{formatDuration(selectedSummary.focusSeconds)}</p>
                   <p className="text-[10px] font-bold text-[var(--app-muted)]">时长</p>
                 </div>
                 <div className="rounded-[16px] bg-[var(--app-card-soft)] px-2 py-2 text-center">
@@ -413,7 +420,7 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
                 </div>
               </div>
               <div className="mt-3 space-y-2">
-                {selectedRecords.length ? selectedRecords.map((record) => <RecordCard key={`${record.kind}-${record.id}`} record={record} onLongPress={(nextRecord) => setActiveRecord(nextRecord)} />) : <StatsEmptyState title="这一天还没有记录" description="换个日期看看。" />}
+                {selectedRecords.length ? selectedRecords.map((record) => <RecordCard key={`${record.kind}-${record.id}`} record={record} onOpen={(nextRecord) => setActiveRecord(nextRecord)} />) : <StatsEmptyState title="这一天还没有记录" description="换个日期看看。" />}
               </div>
             </section>
           </Dialog.Content>
@@ -494,7 +501,7 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
                   <Input className="mt-1" type="time" step={300} value={endTimeText} onChange={(event) => setEndTimeText(event.target.value)} />
                 </label>
                 <p className="rounded-2xl bg-[var(--app-card-soft)] px-3 py-2 text-xs font-bold text-[var(--app-muted)]">
-                  当前时长：{formatMinutes(Math.max(0, minutesBetween(editingRecord.date, startTimeText, endTimeText)))} · 时间刻度 5分钟
+                  当前时长：{formatMinutes(Math.max(0, timeRange(editingRecord.date, startTimeText, endTimeText).minutes))} · 跨过午夜时会自动计入次日
                 </p>
               </div>
             ) : (

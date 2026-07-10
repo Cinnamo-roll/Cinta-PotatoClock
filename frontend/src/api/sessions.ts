@@ -4,10 +4,22 @@ import type { TimerSession, TimerSessionInput } from "@/types/session";
 
 interface PageResponse<T> {
   content: T[];
+  totalPages?: number;
 }
 
-function pageContent<T>(value: T[] | PageResponse<T>) {
-  return Array.isArray(value) ? value : value.content;
+async function allPages(params: URLSearchParams) {
+  const items: TimerSession[] = [];
+  let page = 0;
+  let totalPages = 1;
+  do {
+    params.set("page", String(page));
+    const response = await http.get<never, TimerSession[] | PageResponse<TimerSession>>(`/potato/sessions?${params.toString()}`);
+    if (Array.isArray(response)) return response;
+    items.push(...response.content);
+    totalPages = Math.max(1, response.totalPages ?? 1);
+    page += 1;
+  } while (page < totalPages);
+  return items;
 }
 
 export interface TimerSessionUpdateInput {
@@ -28,7 +40,7 @@ export const sessionsApi = {
     if (options.collectionId != null) params.set("collectionId", String(options.collectionId));
     return useMockApi
       ? mockClient.getTimerSessions({ month, todoId: options.todoId, collectionId: options.collectionId })
-      : http.get<never, TimerSession[] | PageResponse<TimerSession>>(`/potato/sessions?${params.toString()}`).then(pageContent);
+      : allPages(params);
   },
   range: (startDate: string, endDate: string, options: { todoId?: number | null; collectionId?: number | null } = {}) => {
     const params = new URLSearchParams({ startDate, endDate, page: "0", size: "500" });
@@ -36,7 +48,7 @@ export const sessionsApi = {
     if (options.collectionId != null) params.set("collectionId", String(options.collectionId));
     return useMockApi
       ? mockClient.getTimerSessions({ startDate, endDate, todoId: options.todoId, collectionId: options.collectionId })
-      : http.get<never, TimerSession[] | PageResponse<TimerSession>>(`/potato/sessions?${params.toString()}`).then(pageContent);
+      : allPages(params);
   },
   update: (id: number, payload: TimerSessionUpdateInput) =>
     useMockApi ? mockClient.updateTimerSession(id, payload) : http.patch<typeof payload, TimerSession>(`/potato/sessions/${id}`, payload),
