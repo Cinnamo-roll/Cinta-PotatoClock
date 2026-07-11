@@ -235,6 +235,64 @@ class PotatoSessionServiceTest {
     }
 
     @Test
+    void updateSupportsFocusRangeCrossingMidnight() {
+        TestSecurity.loginAs(1L);
+        PotatoSessionRepository sessionRepository = mock(PotatoSessionRepository.class);
+        StringRedisTemplate redis = mock(StringRedisTemplate.class);
+        PotatoSession session = new PotatoSession();
+        session.setId(10L);
+        session.setUserId(1L);
+        session.setMode(SessionMode.focus);
+        session.setActualMinutes(25);
+        session.setActualSeconds(1500);
+        session.setStartedAt(LocalDateTime.of(2026, 7, 11, 23, 30));
+        session.setEndedAt(LocalDateTime.of(2026, 7, 11, 23, 55));
+        session.setCompleted(true);
+        session.setInterrupted(false);
+        session.setCountToStats(true);
+        when(sessionRepository.findByIdAndUserId(10L, 1L)).thenReturn(Optional.of(session));
+        when(sessionRepository.save(any(PotatoSession.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        PotatoSessionService service = new PotatoSessionService(sessionRepository, mock(TaskRepository.class), mock(TodoCollectionRepository.class), redis);
+
+        var response = service.update(10L, new PotatoSessionUpdateRequest(
+                null,
+                LocalDateTime.of(2026, 7, 11, 23, 50),
+                LocalDateTime.of(2026, 7, 12, 0, 20),
+                null
+        ));
+
+        assertThat(response.startedAt()).isEqualTo(LocalDateTime.of(2026, 7, 11, 23, 50));
+        assertThat(response.endedAt()).isEqualTo(LocalDateTime.of(2026, 7, 12, 0, 20));
+        assertThat(response.actualMinutes()).isEqualTo(30);
+        assertThat(response.actualSeconds()).isEqualTo(1800);
+        verify(redis).delete("stats:today:1:2026-07-11");
+    }
+
+    @Test
+    void updateRejectsEqualStartAndEndTime() {
+        TestSecurity.loginAs(1L);
+        PotatoSessionRepository sessionRepository = mock(PotatoSessionRepository.class);
+        PotatoSession session = new PotatoSession();
+        session.setId(11L);
+        session.setUserId(1L);
+        session.setMode(SessionMode.focus);
+        session.setActualMinutes(25);
+        session.setActualSeconds(1500);
+        session.setStartedAt(LocalDateTime.of(2026, 7, 11, 9, 0));
+        session.setEndedAt(LocalDateTime.of(2026, 7, 11, 9, 25));
+        when(sessionRepository.findByIdAndUserId(11L, 1L)).thenReturn(Optional.of(session));
+        PotatoSessionService service = new PotatoSessionService(sessionRepository, mock(TaskRepository.class), mock(TodoCollectionRepository.class), mock(StringRedisTemplate.class));
+        LocalDateTime sameTime = LocalDateTime.of(2026, 7, 11, 10, 0);
+
+        assertThatThrownBy(() -> service.update(11L, new PotatoSessionUpdateRequest(null, sameTime, sameTime, null)))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.PARAM_ERROR);
+
+        verify(sessionRepository, never()).save(any(PotatoSession.class));
+    }
+
+    @Test
     void deleteRollsBackCompletedTaskPotato() {
         TestSecurity.loginAs(1L);
         PotatoSessionRepository sessionRepository = mock(PotatoSessionRepository.class);

@@ -171,21 +171,6 @@ body:not(.landing-scroll-body) .recharts-surface *:focus-visible {
   min-width: 0;
 }
 
-.app-history-time-input {
-  display: block;
-  box-sizing: border-box;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.app-history-time-input::-webkit-date-and-time-value {
-  min-width: 0;
-  margin: 0;
-  text-align: center;
-}
-
 @keyframes app-dialog-enter {
   from {
     opacity: 0;
