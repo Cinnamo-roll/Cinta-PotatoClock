@@ -5,9 +5,17 @@
 ## 职责范围
 
 - 提供移动端优先的待办、计时、统计、打卡、未来计划和设置页面。
-- 提供 `clock.cinoo.xyz` 官网首页、功能截图、FAQ 和安装包下载入口。
+- 提供官网首页、功能截图、FAQ 和安装包下载入口。
 - 通过 Capacitor 同步到 Android / iOS 工程。
 - 统一处理 mock 数据、真实 API、认证状态、偏好设置和移动端提醒。
+
+## 产品预览
+
+- [在线产品预览与官网](https://clock.cinoo.xyz)
+- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)
+- [iOS 未签名 IPA 构建](https://github.com/Cinnamo-roll/PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：进入最新成功运行，在 Artifacts 区域下载 `tudou-clock-unsigned-ipa`。
+
+iOS 构建产物是未签名 IPA，不能直接通过 App Store 安装；需要使用 AltStore、SideStore、TrollStore 或自己的开发者签名方式。Actions Artifact 默认有保留期限，过期后重新运行工作流即可生成。
 
 ## 技术栈
 
@@ -122,6 +130,7 @@ frontend/
 - Android `versionName`：`1.2`
 - Android `versionCode`：`3`
 - 公开版本：`1.2.0`
+- iOS：由 GitHub Actions 生成 `tudou-clock-unsigned-ipa` Artifact。
 - 正式 APK、IPA、签名文件和 `dist/` 构建产物不提交 GitHub。
 
 ## UI 文案原则

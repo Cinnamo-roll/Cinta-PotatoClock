@@ -2,6 +2,14 @@
 
 土豆时钟是一个面向移动端和 Web 的专注管理应用。它把待办、计时、统计、打卡和未来计划放在同一套体验里，让用户可以先确定今天要做什么，再开始一段不打扰的专注，并在结束后自然沉淀记录。
 
+## 产品预览与下载
+
+- [在线产品预览与官网](https://clock.cinoo.xyz)：查看真实界面、主要功能和版本说明。
+- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2`，可直接下载安装。
+- [iOS 未签名 IPA](https://github.com/Cinnamo-roll/PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：打开最新一次成功运行，在页面底部下载 `tudou-clock-unsigned-ipa` Artifact；安装前需要自行签名。
+
+正式安装包不提交到 Git 仓库。Android 由官网提供固定下载地址；iOS Artifact 有保留期限，过期后可在 Actions 页面手动重新运行构建。
+
 本仓库采用前后端分离结构：
 
 - `frontend/`：React + Vite + Capacitor，负责移动端 App、官网页面和安装包下载入口。
@@ -110,7 +118,7 @@ MYSQL_USER=potato_clock
 MYSQL_PASSWORD=<strong_password>
 MYSQL_ROOT_PASSWORD=<strong_root_password>
 JWT_SECRET=<at_least_32_chars_secret>
-CORS_ALLOWED_ORIGINS=https://clock.cinoo.xyz,capacitor://localhost,ionic://localhost,http://localhost,https://localhost
+CORS_ALLOWED_ORIGINS=https://<CLOCK_DOMAIN>,capacitor://localhost,ionic://localhost,http://localhost,https://localhost
 VITE_APP_TARGET=landing
 VITE_API_BASE_URL=/api
 VITE_USE_MOCK=false
@@ -163,17 +171,17 @@ VITE_USE_MOCK=false
 
 - `docker-compose.prod.yml`：MySQL、Redis、后端和官网 Nginx。
 - `frontend/nginx.conf`：官网静态资源、下载目录和 `/api` 反向代理。
-- `Caddyfile.clock.example`：多项目服务器上的 `clock.cinoo.xyz` 配置示例。
+- `Caddyfile.clock.example`：使用示例域名的 Caddy 配置模板。
 - `DEPLOY_ALIYUN.md`：阿里云 Docker 多项目部署步骤。
 
 部署流程简述：
 
-1. 配置 DNS，将 `clock.cinoo.xyz` 指向服务器公网 IP。
+1. 配置 DNS，将 `<CLOCK_DOMAIN>` 指向服务器公网 IP。
 2. 在服务器准备 Docker、Docker Compose、Caddy 和外部 `proxy` 网络。
 3. 克隆仓库，复制并填写 `.env.production`。
 4. 将 APK/IPA 放入 `downloads/`。
 5. 执行 `docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build`。
-6. 配置 Caddy 并访问 `https://clock.cinoo.xyz` 验证。
+6. 配置 Caddy 并访问 `https://<CLOCK_DOMAIN>` 验证。
 
 ## 维护建议
 

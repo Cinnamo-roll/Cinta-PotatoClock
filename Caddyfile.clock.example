@@ -1,4 +1,4 @@
-clock.cinoo.xyz {
+clock.example.com {
     encode gzip
     reverse_proxy clock-potato-clock:80
 }

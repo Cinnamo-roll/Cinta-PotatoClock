@@ -2,6 +2,14 @@
 
 `backend/` 是土豆时钟的 API 服务，负责认证、待办、待办集、专注记录、统计、打卡、未来计划、设置、设备信息和官网公开下载信息。
 
+## 产品关联入口
+
+- [在线产品预览与官网](https://clock.cinoo.xyz)
+- 公开版本信息：`GET /api/public/app/releases/latest`
+- 公开下载信息：`GET /api/public/app/downloads`
+
+真实官网地址只用于产品展示和生产配置。下面的部署变量示例统一使用占位符，复制到其他环境时应替换为自己的域名。
+
 ## 技术栈
 
 | 分类 | 技术 |
@@ -91,9 +99,9 @@ mvn -s maven-settings.xml package
 | `REDIS_PASSWORD` | `<optional_password>` | Redis 密码，可为空 |
 | `JWT_SECRET` | `<at_least_32_chars_secret>` | JWT 密钥 |
 | `JWT_EXPIRATION` | `604800000` | Token 有效期，毫秒 |
-| `CORS_ALLOWED_ORIGINS` | `https://clock.cinoo.xyz,...` | 允许跨域来源 |
-| `APP_ANDROID_APK_URL` | `https://clock.cinoo.xyz/downloads/tudou-clock.apk` | APK 下载地址 |
-| `APP_IOS_IPA_URL` | `https://clock.cinoo.xyz/downloads/tudou-clock.ipa` | IPA 下载地址 |
+| `CORS_ALLOWED_ORIGINS` | `https://<CLOCK_DOMAIN>,...` | 允许跨域来源 |
+| `APP_ANDROID_APK_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.apk` | APK 下载地址 |
+| `APP_IOS_IPA_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.ipa` | IPA 下载地址；仅在服务器已放置 IPA 时可用 |
 | `APP_VERSION` | `1.2.0` | 官网公开版本号 |
 
 不要把真实密码、JWT 密钥和服务器敏感信息提交到仓库。
@@ -202,4 +210,4 @@ Flyway 脚本位于 `src/main/resources/db/migration`。
 mvn -s maven-settings.xml test
 ```
 
-最近一次验证结果：43 个测试通过。
+最近一次验证结果：46 个测试通过。

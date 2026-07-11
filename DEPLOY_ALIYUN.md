@@ -16,12 +16,6 @@
 <CADDY_DIR>              Caddy compose 目录，常见为 /opt/caddy
 ```
 
-如果这是你的当前域名规划，`<CLOCK_DOMAIN>` 可以填：
-
-```text
-clock.cinoo.xyz
-```
-
 不要把真实服务器 IP、SSH 用户、数据库密码、JWT secret、私钥路径写进公开文档或提交到 Git。
 
 ## 1. 部署架构
