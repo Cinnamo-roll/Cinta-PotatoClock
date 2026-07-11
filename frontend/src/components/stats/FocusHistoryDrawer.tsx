@@ -94,7 +94,7 @@ function localDateTime(date: string, time: string) {
 
 function timeRange(date: string, startTime: string, endTime: string) {
   const startedAt = new Date(localDateTime(date, startTime));
-  const endDate = endTime <= startTime ? addLocalDays(date, 1) : date;
+  const endDate = endTime < startTime ? addLocalDays(date, 1) : date;
   const endedAt = new Date(localDateTime(endDate, endTime));
   return {
     minutes: Math.floor((endedAt.getTime() - startedAt.getTime()) / 60000),
@@ -354,22 +354,13 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
 
   return (
     <>
-      <Dialog.Root
-        open={open}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen && activeRecord === null && editingRecord === null) onClose();
-        }}
-      >
+      <Dialog.Root open={open}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-40 bg-[rgba(38,35,42,0.18)]" />
           <Dialog.Content
             className="app-dialog-panel app-modal-scroll z-50 max-h-[82vh] w-[calc(100%-28px)] max-w-[410px] rounded-[28px] border-white/80 bg-white/90 p-5 shadow-[0_18px_46px_rgba(120,70,90,0.18)] backdrop-blur-[20px]"
-            onEscapeKeyDown={(event) => {
-              if (activeRecord !== null || editingRecord !== null) event.preventDefault();
-            }}
-            onPointerDownOutside={(event) => {
-              if (activeRecord !== null || editingRecord !== null) event.preventDefault();
-            }}
+            onEscapeKeyDown={(event) => event.preventDefault()}
+            onPointerDownOutside={(event) => event.preventDefault()}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -387,9 +378,9 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
                   <ChevronRight size={17} />
                 </button>
               </div>
-              <Dialog.Close className="absolute right-4 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--app-primary-soft)] text-[var(--app-text)]" aria-label="关闭历史记录">
+              <button className="absolute right-4 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--app-primary-soft)] text-[var(--app-text)]" type="button" onClick={onClose} aria-label="关闭历史记录">
                 <X size={16} />
-              </Dialog.Close>
+              </button>
             </div>
 
             <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[11px] font-black text-[var(--app-muted)]">
@@ -502,6 +493,7 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
           <Dialog.Content
             className="app-dialog-panel app-modal-scroll z-[70] max-h-[calc(var(--visual-viewport-height)-var(--safe-top)-var(--safe-bottom)-2rem)] w-[calc(100%-32px)] max-w-[360px] overflow-x-hidden rounded-[28px] p-5 pt-6"
             onEscapeKeyDown={(event) => event.stopPropagation()}
+            onPointerDownOutside={(event) => event.stopPropagation()}
           >
             <Dialog.Close className="absolute right-4 top-4 rounded-full bg-[var(--app-primary-soft)] p-2 text-[var(--app-text)]" aria-label="关闭">
               <X size={16} />
@@ -514,21 +506,23 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
               <div className="mt-4 space-y-3">
                 <label className="block">
                   <span className="text-xs font-black text-[var(--app-muted)]">开始时间</span>
-                  <Input className="mt-1 min-w-0 max-w-full" type="time" step={300} value={startTimeText} onChange={(event) => setStartTimeText(event.target.value)} />
+                  <Input className="app-history-time-input mt-1" type="time" step={300} value={startTimeText} onChange={(event) => setStartTimeText(event.target.value)} />
                 </label>
                 <label className="block">
                   <span className="text-xs font-black text-[var(--app-muted)]">结束时间</span>
-                  <Input className="mt-1 min-w-0 max-w-full" type="time" step={300} value={endTimeText} onChange={(event) => setEndTimeText(event.target.value)} />
+                  <Input className="app-history-time-input mt-1" type="time" step={300} value={endTimeText} onChange={(event) => setEndTimeText(event.target.value)} />
                 </label>
                 <p className="rounded-2xl bg-[var(--app-card-soft)] px-3 py-2 text-xs font-bold text-[var(--app-muted)]">
-                  当前时长：{startTimeText && endTimeText ? formatMinutes(Math.max(0, timeRange(editingRecord.date, startTimeText, endTimeText).minutes)) : "待选择"} · 跨过午夜时会自动计入次日
+                  {startTimeText && endTimeText && startTimeText === endTimeText
+                    ? "开始和结束时间不能相同"
+                    : `当前时长：${startTimeText && endTimeText ? formatMinutes(Math.max(0, timeRange(editingRecord.date, startTimeText, endTimeText).minutes)) : "待选择"} · 结束早于开始时按次日计算`}
                 </p>
               </div>
             ) : (
               <div className="mt-4 space-y-3">
                 <label className="block">
                   <span className="text-xs font-black text-[var(--app-muted)]">打卡时间</span>
-                  <Input className="mt-1 min-w-0 max-w-full" type="time" step={300} value={checkinTimeText} onChange={(event) => setCheckinTimeText(event.target.value)} />
+                  <Input className="app-history-time-input mt-1" type="time" step={300} value={checkinTimeText} onChange={(event) => setCheckinTimeText(event.target.value)} />
                 </label>
                 <p className="rounded-2xl bg-[var(--app-card-soft)] px-3 py-2 text-xs font-bold text-[var(--app-muted)]">
                   {checkinWindowText(editingRecord)} · 时间刻度 5分钟

@@ -132,7 +132,7 @@ export default function LandingPage() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#29262A] px-6 font-black text-white shadow-[0_12px_24px_rgba(41,38,42,0.20)] transition hover:-translate-y-0.5 hover:bg-[#423D43]" href={downloadLinks.androidApk}>
                   <Smartphone size={18} />
-                  Android 1.2
+                  Android 1.2.1
                   <Download size={17} />
                 </a>
                 <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#29262A] bg-[#F8F6F1] px-6 font-black text-[#29262A] transition hover:-translate-y-0.5" href={downloadLinks.iosIpa}>
@@ -163,8 +163,11 @@ export default function LandingPage() {
 
         <section className="bg-[#29262A] text-white">
           <div className="mx-auto grid max-w-6xl grid-cols-2 px-5 py-8 lg:grid-cols-4 lg:py-9">
-            {workflow.map((item) => (
-              <div key={item.index} className="border-white/12 px-3 py-4 first:pl-0 even:border-l lg:border-l lg:px-6 lg:first:border-l-0 lg:first:pl-0">
+            {workflow.map((item, index) => (
+              <div
+                key={item.index}
+                className={`border-white/12 py-4 ${index % 2 === 0 ? "pl-0 pr-3" : "border-l px-3"} lg:border-l lg:px-6 lg:first:border-l-0 lg:first:pl-0`}
+              >
                 <p className="text-xs font-black text-[#F7D66E]">{item.index}</p>
                 <h2 className="mt-2 text-base font-black sm:text-lg">{item.title}</h2>
                 <p className="mt-1.5 text-sm font-semibold leading-6 text-white/62">{item.desc}</p>
@@ -225,7 +228,7 @@ export default function LandingPage() {
                 <p className="text-sm font-black text-[#F7D66E]">下载土豆时钟ToDo</p>
                 <h2 className="mt-3 text-balance text-3xl font-black sm:text-4xl">选好版本，继续今天</h2>
                 <p className="mt-4 max-w-lg text-sm font-semibold leading-7 text-white/62">安装包仅通过 clock.cinoo.xyz 提供。Android 可直接安装；iOS 当前提供未签名 IPA。</p>
-                <p className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#B7D8C3]"><ShieldCheck size={18} />当前版本 1.2</p>
+                <p className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#B7D8C3]"><ShieldCheck size={18} />当前版本 1.2.1</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <a className="landing-download-option group rounded-lg border border-white/14 bg-white/[0.06] p-5 transition hover:border-[#F7D66E] hover:bg-white/[0.10]" href={downloadLinks.androidApk}>
@@ -234,7 +237,7 @@ export default function LandingPage() {
                     <Download className="transition group-hover:translate-y-0.5" size={20} />
                   </div>
                   <h3 className="mt-6 text-xl font-black">Android APK</h3>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-white/60">版本 1.2，可直接覆盖旧版安装。</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-white/60">版本 1.2.1，可直接覆盖旧版安装。</p>
                 </a>
                 <a className="landing-download-option group rounded-lg border border-white/14 bg-white/[0.06] p-5 transition hover:border-[#9CC7E8] hover:bg-white/[0.10]" href={downloadLinks.iosIpa}>
                   <div className="flex items-start justify-between gap-4">

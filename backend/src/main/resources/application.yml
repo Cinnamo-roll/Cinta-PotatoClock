@@ -51,8 +51,8 @@ app:
     privacy-url: ${APP_PRIVACY_URL:https://clock.cinoo.xyz/privacy}
     support-email: ${APP_SUPPORT_EMAIL:support@clock.cinoo.xyz}
   release:
-    version: ${APP_VERSION:1.2.0}
-    build-number: ${APP_BUILD_NUMBER:1}
+    version: ${APP_VERSION:1.2.1}
+    build-number: ${APP_BUILD_NUMBER:4}
     release-date: ${APP_RELEASE_DATE:2026-06-25}
     force-update: ${APP_FORCE_UPDATE:false}
     changelog:
@@ -69,11 +69,11 @@ app:
   downloads:
     android:
       url: ${APP_ANDROID_APK_URL:https://clock.cinoo.xyz/downloads/tudou-clock.apk}
-      version: ${APP_VERSION:1.2.0}
+      version: ${APP_VERSION:1.2.1}
       size: ${APP_ANDROID_APK_SIZE:}
     ios:
       url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
-      version: ${APP_VERSION:1.2.0}
+      version: ${APP_VERSION:1.2.1}
       size: ${APP_IOS_IPA_SIZE:}
       requires-self-signing: ${APP_IOS_REQUIRES_SELF_SIGNING:true}
       note: ${APP_IOS_DOWNLOAD_NOTE:后端只提供 IPA 下载地址，不负责 iOS 签名}

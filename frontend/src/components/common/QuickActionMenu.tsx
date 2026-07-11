@@ -56,16 +56,13 @@ export function QuickActionMenu({ open, onOpenChange, onWakeup, onFocusCheckin, 
             {items.map((item) => {
               const Icon = item.icon;
               return (
-                <motion.button
-                  animate={{ opacity: 1 }}
+                <button
                   className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-bold text-[var(--app-text)] transition hover:bg-[var(--app-primary-soft)]"
-                  initial={{ opacity: 0 }}
                   key={item.type}
                   onClick={() => {
                     item.action();
                     onOpenChange(false);
                   }}
-                  transition={{ duration: reduceMotion ? 0 : 0.12 }}
                   type="button"
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[var(--app-primary-soft)]" style={{ color: item.tone }}>
@@ -75,7 +72,7 @@ export function QuickActionMenu({ open, onOpenChange, onWakeup, onFocusCheckin, 
                     <span className="block font-black">{checkinLabel(item.type)}</span>
                     <span className="mt-0.5 block text-xs font-semibold leading-4 text-[var(--app-muted)]">{checkinMenuDescription(item.type)}</span>
                   </span>
-                </motion.button>
+                </button>
               );
             })}
           </motion.div>

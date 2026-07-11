@@ -127,11 +127,14 @@ frontend/
 
 ## 发布版本
 
-- Android `versionName`：`1.2`
-- Android `versionCode`：`3`
-- 公开版本：`1.2.0`
+- Android `versionName`：`1.2.1`
+- Android `versionCode`：`4`
+- iOS `MARKETING_VERSION`：`1.2.1`，`CURRENT_PROJECT_VERSION`：`4`
+- 公开版本：`1.2.1`
 - iOS：由 GitHub Actions 生成 `tudou-clock-unsigned-ipa` Artifact。
 - 正式 APK、IPA、签名文件和 `dist/` 构建产物不提交 GitHub。
+
+本版移动端回归重点：Recharts 图表点按不显示系统焦点框；历史记录的记录操作层与时间编辑层独立关闭；相同起止时间校验为无效；标题栏不再按右侧操作区叠加异色背景；手机官网工作流两列分别对齐；待办时长与计划量统一使用纯数字键盘和数字过滤；快捷打卡菜单只保留容器级展开动画，三项内容不再二次闪烁。
 
 ## UI 文案原则
 

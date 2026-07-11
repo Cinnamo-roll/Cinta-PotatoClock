@@ -118,6 +118,27 @@ body:not(.landing-scroll-body) table:focus-visible {
   outline: none;
 }
 
+/* Recharts makes SVG surfaces and shapes focusable for keyboard navigation.
+   Mobile WebViews draw a large blue native focus rectangle after a tap, so the
+   app keeps chart interaction but suppresses that browser-only decoration. */
+body:not(.landing-scroll-body) .recharts-wrapper,
+body:not(.landing-scroll-body) .recharts-wrapper *,
+body:not(.landing-scroll-body) .recharts-surface,
+body:not(.landing-scroll-body) .recharts-surface * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body:not(.landing-scroll-body) .recharts-wrapper:focus,
+body:not(.landing-scroll-body) .recharts-wrapper:focus-visible,
+body:not(.landing-scroll-body) .recharts-wrapper *:focus,
+body:not(.landing-scroll-body) .recharts-wrapper *:focus-visible,
+body:not(.landing-scroll-body) .recharts-surface:focus,
+body:not(.landing-scroll-body) .recharts-surface:focus-visible,
+body:not(.landing-scroll-body) .recharts-surface *:focus,
+body:not(.landing-scroll-body) .recharts-surface *:focus-visible {
+  outline: none !important;
+}
+
 .potato-bg {
   background:
     linear-gradient(160deg, color-mix(in srgb, var(--app-bg) 86%, var(--app-card) 14%) 0%, color-mix(in srgb, var(--app-bg-soft) 72%, var(--app-card) 28%) 58%, color-mix(in srgb, var(--app-card) 78%, var(--app-primary-soft) 22%) 100%);
@@ -148,6 +169,21 @@ body:not(.landing-scroll-body) table:focus-visible {
 
 .app-modal-scroll * {
   min-width: 0;
+}
+
+.app-history-time-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.app-history-time-input::-webkit-date-and-time-value {
+  min-width: 0;
+  margin: 0;
+  text-align: center;
 }
 
 @keyframes app-dialog-enter {
@@ -227,37 +263,12 @@ body.keyboard-open .app-dialog-panel {
   margin: -0.75rem -1rem 0;
   overflow: visible;
   padding: 0.92rem 1rem 0.98rem;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--app-card) 88%, transparent) 0%, color-mix(in srgb, var(--app-card) 66%, var(--app-primary-soft) 34%) 62%, color-mix(in srgb, var(--app-bg-soft) 72%, var(--app-card) 28%) 100%),
-    linear-gradient(90deg, color-mix(in srgb, var(--app-primary) 5%, transparent) 1px, transparent 1px);
-  background-size: 100% 100%, 28px 28px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--app-card) 88%, var(--app-bg-soft) 12%) 0%, color-mix(in srgb, var(--app-card) 80%, var(--app-bg-soft) 20%) 100%);
   border-bottom: 1px solid color-mix(in srgb, var(--app-border) 58%, transparent);
   box-shadow:
     0 10px 30px color-mix(in srgb, var(--app-primary) 9%, transparent),
     inset 0 -1px 0 color-mix(in srgb, var(--app-card) 72%, transparent);
   backdrop-filter: blur(18px) saturate(1.25);
-}
-
-.app-page-header::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(135deg, transparent 0 62%, color-mix(in srgb, var(--app-card) 30%, transparent) 62% 70%, transparent 70%),
-    linear-gradient(90deg, transparent 0 72%, color-mix(in srgb, var(--app-success) 7%, transparent) 72% 100%);
-  opacity: 0.68;
-}
-
-.app-page-header::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  z-index: 0;
-  height: 42%;
-  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--app-card) 42%, transparent));
-  pointer-events: none;
 }
 
 .app-page-title {

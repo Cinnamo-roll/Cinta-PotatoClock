@@ -102,7 +102,7 @@ mvn -s maven-settings.xml package
 | `CORS_ALLOWED_ORIGINS` | `https://<CLOCK_DOMAIN>,...` | 允许跨域来源 |
 | `APP_ANDROID_APK_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.apk` | APK 下载地址 |
 | `APP_IOS_IPA_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.ipa` | IPA 下载地址；仅在服务器已放置 IPA 时可用 |
-| `APP_VERSION` | `1.2.0` | 官网公开版本号 |
+| `APP_VERSION` | `1.2.1` | 官网公开版本号 |
 
 不要把真实密码、JWT 密钥和服务器敏感信息提交到仓库。
 
@@ -164,6 +164,8 @@ mvn -s maven-settings.xml package
 | `DELETE` | `/api/potato/sessions/{id}` | 删除记录 |
 | `GET` | `/api/sessions` | 简短别名 |
 | `POST` | `/api/sessions` | 简短别名 |
+
+编辑专注时间段时，客户端提交完整的 `startedAt` 与 `endedAt`：结束时刻早于开始时刻表示跨到次日；两者相同属于无效时间段，不应按 24 小时提交。
 
 统计、打卡、未来计划和设置：
 

@@ -42,11 +42,25 @@ const targetUnitOptions: Array<{ value: "分钟" | "次"; label: string }> = [
 
 const DEFAULT_BACKGROUND_STYLE = "default";
 
+function digitsOnly(value: string, maxLength: number) {
+  return value.replace(/\D/g, "").slice(0, maxLength).replace(/^0+(?=\d)/, "");
+}
+
+function positiveInt(value: string, fallback = 1) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(1, Math.floor(parsed));
+}
+
+function normalizedDuration(value: string) {
+  return Math.min(180, positiveInt(value, 25));
+}
+
 export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpenChange, onSubmit }: TodoEditorDialogProps) {
   const [category, setCategory] = useState<TodoCategory>("normal");
   const [timerType, setTimerType] = useState<TimerType>("countdown");
   const [title, setTitle] = useState("");
-  const [durationMinutes, setDurationMinutes] = useState(25);
+  const [durationMinutesText, setDurationMinutesText] = useState("25");
   const [countToStats, setCountToStats] = useState(true);
   const [note, setNote] = useState("");
   const [recurrence, setRecurrence] = useState<"每天" | "每周" | "每月">("每天");
@@ -62,7 +76,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
     setCategory("normal");
     setTimerType("countdown");
     setTitle("");
-    setDurationMinutes(25);
+    setDurationMinutesText("25");
     setCountToStats(true);
     setNote("");
     setRecurrence("每天");
@@ -82,7 +96,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
     setCategory(todo.category);
     setTimerType(todo.timerType);
     setTitle(todo.title);
-    setDurationMinutes(todo.timerType === "none" ? 25 : Math.max(1, todo.durationMinutes || 25));
+    setDurationMinutesText(String(todo.timerType === "none" ? 25 : Math.max(1, todo.durationMinutes || 25)));
     setCountToStats(todo.countToStats ?? todo.includeInStats);
     setNote(todo.note ?? "");
     setRecurrence(todo.recurrence ?? "每天");
@@ -101,7 +115,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
       setTargetAmount("1");
     } else if (targetUnit === "次") {
       setTargetUnit("分钟");
-      setTargetAmount(String(durationMinutes));
+      setTargetAmount(String(normalizedDuration(durationMinutesText)));
     }
     void lightImpact();
   };
@@ -116,22 +130,20 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
     void lightImpact();
   };
 
-  const handleDurationChange = (value: number) => {
-    if (!Number.isFinite(value)) return;
-    const next = Math.max(1, Math.floor(value));
-    setDurationMinutes(next);
-    if (targetUnit === "分钟" && (category === "habit" || category === "goal")) setTargetAmount(String(next));
+  const handleDurationChange = (value: string) => {
+    const digits = digitsOnly(value, 3);
+    setDurationMinutesText(digits);
+    if (digits && targetUnit === "分钟" && (category === "habit" || category === "goal")) {
+      setTargetAmount(String(normalizedDuration(digits)));
+    }
   };
 
   const parsePositiveInt = (value: string, fallback = 1) => {
-    const parsed = Number.parseInt(value, 10);
-    if (!Number.isFinite(parsed)) return fallback;
-    return Math.max(1, Math.floor(parsed));
+    return positiveInt(value, fallback);
   };
 
   const handleTargetAmountChange = (value: string) => {
-    const digits = value.replace(/[^\d]/g, "").slice(0, 5);
-    setTargetAmount(digits.replace(/^0+(?=\d)/, ""));
+    setTargetAmount(digitsOnly(value, 5));
   };
 
   const handleSubmit = async (event?: FormEvent) => {
@@ -151,7 +163,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
     try {
       await onSubmit({
         title: cleanTitle,
-        durationMinutes: timerType === "countdown" ? durationMinutes : 0,
+        durationMinutes: timerType === "countdown" ? normalizedDuration(durationMinutesText) : 0,
         timerType,
         category,
         collectionId: todo ? todo.collectionId ?? null : defaultCollectionId,
@@ -233,11 +245,22 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <span className="text-sm font-bold text-[var(--app-muted)]">单次时长</span>
                     <label className="flex items-center gap-2 text-base font-black text-[var(--app-text)]">
-                      <Input className="h-10 w-24 text-center" min={1} max={180} type="number" value={durationMinutes} onChange={(event) => handleDurationChange(Number(event.target.value))} />
+                      <Input
+                        aria-label="单次时长"
+                        autoComplete="off"
+                        className="h-10 w-24 text-center"
+                        inputMode="numeric"
+                        maxLength={3}
+                        pattern="[0-9]*"
+                        type="text"
+                        value={durationMinutesText}
+                        onChange={(event) => handleDurationChange(event.target.value)}
+                        onBlur={() => setDurationMinutesText(String(normalizedDuration(durationMinutesText)))}
+                      />
                       分钟
                     </label>
                   </div>
-                  <input className="w-full [accent-color:var(--app-primary)]" type="range" min={1} max={180} value={durationMinutes} onChange={(event) => handleDurationChange(Number(event.target.value))} />
+                  <input className="w-full [accent-color:var(--app-primary)]" type="range" min={1} max={180} value={normalizedDuration(durationMinutesText)} onChange={(event) => handleDurationChange(event.target.value)} />
                 </div>
               ) : null}
 
@@ -250,7 +273,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
                   <div className="space-y-2 text-sm font-bold text-[var(--app-muted)]">
                     <span>计划完成</span>
                     <div className="grid grid-cols-[minmax(0,1fr)_minmax(126px,1.3fr)] gap-2">
-                      <Input aria-label="计划完成数量" className="h-10 text-center" inputMode="numeric" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
+                      <Input aria-label="计划完成数量" autoComplete="off" className="h-10 text-center" inputMode="numeric" maxLength={5} pattern="[0-9]*" type="text" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
                       <OptionPicker value={timerType === "none" ? "次" : targetUnit} options={targetUnitOptions} disabled={timerType === "none"} onChange={setTargetUnit} ariaLabel="计划单位" />
                     </div>
                   </div>
@@ -263,7 +286,7 @@ export function TodoEditorDialog({ open, defaultCollectionId = null, todo, onOpe
                   <div className="space-y-2 text-sm font-bold text-[var(--app-muted)]">
                     <span>总计划量</span>
                     <div className="grid grid-cols-[minmax(0,1fr)_minmax(126px,1.3fr)] gap-2">
-                      <Input aria-label="目标计划数量" className="h-10 text-center" inputMode="numeric" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
+                      <Input aria-label="目标计划数量" autoComplete="off" className="h-10 text-center" inputMode="numeric" maxLength={5} pattern="[0-9]*" type="text" value={targetAmount} onChange={(event) => handleTargetAmountChange(event.target.value)} onBlur={() => setTargetAmount(String(parsePositiveInt(targetAmount)))} />
                       <OptionPicker value={timerType === "none" ? "次" : targetUnit} options={targetUnitOptions} disabled={timerType === "none"} onChange={setTargetUnit} ariaLabel="目标单位" />
                     </div>
                   </div>

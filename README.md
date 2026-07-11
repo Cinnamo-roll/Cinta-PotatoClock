@@ -5,7 +5,7 @@
 ## 产品预览与下载
 
 - [在线产品预览与官网](https://clock.cinoo.xyz)：查看真实界面、主要功能和版本说明。
-- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2`，可直接下载安装。
+- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.1`，可直接下载安装。
 - [iOS 未签名 IPA](https://github.com/Cinnamo-roll/PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：打开最新一次成功运行，在页面底部下载 `tudou-clock-unsigned-ipa` Artifact；安装前需要自行签名。
 
 正式安装包不提交到 Git 仓库。Android 由官网提供固定下载地址；iOS Artifact 有保留期限，过期后可在 Actions 页面手动重新运行构建。
@@ -160,10 +160,19 @@ VITE_USE_MOCK=false
 
 ## 当前发布版本
 
-- Android：`1.2`（`versionCode 3`）
-- 官网与公开下载信息：`1.2.0`
+- Android：`1.2.1`（`versionCode 4`）
+- iOS：`1.2.1`（`build 4`，未签名 IPA）
+- 官网与公开下载信息：`1.2.1`
 - 安装包文件名：`downloads/tudou-clock.apk`
 - APK/IPA、签名文件、部署压缩包和生产环境变量均不提交 GitHub。
+
+### 1.2.1 体验修正
+
+- 移除统计图表在移动端点按后出现的浏览器蓝色焦点框。
+- 历史记录、记录操作和时间编辑改为独立关闭，关闭子弹窗不会再带走历史记录。
+- 相同开始与结束时间不再按跨日 24 小时处理；iOS 时间输入保持在弹窗内容区内。
+- 统一各业务页面标题栏背景，并修正手机官网步骤 01/03、02/04 的纵向对齐。
+- 统一待办单次时长、习惯计划量和目标计划量为纯数字输入，并移除快捷打卡菜单三项内容的二次闪烁动画。
 
 ## 部署
 
