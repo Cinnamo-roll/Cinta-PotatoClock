@@ -53,8 +53,8 @@ frontend/
 | `VITE_APP_TARGET` | `app` / `landing` | 构建 App 或官网 |
 | `VITE_API_BASE_URL` | `/api` | 后端 API 基础路径 |
 | `VITE_USE_MOCK` | `false` | 是否启用 mock |
-| `VITE_ANDROID_DOWNLOAD_URL` | `/downloads/potato-clock.apk` | 官网 APK 下载地址 |
-| `VITE_IOS_DOWNLOAD_URL` | `/downloads/potato-clock.ipa` | 官网 IPA 下载地址 |
+| `VITE_ANDROID_DOWNLOAD_URL` | `/downloads/tudou-clock.apk` | 官网 APK 下载地址 |
+| `VITE_IOS_DOWNLOAD_URL` | `/downloads/tudou-clock.ipa` | 官网 IPA 下载地址 |
 
 开发时可以在 `frontend/.env.example` 的基础上创建本地环境变量文件。
 
@@ -74,13 +74,14 @@ frontend/
 
 ## 应用模块
 
-- 首页：待办列表、待办集筛选、快速开始、创建和排序。
+- 首页：待办列表、快速开始、创建，以及通过上下按钮可靠调整顺序。
 - 专注页：倒计时、正计时、不计时、暂停、继续、完成和放弃。
 - 统计页：概览、趋势、热力图、任务排行、最近记录和成就。
 - 打卡：早起、今日专注、睡前记录，以及历史编辑。
 - 未来计划：目标日期倒计时，到目标日触发一次提醒。
 - 设置与个人页：主题、提醒、账户资料、密码修改、官网与反馈入口。
 - 官网：品牌展示、功能截图、下载入口、上线 FAQ。
+- 我的：资料、密码、主题与退出登录确认，避免误触退出。
 
 ## API 约定
 
@@ -111,8 +112,17 @@ frontend/
 - 未来计划创建后按目标日 09:00 调度一次普通提醒，删除后取消。
 - Web 环境使用浏览器 Notification API。
 - App 环境使用 Capacitor Local Notifications。
+- Android 专注计时使用前台服务同步通知栏与锁屏状态。
+- iOS 16.1+ 专注计时使用 ActivityKit 实时活动，并在支持机型显示灵动岛。
 
-当前没有 iOS Live Activity 实现，因此不提供灵动岛或锁屏实时倒计时。涉及通知的改动必须在真机验证。
+未来计划只在目标日期发送普通通知，不会常驻锁屏或灵动岛。涉及系统计时展示与通知的改动必须在真机验证。
+
+## 发布版本
+
+- Android `versionName`：`1.2`
+- Android `versionCode`：`3`
+- 公开版本：`1.2.0`
+- 正式 APK、IPA、签名文件和 `dist/` 构建产物不提交 GitHub。
 
 ## UI 文案原则
 

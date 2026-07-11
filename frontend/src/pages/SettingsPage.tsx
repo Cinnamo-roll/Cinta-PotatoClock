@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import * as Switch from "@radix-ui/react-switch";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { PageHeader } from "@/components/common/PageHeader";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { SettingsSection } from "@/components/settings/SettingsSection";
@@ -45,6 +46,7 @@ export default function SettingsPage() {
   const loadSettings = useSettingsStore((state) => state.loadSettings);
   const logout = useAuthStore((state) => state.logout);
   const toast = useUiStore((state) => state.toast);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   useEffect(() => {
     void loadSettings();
@@ -103,15 +105,25 @@ export default function SettingsPage() {
         <Button
           className="w-full"
           variant="danger"
-          onClick={() => {
-            logout();
-            toast({ title: "已经退出登录", description: "欢迎下次回来继续专注" });
-            navigate("/login", { replace: true });
-          }}
+          onClick={() => setLogoutConfirmOpen(true)}
         >
           <LogOut size={18} />
           退出登录
         </Button>
+        <ConfirmDialog
+          open={logoutConfirmOpen}
+          title="确认退出登录？"
+          description="退出后会回到登录页，未完成的本地计时请先结束。"
+          confirmText="退出登录"
+          tone="danger"
+          onOpenChange={setLogoutConfirmOpen}
+          onConfirm={() => {
+            setLogoutConfirmOpen(false);
+            logout();
+            toast({ title: "已经退出登录", description: "欢迎下次回来继续专注" });
+            navigate("/login", { replace: true });
+          }}
+        />
       </div>
     </MobileShell>
   );

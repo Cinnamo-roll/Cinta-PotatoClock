@@ -1,5 +1,5 @@
-import { ListTodo, Plus } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowUpDown, Check, ListTodo, Plus } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/common/Card";
 import { AnimatedList, AnimatedListItem } from "@/components/common/AnimatedList";
@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { CuteEmptyState } from "@/components/common/CuteEmptyState";
 import { PageHeader } from "@/components/common/PageHeader";
 import { QuickActionMenu, QuickActionMoreButton } from "@/components/common/QuickActionMenu";
+import { ReorderControls } from "@/components/common/ReorderControls";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { TodoActionSheet } from "@/components/todo/TodoActionSheet";
 import { TodoCard } from "@/components/todo/TodoCard";
@@ -46,13 +47,6 @@ function reorderIds(ids: number[], activeId: number, targetId: number) {
   return next;
 }
 
-function findSortIdAt(clientX: number, clientY: number) {
-  const element = document.elementFromPoint(clientX, clientY);
-  const sortable = element?.closest<HTMLElement>("[data-sort-id]");
-  const id = Number(sortable?.dataset.sortId);
-  return Number.isFinite(id) ? id : null;
-}
-
 export default function HomePage() {
   const navigate = useNavigate();
   const { data: todos = [], isLoading } = useTodosQuery();
@@ -73,21 +67,19 @@ export default function HomePage() {
   const [actionTodo, setActionTodo] = useState<TodoItem | undefined>();
   const [quickOpen, setQuickOpen] = useState(false);
   const [localOrderIds, setLocalOrderIds] = useState<number[]>([]);
-  const [draggingId, setDraggingId] = useState<number | null>(null);
+  const [reorderMode, setReorderMode] = useState(false);
   const [pendingCompleteTodo, setPendingCompleteTodo] = useState<TodoItem | undefined>();
-  const localOrderIdsRef = useRef<number[]>([]);
 
   const orderedTodos = useMemo(() => [...todos].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || b.createdAt.localeCompare(a.createdAt)), [todos]);
 
   useEffect(() => {
-    if (draggingId != null) return;
+    if (reorderMode) return;
     const nextOrderIds = orderedTodos.map((todo) => todo.id);
     setLocalOrderIds((ids) => {
       const next = sameIds(ids, nextOrderIds) ? ids : nextOrderIds;
-      localOrderIdsRef.current = next;
       return next;
     });
-  }, [draggingId, orderedTodos]);
+  }, [orderedTodos, reorderMode]);
 
   const visibleTodos = useMemo(() => {
     const byId = new Map(orderedTodos.map((todo) => [todo.id, todo]));
@@ -144,32 +136,24 @@ export default function HomePage() {
 
   const persistTodoOrder = async (ids: number[]) => {
     const byId = new Map(visibleTodos.map((todo) => [todo.id, todo]));
-    await Promise.all(
-      ids.map((id, index) => {
+    try {
+      for (const [index, id] of ids.entries()) {
         const todo = byId.get(id);
-        if (!todo || todo.sortOrder === index + 1) return Promise.resolve();
-        return updateTodoSort.mutateAsync({ id, sortOrder: index + 1 });
-      })
-    );
-    quickToast("待办顺序已更新");
+        if (todo && todo.sortOrder !== index + 1) await updateTodoSort.mutateAsync({ id, sortOrder: index + 1 });
+      }
+      quickToast("待办顺序已更新");
+    } catch (error) {
+      quickToast("顺序保存失败", "error", error instanceof Error ? error.message : "请检查网络后重试");
+    }
   };
 
-  const handleDragMove = (clientX: number, clientY: number) => {
-    if (draggingId == null) return;
-    const targetId = findSortIdAt(clientX, clientY);
-    if (targetId == null || targetId === draggingId) return;
-    setLocalOrderIds((ids) => {
-      const next = reorderIds(ids, draggingId, targetId);
-      localOrderIdsRef.current = next;
-      return next;
-    });
-  };
-
-  const handleDragEnd = () => {
-    if (draggingId == null) return;
-    const ids = localOrderIdsRef.current.length ? localOrderIdsRef.current : localOrderIds;
-    setDraggingId(null);
-    void persistTodoOrder(ids);
+  const moveTodo = (id: number, direction: -1 | 1) => {
+    const index = localOrderIds.indexOf(id);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= localOrderIds.length || updateTodoSort.isPending) return;
+    const next = reorderIds(localOrderIds, id, localOrderIds[targetIndex]);
+    setLocalOrderIds(next);
+    void persistTodoOrder(next);
   };
 
   return (
@@ -181,6 +165,18 @@ export default function HomePage() {
           description="安排今天要做的事"
           action={
             <div className="relative flex gap-2">
+              <button
+                className="app-header-button"
+                onClick={() => {
+                  setQuickOpen(false);
+                  setReorderMode((enabled) => !enabled);
+                }}
+                aria-label={reorderMode ? "完成排序" : "调整待办顺序"}
+                aria-pressed={reorderMode}
+                type="button"
+              >
+                {reorderMode ? <Check size={19} /> : <ArrowUpDown size={19} />}
+              </button>
               <button className="app-header-button" onClick={openEditor} aria-label="添加待办" type="button">
                 <Plus size={19} />
               </button>
@@ -196,7 +192,7 @@ export default function HomePage() {
           }
         />
 
-        {draggingId != null ? <Card className="bg-white text-sm font-bold text-[var(--app-muted)]">拖到想要的位置松手，待办顺序会自动保存。</Card> : null}
+        {reorderMode ? <Card className="bg-white text-sm font-bold text-[var(--app-muted)]">使用每条待办右侧的箭头调整顺序，修改会立即保存。</Card> : null}
 
         <AnimatedList className="space-y-3">
           {isLoading ? (
@@ -211,23 +207,28 @@ export default function HomePage() {
           ) : null}
           {visibleTodos.map((todo) => (
             <AnimatedListItem key={todo.id}>
-              <TodoCard
-                dragging={draggingId === todo.id}
-                todo={todo}
-                todayCompletedCount={todayTodoMetrics(todo, timerSessions).completedCount}
-                sessions={timerSessions}
-                onOpen={setActionTodo}
-                onStart={handleStart}
-                onComplete={setPendingCompleteTodo}
-                onLongPressStart={(item) => {
-                  setQuickOpen(false);
-                  setActionTodo(undefined);
-                  setDraggingId(item.id);
-                  void lightImpact();
-                }}
-                onDragMove={handleDragMove}
-                onDragEnd={handleDragEnd}
-              />
+              <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <TodoCard
+                    todo={todo}
+                    todayCompletedCount={todayTodoMetrics(todo, timerSessions).completedCount}
+                    sessions={timerSessions}
+                    onOpen={reorderMode ? undefined : setActionTodo}
+                    onStart={handleStart}
+                    onComplete={setPendingCompleteTodo}
+                  />
+                </div>
+                {reorderMode ? (
+                  <ReorderControls
+                    label={`“${todo.title}”`}
+                    canMoveUp={localOrderIds.indexOf(todo.id) > 0}
+                    canMoveDown={localOrderIds.indexOf(todo.id) < localOrderIds.length - 1}
+                    disabled={updateTodoSort.isPending}
+                    onMoveUp={() => moveTodo(todo.id, -1)}
+                    onMoveDown={() => moveTodo(todo.id, 1)}
+                  />
+                ) : null}
+              </div>
             </AnimatedListItem>
           ))}
         </AnimatedList>

@@ -84,7 +84,8 @@ function recordTime(value: string) {
 }
 
 function inputTime(value: string) {
-  return value.slice(11, 16);
+  const date = new Date(value);
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function localDateTime(date: string, time: string) {
@@ -112,6 +113,12 @@ function checkinWindowText(record: HistoryRecord | null) {
   if (record.checkin.type === "wakeup") return "可选时间：05:00 到 12:00 前";
   if (record.checkin.type === "sleep") return "可选时间：20:00 到次日 02:00 前";
   return "可选时间：当天任意时间";
+}
+
+function isCheckinTimeAllowed(record: Extract<HistoryRecord, { kind: "checkin" }>, time: string) {
+  if (record.checkin.type === "wakeup") return time >= "05:00" && time < "12:00";
+  if (record.checkin.type === "sleep") return time >= "20:00" || time < "02:00";
+  return true;
 }
 
 function fullDateTime(value?: string | null) {
@@ -149,15 +156,15 @@ function toRecords(sessions: TimerSession[], checkins: CheckinRecordItem[]): His
     ...sessions.map((session) => ({
       kind: "focus" as const,
       id: session.id,
-      date: session.startedAt.slice(0, 10),
-      time: session.startedAt.slice(11, 16),
+      date: dateKey(new Date(session.startedAt)),
+      time: recordTime(session.startedAt),
       session
     })),
     ...checkins.map((checkin) => ({
       kind: "checkin" as const,
       id: checkin.id,
       date: checkinBusinessDate(checkin.type, new Date(checkin.checkinTime)),
-      time: checkin.checkinTime.slice(11, 16),
+      time: recordTime(checkin.checkinTime),
       checkin
     }))
   ].sort(sortRecords);
@@ -332,8 +339,8 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
       return;
     }
 
-    if (!checkinTimeText) {
-      toast({ title: "请选择打卡时间", tone: "error" });
+    if (!checkinTimeText || !isCheckinTimeAllowed(editingRecord, checkinTimeText)) {
+      toast({ title: "请选择有效的打卡时间", description: checkinWindowText(editingRecord), tone: "error" });
       return;
     }
     try {
@@ -347,10 +354,23 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
 
   return (
     <>
-      <Dialog.Root open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+      <Dialog.Root
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen && activeRecord === null && editingRecord === null) onClose();
+        }}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-40 bg-[rgba(38,35,42,0.18)]" />
-          <Dialog.Content className="app-dialog-panel app-modal-scroll z-50 max-h-[82vh] w-[calc(100%-28px)] max-w-[410px] rounded-[28px] border-white/80 bg-white/90 p-5 shadow-[0_18px_46px_rgba(120,70,90,0.18)] backdrop-blur-[20px]">
+          <Dialog.Content
+            className="app-dialog-panel app-modal-scroll z-50 max-h-[82vh] w-[calc(100%-28px)] max-w-[410px] rounded-[28px] border-white/80 bg-white/90 p-5 shadow-[0_18px_46px_rgba(120,70,90,0.18)] backdrop-blur-[20px]"
+            onEscapeKeyDown={(event) => {
+              if (activeRecord !== null || editingRecord !== null) event.preventDefault();
+            }}
+            onPointerDownOutside={(event) => {
+              if (activeRecord !== null || editingRecord !== null) event.preventDefault();
+            }}
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <Dialog.Title className="flex items-center gap-2 text-lg font-black">
@@ -439,9 +459,6 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-[60] bg-[rgba(38,35,42,0.18)]" />
           <Dialog.Content className="app-dialog-panel app-modal-scroll z-[70] max-h-[90vh] w-[calc(100%-48px)] max-w-[360px] rounded-[28px] border-white/80 bg-white p-5 shadow-[0_18px_46px_rgba(120,70,90,0.18)]">
-            <Dialog.Close className="absolute right-4 top-4 rounded-full bg-[var(--app-primary-soft)] p-2 text-[var(--app-text)]" aria-label="关闭">
-              <X size={16} />
-            </Dialog.Close>
             <Dialog.Title className="text-lg font-black">{confirmDelete ? "确认删除这条记录？" : activeRecord?.kind === "focus" ? "专注记录" : "打卡记录"}</Dialog.Title>
             <p className="mt-1 text-sm text-[var(--app-muted)]">{confirmDelete ? "删除后统计会同步更新，无法撤回。" : "选择要对这条记录做什么。"}</p>
             {confirmDelete ? (
@@ -482,7 +499,10 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
       <Dialog.Root open={editingRecord !== null} onOpenChange={(nextOpen) => !nextOpen && setEditingRecord(null)}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-[60] bg-[rgba(38,35,42,0.18)]" />
-          <Dialog.Content className="app-dialog-panel app-modal-scroll z-[70] max-h-[90vh] w-[calc(100%-56px)] max-w-[340px] rounded-[28px] p-5">
+          <Dialog.Content
+            className="app-dialog-panel app-modal-scroll z-[70] max-h-[calc(var(--visual-viewport-height)-var(--safe-top)-var(--safe-bottom)-2rem)] w-[calc(100%-32px)] max-w-[360px] overflow-x-hidden rounded-[28px] p-5 pt-6"
+            onEscapeKeyDown={(event) => event.stopPropagation()}
+          >
             <Dialog.Close className="absolute right-4 top-4 rounded-full bg-[var(--app-primary-soft)] p-2 text-[var(--app-text)]" aria-label="关闭">
               <X size={16} />
             </Dialog.Close>
@@ -494,21 +514,21 @@ export function FocusHistoryDrawer({ open, collectionId = null, todoId = null, i
               <div className="mt-4 space-y-3">
                 <label className="block">
                   <span className="text-xs font-black text-[var(--app-muted)]">开始时间</span>
-                  <Input className="mt-1" type="time" step={300} value={startTimeText} onChange={(event) => setStartTimeText(event.target.value)} />
+                  <Input className="mt-1 min-w-0 max-w-full" type="time" step={300} value={startTimeText} onChange={(event) => setStartTimeText(event.target.value)} />
                 </label>
                 <label className="block">
                   <span className="text-xs font-black text-[var(--app-muted)]">结束时间</span>
-                  <Input className="mt-1" type="time" step={300} value={endTimeText} onChange={(event) => setEndTimeText(event.target.value)} />
+                  <Input className="mt-1 min-w-0 max-w-full" type="time" step={300} value={endTimeText} onChange={(event) => setEndTimeText(event.target.value)} />
                 </label>
                 <p className="rounded-2xl bg-[var(--app-card-soft)] px-3 py-2 text-xs font-bold text-[var(--app-muted)]">
-                  当前时长：{formatMinutes(Math.max(0, timeRange(editingRecord.date, startTimeText, endTimeText).minutes))} · 跨过午夜时会自动计入次日
+                  当前时长：{startTimeText && endTimeText ? formatMinutes(Math.max(0, timeRange(editingRecord.date, startTimeText, endTimeText).minutes)) : "待选择"} · 跨过午夜时会自动计入次日
                 </p>
               </div>
             ) : (
               <div className="mt-4 space-y-3">
                 <label className="block">
                   <span className="text-xs font-black text-[var(--app-muted)]">打卡时间</span>
-                  <Input className="mt-1" type="time" step={300} value={checkinTimeText} onChange={(event) => setCheckinTimeText(event.target.value)} />
+                  <Input className="mt-1 min-w-0 max-w-full" type="time" step={300} value={checkinTimeText} onChange={(event) => setCheckinTimeText(event.target.value)} />
                 </label>
                 <p className="rounded-2xl bg-[var(--app-card-soft)] px-3 py-2 text-xs font-bold text-[var(--app-muted)]">
                   {checkinWindowText(editingRecord)} · 时间刻度 5分钟

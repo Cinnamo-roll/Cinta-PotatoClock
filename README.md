@@ -10,12 +10,12 @@
 
 ## 功能概览
 
-- 待办管理：普通待办、习惯、长期目标、待办集、排序和状态流转。
+- 待办管理：普通待办、习惯、长期目标、待办集、明确的上下移动排序和状态流转。
 - 专注计时：倒计时、正计时、不计时、暂停、继续、手动完成和放弃原因。
 - 记录与统计：今日、周、月、年、热力图、趋势图、任务排行和打断原因。
 - 打卡记录：早起、今日专注、睡前等日常记录。
 - 未来计划：重要日期倒计时，并在目标日发送一次普通提醒。
-- 移动端能力：Capacitor App、本地通知、震动反馈、主题与偏好存储。
+- 移动端能力：Capacitor App、本地通知、Android 前台计时、iOS 实时活动、震动反馈、主题与偏好存储。
 - 官网能力：品牌首页、功能截图、FAQ、APK/IPA 下载入口。
 
 ## 技术栈
@@ -96,7 +96,7 @@ mvn -s maven-settings.xml test
 
 - `corepack pnpm build:app` 通过
 - `corepack pnpm build:landing` 通过
-- `mvn -s maven-settings.xml test` 通过，43 个测试成功
+- `mvn -s maven-settings.xml test` 通过，46 个测试成功
 
 ## 环境变量
 
@@ -140,13 +140,22 @@ VITE_USE_MOCK=false
 
 ## 通知能力
 
-当前使用 Capacitor Local Notifications：
+当前通知与系统计时展示包括：
 
 - 待办倒计时结束：发送普通本地通知，标题为“专注完成”，正文包含待办标题。
 - 未来计划到点：目标日 09:00 发送一次普通本地通知。
 - Web 环境：浏览器支持 Notification API 时使用普通网页通知。
+- Android：专注进行中通过前台服务在通知栏和锁屏持续显示计时，结束后自动移除。
+- iOS 16.1+：专注进行中通过 ActivityKit 显示锁屏实时活动；支持的机型同时显示灵动岛。
 
-当前版本没有接入 iOS ActivityKit，因此不提供灵动岛或锁屏 Live Activity 实时倒计时。后续如需该能力，需要新增 iOS 原生实现并在真机验证。
+未来计划只在目标日期发送普通通知，不会长期占用锁屏或灵动岛。系统级计时展示仍需在 Android、iPhone 真机上验证权限与后台行为。
+
+## 当前发布版本
+
+- Android：`1.2`（`versionCode 3`）
+- 官网与公开下载信息：`1.2.0`
+- 安装包文件名：`downloads/tudou-clock.apk`
+- APK/IPA、签名文件、部署压缩包和生产环境变量均不提交 GitHub。
 
 ## 部署
 

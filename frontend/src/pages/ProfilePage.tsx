@@ -5,6 +5,7 @@ import { AtSign, Award, ChevronRight, Globe2, HelpCircle, KeyRound, LogOut, Mail
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Input } from "@/components/common/Input";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { AchievementEntry, buildAchievements } from "@/components/stats/AchievementEntry";
@@ -96,6 +97,7 @@ export default function ProfilePage() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [achievementOpen, setAchievementOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({ nickname: "", email: "" });
   const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
   const { data: statsData } = useStatsQuery();
@@ -190,9 +192,6 @@ export default function ProfilePage() {
               <h1 className="mt-1 truncate text-xl font-black text-[var(--app-text)]">{user?.nickname || user?.username || "未命名用户"}</h1>
               <p className="mt-1 truncate text-sm font-semibold text-[var(--app-muted)]">@{user?.username || "potato"}</p>
             </div>
-            <button className="app-card-action-button" onClick={() => setProfileOpen(true)} aria-label="快速编辑资料" type="button">
-              <PenLine size={18} />
-            </button>
           </div>
           <div className="grid gap-2">
             <InfoRow icon={<AtSign size={17} />} label="账号" value={user?.username || "未登录"} />
@@ -236,10 +235,7 @@ export default function ProfilePage() {
             icon={<LogOut size={19} />}
             title="退出登录"
             description="退出当前账号，回到登录页"
-            onClick={() => {
-              logout();
-              navigate("/login", { replace: true });
-            }}
+            onClick={() => setLogoutConfirmOpen(true)}
           />
         </Card>
       </div>
@@ -291,6 +287,19 @@ export default function ProfilePage() {
 
       <ThemePanel open={themeOpen} onOpenChange={setThemeOpen} />
       {statsData ? <AchievementEntry open={achievementOpen} summary={statsData.summary} stats={statsData} onClose={() => setAchievementOpen(false)} /> : null}
+      <ConfirmDialog
+        open={logoutConfirmOpen}
+        title="确认退出登录？"
+        description="退出后会回到登录页，未完成的本地计时请先结束。"
+        confirmText="退出登录"
+        tone="danger"
+        onOpenChange={setLogoutConfirmOpen}
+        onConfirm={() => {
+          setLogoutConfirmOpen(false);
+          logout();
+          navigate("/login", { replace: true });
+        }}
+      />
     </MobileShell>
   );
 }

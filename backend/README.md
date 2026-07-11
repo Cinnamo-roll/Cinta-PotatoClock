@@ -92,8 +92,9 @@ mvn -s maven-settings.xml package
 | `JWT_SECRET` | `<at_least_32_chars_secret>` | JWT 密钥 |
 | `JWT_EXPIRATION` | `604800000` | Token 有效期，毫秒 |
 | `CORS_ALLOWED_ORIGINS` | `https://clock.cinoo.xyz,...` | 允许跨域来源 |
-| `APP_DOWNLOAD_ANDROID_URL` | `https://clock.cinoo.xyz/downloads/potato-clock.apk` | APK 下载地址 |
-| `APP_DOWNLOAD_IOS_URL` | `https://clock.cinoo.xyz/downloads/potato-clock.ipa` | IPA 下载地址 |
+| `APP_ANDROID_APK_URL` | `https://clock.cinoo.xyz/downloads/tudou-clock.apk` | APK 下载地址 |
+| `APP_IOS_IPA_URL` | `https://clock.cinoo.xyz/downloads/tudou-clock.ipa` | IPA 下载地址 |
+| `APP_VERSION` | `1.2.0` | 官网公开版本号 |
 
 不要把真实密码、JWT 密钥和服务器敏感信息提交到仓库。
 

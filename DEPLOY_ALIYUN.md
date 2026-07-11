@@ -343,7 +343,7 @@ git pull
 sudo docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 ```
 
-只更新安装包：
+只更新安装包（安装包不进入 Git 仓库）：
 
 ```bash
 scp ./tudou-clock.apk <SERVER_USER>@<SERVER_IP>:<PROJECT_DIR>/downloads/tudou-clock.apk
@@ -351,6 +351,8 @@ scp ./tudou-clock.ipa <SERVER_USER>@<SERVER_IP>:<PROJECT_DIR>/downloads/tudou-cl
 ```
 
 安装包更新后通常不需要重启容器。
+
+正式发布建议顺序：先推送源码与文档，再在本地构建 APK，通过 `scp`/SFTP 单独覆盖服务器的 `downloads/tudou-clock.apk`，最后校验下载地址的状态码、文件大小和 SHA-256。不要把 APK、IPA、签名文件或 `.env.production` 加入 Git。
 
 ## 14. 常见排错
 

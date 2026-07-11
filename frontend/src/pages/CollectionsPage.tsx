@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { BarChart3, ChevronDown, FolderKanban, Plus, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowUpDown, BarChart3, Check, ChevronDown, FolderKanban, Plus, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AddCollectionModal } from "@/components/collection/AddCollectionModal";
 import { AnimatedList, AnimatedListItem } from "@/components/common/AnimatedList";
@@ -11,6 +11,7 @@ import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { CuteEmptyState } from "@/components/common/CuteEmptyState";
 import { PageHeader } from "@/components/common/PageHeader";
 import { QuickActionMenu, QuickActionMoreButton } from "@/components/common/QuickActionMenu";
+import { ReorderControls } from "@/components/common/ReorderControls";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { TodoActionSheet } from "@/components/todo/TodoActionSheet";
 import { TodoCard } from "@/components/todo/TodoCard";
@@ -51,13 +52,6 @@ function reorderIds(ids: number[], activeId: number, targetId: number) {
   return next;
 }
 
-function findNumericDatasetAt(clientX: number, clientY: number, selector: string, key: string) {
-  const element = document.elementFromPoint(clientX, clientY);
-  const sortable = element?.closest<HTMLElement>(selector);
-  const id = Number(sortable?.dataset[key]);
-  return Number.isFinite(id) ? id : null;
-}
-
 export default function CollectionsPage() {
   const navigate = useNavigate();
   const { data: collections = [] } = useCollectionsQuery();
@@ -84,12 +78,8 @@ export default function CollectionsPage() {
   const [quickOpen, setQuickOpen] = useState(false);
   const [collectionOrderIds, setCollectionOrderIds] = useState<number[]>([]);
   const [todoOrderIds, setTodoOrderIds] = useState<number[]>([]);
-  const [draggingCollectionId, setDraggingCollectionId] = useState<number | null>(null);
-  const [draggingTodoId, setDraggingTodoId] = useState<number | null>(null);
+  const [reorderMode, setReorderMode] = useState(false);
   const [pendingCompleteTodo, setPendingCompleteTodo] = useState<TodoItem | undefined>();
-  const suppressCollectionClick = useRef(false);
-  const collectionOrderIdsRef = useRef<number[]>([]);
-  const todoOrderIdsRef = useRef<number[]>([]);
 
   const orderedCollectionsSource = useMemo(
     () => [...collections].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || b.createdAt.localeCompare(a.createdAt)),
@@ -98,24 +88,22 @@ export default function CollectionsPage() {
   const orderedTodosSource = useMemo(() => [...todos].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || b.createdAt.localeCompare(a.createdAt)), [todos]);
 
   useEffect(() => {
-    if (draggingCollectionId != null) return;
+    if (reorderMode) return;
     const nextOrderIds = orderedCollectionsSource.map((collection) => collection.id);
     setCollectionOrderIds((ids) => {
       const next = sameIds(ids, nextOrderIds) ? ids : nextOrderIds;
-      collectionOrderIdsRef.current = next;
       return next;
     });
-  }, [draggingCollectionId, orderedCollectionsSource]);
+  }, [orderedCollectionsSource, reorderMode]);
 
   useEffect(() => {
-    if (draggingTodoId != null) return;
+    if (reorderMode) return;
     const nextOrderIds = orderedTodosSource.map((todo) => todo.id);
     setTodoOrderIds((ids) => {
       const next = sameIds(ids, nextOrderIds) ? ids : nextOrderIds;
-      todoOrderIdsRef.current = next;
       return next;
     });
-  }, [draggingTodoId, orderedTodosSource]);
+  }, [orderedTodosSource, reorderMode]);
 
   const orderedCollections = useMemo(() => {
     const byId = new Map(orderedCollectionsSource.map((collection) => [collection.id, collection]));
@@ -168,67 +156,48 @@ export default function CollectionsPage() {
 
   const persistCollectionOrder = async (ids: number[]) => {
     const byId = new Map(orderedCollections.map((collection) => [collection.id, collection]));
-    await Promise.all(
-      ids.map((id, index) => {
+    try {
+      for (const [index, id] of ids.entries()) {
         const collection = byId.get(id);
-        if (!collection || collection.sortOrder === index + 1) return Promise.resolve();
-        return updateCollection.mutateAsync({ id, payload: { sortOrder: index + 1 } });
-      })
-    );
-    quickToast("待办集顺序已更新");
+        if (collection && collection.sortOrder !== index + 1) await updateCollection.mutateAsync({ id, payload: { sortOrder: index + 1 } });
+      }
+      quickToast("待办集顺序已更新");
+    } catch (error) {
+      quickToast("顺序保存失败", "error", error instanceof Error ? error.message : "请检查网络后重试");
+    }
   };
 
   const persistTodoOrder = async (ids: number[], collectionId?: number | null) => {
     const byId = new Map(orderedTodos.map((todo) => [todo.id, todo]));
     const scopedIds = collectionId == null ? ids : ids.filter((id) => byId.get(id)?.collectionId === collectionId);
-    await Promise.all(
-      scopedIds.map((id, index) => {
+    try {
+      for (const [index, id] of scopedIds.entries()) {
         const todo = byId.get(id);
-        if (!todo || todo.sortOrder === index + 1) return Promise.resolve();
-        return updateTodoSort.mutateAsync({ id, sortOrder: index + 1 });
-      })
-    );
-    quickToast("待办顺序已更新");
+        if (todo && todo.sortOrder !== index + 1) await updateTodoSort.mutateAsync({ id, sortOrder: index + 1 });
+      }
+      quickToast("待办顺序已更新");
+    } catch (error) {
+      quickToast("顺序保存失败", "error", error instanceof Error ? error.message : "请检查网络后重试");
+    }
   };
 
-  const handleCollectionDragMove = (clientX: number, clientY: number) => {
-    if (draggingCollectionId == null) return;
-    const targetId = findNumericDatasetAt(clientX, clientY, "[data-collection-sort-id]", "collectionSortId");
-    if (targetId == null || targetId === draggingCollectionId) return;
-    setCollectionOrderIds((ids) => {
-      const next = reorderIds(ids, draggingCollectionId, targetId);
-      collectionOrderIdsRef.current = next;
-      return next;
-    });
+  const moveCollection = (id: number, direction: -1 | 1) => {
+    const index = collectionOrderIds.indexOf(id);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= collectionOrderIds.length || updateCollection.isPending) return;
+    const next = reorderIds(collectionOrderIds, id, collectionOrderIds[targetIndex]);
+    setCollectionOrderIds(next);
+    void persistCollectionOrder(next);
   };
 
-  const handleCollectionDragEnd = () => {
-    if (draggingCollectionId == null) return;
-    const ids = collectionOrderIdsRef.current.length ? collectionOrderIdsRef.current : collectionOrderIds;
-    setDraggingCollectionId(null);
-    void persistCollectionOrder(ids);
-  };
-
-  const handleTodoDragMove = (clientX: number, clientY: number) => {
-    if (draggingTodoId == null) return;
-    const targetId = findNumericDatasetAt(clientX, clientY, "[data-sort-id]", "sortId");
-    if (targetId == null || targetId === draggingTodoId) return;
-    const draggingTodo = orderedTodos.find((todo) => todo.id === draggingTodoId);
-    const targetTodo = orderedTodos.find((todo) => todo.id === targetId);
-    if (!draggingTodo || !targetTodo || draggingTodo.collectionId !== targetTodo.collectionId) return;
-    setTodoOrderIds((ids) => {
-      const next = reorderIds(ids, draggingTodoId, targetId);
-      todoOrderIdsRef.current = next;
-      return next;
-    });
-  };
-
-  const handleTodoDragEnd = () => {
-    if (draggingTodoId == null) return;
-    const ids = todoOrderIdsRef.current.length ? todoOrderIdsRef.current : todoOrderIds;
-    const collectionId = orderedTodos.find((todo) => todo.id === draggingTodoId)?.collectionId ?? null;
-    setDraggingTodoId(null);
-    void persistTodoOrder(ids, collectionId);
+  const moveTodo = (id: number, collectionId: number, direction: -1 | 1) => {
+    const scopedIds = todoOrderIds.filter((todoId) => orderedTodos.find((todo) => todo.id === todoId)?.collectionId === collectionId);
+    const index = scopedIds.indexOf(id);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= scopedIds.length || updateTodoSort.isPending) return;
+    const next = reorderIds(todoOrderIds, id, scopedIds[targetIndex]);
+    setTodoOrderIds(next);
+    void persistTodoOrder(next, collectionId);
   };
 
   const handleStart = (todo: TodoItem) => {
@@ -266,6 +235,19 @@ export default function CollectionsPage() {
           description="按场景整理待办"
           action={
             <div className="relative flex gap-2">
+              <button
+                className="app-header-button"
+                onClick={() => {
+                  setQuickOpen(false);
+                  setReorderMode((enabled) => !enabled);
+                  setExpandedIds(orderedCollections.map((collection) => collection.id));
+                }}
+                aria-label={reorderMode ? "完成排序" : "调整待办集和待办顺序"}
+                aria-pressed={reorderMode}
+                type="button"
+              >
+                {reorderMode ? <Check size={19} /> : <ArrowUpDown size={19} />}
+              </button>
               <button className="app-header-button" onClick={openCollection} aria-label="添加待办集" type="button">
                 <Plus size={19} />
               </button>
@@ -281,7 +263,7 @@ export default function CollectionsPage() {
           }
         />
 
-        {draggingCollectionId != null || draggingTodoId != null ? <Card className="bg-white text-sm font-bold text-[var(--app-muted)]">拖到想要的位置松手，顺序会自动保存。</Card> : null}
+        {reorderMode ? <Card className="bg-white text-sm font-bold text-[var(--app-muted)]">使用右侧箭头调整待办集或集内待办的顺序，修改会立即保存。</Card> : null}
 
         {orderedCollections.length === 0 ? (
           <CuteEmptyState title="当前没有待办集" description="创建学习、工作或生活分组，再把子待办放进去。" actionLabel="添加待办集" onAction={openCollection} />
@@ -290,41 +272,15 @@ export default function CollectionsPage() {
             {orderedCollections.map((collection) => {
               const childTodos = todosByCollection[collection.id] ?? [];
               const expanded = expandedIds.includes(collection.id);
-              const draggingCollection = draggingCollectionId === collection.id;
+              const collectionIndex = collectionOrderIds.indexOf(collection.id);
               return (
                 <AnimatedListItem key={collection.id}>
-                <Card
-                  className={draggingCollection ? "overflow-hidden border-[var(--app-primary-strong)] p-0 shadow-[0_14px_34px_rgba(120,70,90,0.18)]" : "overflow-hidden p-0"}
-                  data-collection-sort-id={collection.id}
-                  onPointerCancel={handleCollectionDragEnd}
-                  onPointerDown={(event) => {
-                    const target = event.target as HTMLElement;
-                    if (target.closest("button")) return;
-                    const timer = window.setTimeout(() => {
-                      suppressCollectionClick.current = true;
-                      setQuickOpen(false);
-                      setDraggingCollectionId(collection.id);
-                      void lightImpact();
-                    }, 420);
-                    const clear = () => window.clearTimeout(timer);
-                    event.currentTarget.addEventListener("pointerup", clear, { once: true });
-                    event.currentTarget.addEventListener("pointerleave", clear, { once: true });
-                    event.currentTarget.setPointerCapture?.(event.pointerId);
-                  }}
-                  onPointerMove={(event) => {
-                    if (draggingCollectionId == null) return;
-                    event.preventDefault();
-                    handleCollectionDragMove(event.clientX, event.clientY);
-                  }}
-                  onPointerUp={handleCollectionDragEnd}
-                >
+                <div className="flex items-center gap-2">
+                <Card className="min-w-0 flex-1 overflow-hidden p-0">
                   <div
                     className="flex min-h-20 items-center gap-3 p-4"
                     onClick={() => {
-                      if (suppressCollectionClick.current) {
-                        suppressCollectionClick.current = false;
-                        return;
-                      }
+                      if (reorderMode) return;
                       setExpandedIds((ids) => (ids.includes(collection.id) ? ids.filter((id) => id !== collection.id) : [...ids, collection.id]));
                     }}
                   >
@@ -366,30 +322,47 @@ export default function CollectionsPage() {
                           <CuteEmptyState title="这个待办集还没有待办" description="点右侧 + 添加一个子待办。" />
                         </AnimatedListItem>
                       ) : (
-                        childTodos.map((todo) => (
+                        childTodos.map((todo, todoIndex) => (
                           <AnimatedListItem key={todo.id}>
+                            <div className="flex items-center gap-2">
+                            <div className="min-w-0 flex-1">
                             <TodoCard
-                              dragging={draggingTodoId === todo.id}
                               todo={todo}
                               todayCompletedCount={todayTodoMetrics(todo, timerSessions).completedCount}
                               sessions={timerSessions}
-                              onOpen={setActionTodo}
+                              onOpen={reorderMode ? undefined : setActionTodo}
                               onStart={handleStart}
                               onComplete={setPendingCompleteTodo}
-                              onLongPressStart={(item) => {
-                                setDraggingTodoId(item.id);
-                                setActionTodo(undefined);
-                                void lightImpact();
-                              }}
-                              onDragMove={handleTodoDragMove}
-                              onDragEnd={handleTodoDragEnd}
                             />
+                            </div>
+                            {reorderMode ? (
+                              <ReorderControls
+                                label={`“${todo.title}”`}
+                                canMoveUp={todoIndex > 0}
+                                canMoveDown={todoIndex < childTodos.length - 1}
+                                disabled={updateTodoSort.isPending}
+                                onMoveUp={() => moveTodo(todo.id, collection.id, -1)}
+                                onMoveDown={() => moveTodo(todo.id, collection.id, 1)}
+                              />
+                            ) : null}
+                            </div>
                           </AnimatedListItem>
                         ))
                       )}
                     </AnimatedList>
                   ) : null}
                 </Card>
+                {reorderMode ? (
+                  <ReorderControls
+                    label={`待办集“${collection.name}”`}
+                    canMoveUp={collectionIndex > 0}
+                    canMoveDown={collectionIndex < collectionOrderIds.length - 1}
+                    disabled={updateCollection.isPending}
+                    onMoveUp={() => moveCollection(collection.id, -1)}
+                    onMoveDown={() => moveCollection(collection.id, 1)}
+                  />
+                ) : null}
+                </div>
                 </AnimatedListItem>
               );
             })}

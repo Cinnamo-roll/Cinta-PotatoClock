@@ -111,6 +111,13 @@ button {
   color: inherit;
 }
 
+body:not(.landing-scroll-body) [role="button"]:focus,
+body:not(.landing-scroll-body) [role="button"]:focus-visible,
+body:not(.landing-scroll-body) table:focus,
+body:not(.landing-scroll-body) table:focus-visible {
+  outline: none;
+}
+
 .potato-bg {
   background:
     linear-gradient(160deg, color-mix(in srgb, var(--app-bg) 86%, var(--app-card) 14%) 0%, color-mix(in srgb, var(--app-bg-soft) 72%, var(--app-card) 28%) 58%, color-mix(in srgb, var(--app-card) 78%, var(--app-primary-soft) 22%) 100%);
@@ -293,12 +300,42 @@ body.keyboard-open .app-dialog-panel {
   justify-content: center;
   border-radius: 9999px;
   border: 1px solid color-mix(in srgb, var(--app-border) 72%, transparent);
-  background: color-mix(in srgb, var(--app-card) 78%, var(--app-primary-soft) 22%);
+  background: color-mix(in srgb, var(--app-card) 72%, var(--app-primary-soft) 28%);
   background-clip: padding-box;
   color: var(--app-primary-strong);
   box-shadow: 0 8px 20px color-mix(in srgb, var(--app-primary) 10%, transparent);
   backdrop-filter: blur(18px);
   transition: transform 150ms ease, background 150ms ease;
+}
+
+.app-page-header .app-header-button {
+  border-color: color-mix(in srgb, var(--app-border) 54%, transparent);
+  background: color-mix(in srgb, var(--app-card) 62%, var(--app-primary-soft) 38%);
+  box-shadow:
+    0 6px 16px color-mix(in srgb, var(--app-primary) 9%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--app-card) 74%, transparent);
+}
+
+.app-reorder-button {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--app-border) 72%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--app-card) 70%, var(--app-primary-soft) 30%);
+  color: var(--app-primary-strong);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--app-primary) 8%, transparent);
+  transition: transform 150ms ease, opacity 150ms ease;
+}
+
+.app-reorder-button:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.app-reorder-button:disabled {
+  opacity: 0.28;
 }
 
 .app-header-button:active {
@@ -422,6 +459,16 @@ body.keyboard-open .app-dialog-panel {
   }
 }
 
+@keyframes landing-orbit-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(18px, -14px, 0) scale(1.08); }
+}
+
+@keyframes landing-glow-drift {
+  0%, 100% { opacity: 0.32; transform: translateX(-8%); }
+  50% { opacity: 0.55; transform: translateX(8%); }
+}
+
 .landing-page {
   overflow-x: clip;
   scroll-behavior: smooth;
@@ -456,11 +503,65 @@ body.keyboard-open .app-dialog-panel {
 }
 
 .landing-reveal {
-  animation: landing-shot-in 520ms ease both;
+  opacity: 0;
+  transform: translateY(22px) scale(0.992);
+  transition: opacity 620ms ease, transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.landing-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .landing-download-option {
   min-height: 178px;
+  transform: translateZ(0);
+}
+
+.landing-download-option:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.16);
+}
+
+.landing-feature-icon {
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+article:hover .landing-feature-icon {
+  transform: translateY(-3px) rotate(-3deg);
+  box-shadow: 0 10px 22px rgba(53, 102, 74, 0.12);
+}
+
+.landing-orbit {
+  position: absolute;
+  border: 1px solid rgba(41, 38, 42, 0.13);
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: landing-orbit-drift 8s ease-in-out infinite;
+}
+
+.landing-orbit-one {
+  left: -5rem;
+  top: 4rem;
+  height: 15rem;
+  width: 15rem;
+}
+
+.landing-orbit-two {
+  bottom: -8rem;
+  left: 42%;
+  height: 24rem;
+  width: 24rem;
+  animation-delay: -3s;
+}
+
+.landing-download-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 70% 30%, rgba(247, 214, 110, 0.16), transparent 35%);
+  animation: landing-glow-drift 7s ease-in-out infinite;
 }
 
 @media (max-width: 639px) {
@@ -479,6 +580,13 @@ body.keyboard-open .app-dialog-panel {
     bottom: -5rem;
     width: 25rem;
     opacity: 0.08;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal {
+    opacity: 1;
+    transform: none;
   }
 }
 
