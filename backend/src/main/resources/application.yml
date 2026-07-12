@@ -51,13 +51,13 @@ app:
     privacy-url: ${APP_PRIVACY_URL:https://clock.cinoo.xyz/privacy}
     support-email: ${APP_SUPPORT_EMAIL:support@clock.cinoo.xyz}
   release:
-    version: ${APP_VERSION:1.2.3}
-    build-number: ${APP_BUILD_NUMBER:6}
-    release-date: ${APP_RELEASE_DATE:2026-07-12}
+    version: ${APP_VERSION:1.2.4}
+    build-number: ${APP_BUILD_NUMBER:7}
+    release-date: ${APP_RELEASE_DATE:2026-07-13}
     force-update: ${APP_FORCE_UPDATE:false}
     changelog:
-      - 修复 Android 冷启动时错误创建计时服务导致的闪退
-      - 明确区分项目官网与作者个人网站
+      - 修复 Android 启动背景资源无效导致的闪退
+      - 修复官网手机卡片首次加载时的异常倾斜
     ios:
       available: ${APP_IOS_AVAILABLE:true}
       download-url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
@@ -69,11 +69,11 @@ app:
   downloads:
     android:
       url: ${APP_ANDROID_APK_URL:https://clock.cinoo.xyz/downloads/tudou-clock.apk}
-      version: ${APP_VERSION:1.2.3}
+      version: ${APP_VERSION:1.2.4}
       size: ${APP_ANDROID_APK_SIZE:}
     ios:
       url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
-      version: ${APP_VERSION:1.2.3}
+      version: ${APP_VERSION:1.2.4}
       size: ${APP_IOS_IPA_SIZE:}
       requires-self-signing: ${APP_IOS_REQUIRES_SELF_SIGNING:true}
       note: ${APP_IOS_DOWNLOAD_NOTE:后端只提供 IPA 下载地址，不负责 iOS 签名}

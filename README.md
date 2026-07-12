@@ -5,7 +5,7 @@
 ## 产品预览与下载
 
 - [在线产品预览与官网](https://clock.cinoo.xyz)：查看真实界面、主要功能和版本说明。
-- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.3`，可直接下载安装。
+- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.4`，可直接下载安装。
 - [iOS 未签名 IPA](https://github.com/Cinnamo-roll/Cinta-PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：打开最新一次成功运行，在页面底部下载 `tudou-clock-unsigned-ipa` Artifact；安装前需要自行签名。
 
 正式安装包不提交到 Git 仓库。Android 由官网提供固定下载地址；iOS Artifact 有保留期限，过期后可在 Actions 页面手动重新运行构建。
@@ -160,13 +160,18 @@ VITE_USE_MOCK=false
 
 ## 当前发布版本
 
-- Android：`1.2.3`（`versionCode 6`）
-- iOS：`1.2.3`（`build 6`，未签名 IPA）
-- 官网与公开下载信息：`1.2.3`
+- Android：`1.2.4`（`versionCode 7`）
+- iOS：`1.2.4`（`build 7`，未签名 IPA）
+- 官网与公开下载信息：`1.2.4`
 - 安装包文件名：`downloads/tudou-clock.apk`
 - APK/IPA、签名文件、部署压缩包和生产环境变量均不提交 GitHub。
 
-### 1.2.3 Android 启动修复
+### 1.2.4 Android 启动与官网动画修复
+
+- 修复 Android 启动背景把自适应图标作为位图加载导致 `MainActivity` 创建前直接闪退的问题。
+- 修复官网桌面端手机卡片首次加载时旋转角度被浮动动画覆盖的问题。
+
+### 1.2.3 Android 兼容性调整
 
 - Android 冷启动不再为 idle 计时状态创建前台服务，避免部分系统在打开应用时直接终止进程。
 - 项目官网固定为 `https://clock.cinoo.xyz`；作者个人 Website 为 `https://cinoo.xyz`。

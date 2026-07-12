@@ -32,11 +32,11 @@ public class PublicAppProperties {
     @Getter
     @Setter
     public static class Release {
-        private String version = "1.2.3";
-        private String buildNumber = "6";
-        private LocalDate releaseDate = LocalDate.of(2026, 7, 12);
+        private String version = "1.2.4";
+        private String buildNumber = "7";
+        private LocalDate releaseDate = LocalDate.of(2026, 7, 13);
         private boolean forceUpdate = false;
-        private List<String> changelog = new ArrayList<>(List.of("修复 Android 冷启动时错误创建计时服务导致的闪退", "明确区分项目官网与作者个人网站"));
+        private List<String> changelog = new ArrayList<>(List.of("修复 Android 启动背景资源无效导致的闪退", "修复官网手机卡片首次加载时的异常倾斜"));
         private Platform ios = new Platform();
         private Platform android = new Platform();
     }

@@ -7,7 +7,7 @@
 export const projectIdentity = Object.freeze({
   name: "Potato Clock",
   displayName: "土豆时钟ToDo",
-  version: "1.2.3",
+  version: "1.2.4",
   author: "CintaOvO",
   repositoryUrl: "https://github.com/Cinnamo-roll/Cinta-PotatoClock",
   license: "Apache-2.0"

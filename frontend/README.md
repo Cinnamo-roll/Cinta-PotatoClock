@@ -127,10 +127,10 @@ frontend/
 
 ## 发布版本
 
-- Android `versionName`：`1.2.3`
-- Android `versionCode`：`6`
-- iOS `MARKETING_VERSION`：`1.2.3`，`CURRENT_PROJECT_VERSION`：`6`
-- 公开版本：`1.2.3`
+- Android `versionName`：`1.2.4`
+- Android `versionCode`：`7`
+- iOS `MARKETING_VERSION`：`1.2.4`，`CURRENT_PROJECT_VERSION`：`7`
+- 公开版本：`1.2.4`
 - iOS：由 GitHub Actions 生成 `tudou-clock-unsigned-ipa` Artifact。
 - 正式 APK、IPA、签名文件和 `dist/` 构建产物不提交 GitHub。
 

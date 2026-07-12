@@ -495,7 +495,12 @@ body.keyboard-open .app-dialog-panel {
 }
 
 .landing-device-back {
+  --phone-rotate: -6deg;
   animation-delay: 620ms;
+}
+
+.landing-device-front {
+  --phone-rotate: 3deg;
 }
 
 .landing-reveal {
