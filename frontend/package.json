@@ -1,7 +1,21 @@
 {
   "name": "potato-clock",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.2.2",
+  "author": {
+    "name": "CintaOvO",
+    "email": "D1391571546@outlook.com",
+    "url": "https://cinoo.xyz"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://cinoo.xyz",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cinnamo-roll/Cinta-PotatoClock.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Cinnamo-roll/Cinta-PotatoClock/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",

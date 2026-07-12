@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 CintaOvO
+ * Licensed under the Apache License, Version 2.0.
+ * Original project: https://github.com/Cinnamo-roll/Cinta-PotatoClock
+ */
+
 import { registerPlugin } from "@capacitor/core";
 import { isNativeApp, isPluginAvailable } from "@/lib/capacitor";
 import { useTimerStore } from "@/stores/timerStore";

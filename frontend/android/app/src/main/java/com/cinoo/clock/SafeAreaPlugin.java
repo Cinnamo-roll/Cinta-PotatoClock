@@ -1,8 +1,14 @@
+/*
+ * Copyright 2026 CintaOvO
+ * Licensed under the Apache License, Version 2.0.
+ * Original project: https://github.com/Cinnamo-roll/Cinta-PotatoClock
+ */
+
 package com.cinoo.clock;
 
-import android.graphics.Insets;
-import android.os.Build;
-import android.view.WindowInsets;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -16,17 +22,12 @@ public class SafeAreaPlugin extends Plugin {
         getActivity().runOnUiThread(() -> {
             int top = 0;
             int bottom = 0;
-            WindowInsets windowInsets = getActivity().getWindow().getDecorView().getRootWindowInsets();
+            WindowInsetsCompat windowInsets = ViewCompat.getRootWindowInsets(getActivity().getWindow().getDecorView());
             if (windowInsets != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    Insets statusBars = windowInsets.getInsets(WindowInsets.Type.statusBars() | WindowInsets.Type.displayCutout());
-                    Insets navigationBars = windowInsets.getInsets(WindowInsets.Type.navigationBars());
-                    top = statusBars.top;
-                    bottom = navigationBars.bottom;
-                } else {
-                    top = windowInsets.getStableInsetTop();
-                    bottom = windowInsets.getStableInsetBottom();
-                }
+                Insets statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.displayCutout());
+                Insets navigationBars = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
+                top = statusBars.top;
+                bottom = navigationBars.bottom;
             }
             float density = getContext().getResources().getDisplayMetrics().density;
             JSObject result = new JSObject();

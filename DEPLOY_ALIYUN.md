@@ -70,7 +70,7 @@ sudo docker network connect proxy caddy 2>/dev/null || true
 ```bash
 sudo mkdir -p <PROJECT_DIR>
 sudo chown -R "$USER":"$USER" <PROJECT_DIR>
-git clone https://github.com/Cinnamo-roll/PotatoClock.git <PROJECT_DIR>
+git clone https://github.com/Cinnamo-roll/Cinta-PotatoClock.git <PROJECT_DIR>
 cd <PROJECT_DIR>
 ```
 

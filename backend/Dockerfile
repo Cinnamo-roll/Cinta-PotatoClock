@@ -6,6 +6,11 @@ COPY src ./src
 RUN mvn -s /root/.m2/settings.xml -q -DskipTests package
 
 FROM eclipse-temurin:21-jre
+LABEL org.opencontainers.image.title="Potato Clock Backend" \
+      org.opencontainers.image.authors="CintaOvO <D1391571546@outlook.com>" \
+      org.opencontainers.image.source="https://github.com/Cinnamo-roll/Cinta-PotatoClock" \
+      org.opencontainers.image.url="https://cinoo.xyz" \
+      org.opencontainers.image.licenses="Apache-2.0"
 WORKDIR /app
 COPY --from=build /app/target/clock-backend-*.jar app.jar
 EXPOSE 8080

@@ -48,8 +48,8 @@ class PublicAppSecurityTest {
                 "土豆时钟",
                 "slogan",
                 "description",
-                "https://clock.cinoo.xyz",
-                "https://clock.cinoo.xyz/privacy",
+                "https://cinoo.xyz",
+                "https://cinoo.xyz/privacy",
                 "support@clock.cinoo.xyz"));
 
         mockMvc.perform(get("/api/public/app/info"))

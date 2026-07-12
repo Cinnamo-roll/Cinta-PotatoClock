@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 CintaOvO
+ * Licensed under the Apache License, Version 2.0.
+ * Original project: https://github.com/Cinnamo-roll/Cinta-PotatoClock
+ */
+
 import { ArrowUpDown, Check, ListTodo, Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";

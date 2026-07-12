@@ -40,18 +40,18 @@ jwt:
   expires-in: ${JWT_EXPIRES_IN:86400}
 
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175,https://clock.cinoo.xyz,capacitor://localhost,ionic://localhost,http://localhost,https://localhost}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175,https://cinoo.xyz,https://clock.cinoo.xyz,capacitor://localhost,ionic://localhost,http://localhost,https://localhost}
 
 app:
   info:
     app-name: ${APP_NAME:土豆时钟}
     slogan: ${APP_SLOGAN:把今天切成更容易开始的一小块}
     description: ${APP_DESCRIPTION:专注、倒计时、习惯和目标管理一体的移动端时钟。}
-    official-site: ${APP_OFFICIAL_SITE:https://clock.cinoo.xyz}
-    privacy-url: ${APP_PRIVACY_URL:https://clock.cinoo.xyz/privacy}
+    official-site: ${APP_OFFICIAL_SITE:https://cinoo.xyz}
+    privacy-url: ${APP_PRIVACY_URL:https://cinoo.xyz/privacy}
     support-email: ${APP_SUPPORT_EMAIL:support@clock.cinoo.xyz}
   release:
-    version: ${APP_VERSION:1.2.1}
+    version: ${APP_VERSION:1.2.2}
     build-number: ${APP_BUILD_NUMBER:4}
     release-date: ${APP_RELEASE_DATE:2026-06-25}
     force-update: ${APP_FORCE_UPDATE:false}
@@ -69,11 +69,11 @@ app:
   downloads:
     android:
       url: ${APP_ANDROID_APK_URL:https://clock.cinoo.xyz/downloads/tudou-clock.apk}
-      version: ${APP_VERSION:1.2.1}
+      version: ${APP_VERSION:1.2.2}
       size: ${APP_ANDROID_APK_SIZE:}
     ios:
       url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
-      version: ${APP_VERSION:1.2.1}
+      version: ${APP_VERSION:1.2.2}
       size: ${APP_IOS_IPA_SIZE:}
       requires-self-signing: ${APP_IOS_REQUIRES_SELF_SIGNING:true}
       note: ${APP_IOS_DOWNLOAD_NOTE:后端只提供 IPA 下载地址，不负责 iOS 签名}

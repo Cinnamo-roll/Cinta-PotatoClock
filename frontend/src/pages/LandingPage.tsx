@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 CintaOvO
+ * Licensed under the Apache License, Version 2.0.
+ * Original project: https://github.com/Cinnamo-roll/Cinta-PotatoClock
+ */
+
 import { useEffect } from "react";
 import {
   ArrowRight,
@@ -14,6 +20,7 @@ import {
 } from "lucide-react";
 import { PhoneMockup } from "@/components/landing/PhoneMockup";
 import { downloadLinks } from "@/utils/env";
+import { projectIdentity } from "@/config/projectIdentity";
 
 const workflow = [
   { index: "01", title: "写下眼前的小事", desc: "普通待办、习惯和目标各自归位。" },
@@ -132,7 +139,7 @@ export default function LandingPage() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#29262A] px-6 font-black text-white shadow-[0_12px_24px_rgba(41,38,42,0.20)] transition hover:-translate-y-0.5 hover:bg-[#423D43]" href={downloadLinks.androidApk}>
                   <Smartphone size={18} />
-                  Android 1.2.1
+                  Android {projectIdentity.version}
                   <Download size={17} />
                 </a>
                 <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#29262A] bg-[#F8F6F1] px-6 font-black text-[#29262A] transition hover:-translate-y-0.5" href={downloadLinks.iosIpa}>
@@ -228,7 +235,7 @@ export default function LandingPage() {
                 <p className="text-sm font-black text-[#F7D66E]">下载土豆时钟ToDo</p>
                 <h2 className="mt-3 text-balance text-3xl font-black sm:text-4xl">选好版本，继续今天</h2>
                 <p className="mt-4 max-w-lg text-sm font-semibold leading-7 text-white/62">安装包仅通过 clock.cinoo.xyz 提供。Android 可直接安装；iOS 当前提供未签名 IPA。</p>
-                <p className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#B7D8C3]"><ShieldCheck size={18} />当前版本 1.2.1</p>
+                <p className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#B7D8C3]"><ShieldCheck size={18} />当前版本 {projectIdentity.version}</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <a className="landing-download-option group rounded-lg border border-white/14 bg-white/[0.06] p-5 transition hover:border-[#F7D66E] hover:bg-white/[0.10]" href={downloadLinks.androidApk}>
@@ -237,7 +244,7 @@ export default function LandingPage() {
                     <Download className="transition group-hover:translate-y-0.5" size={20} />
                   </div>
                   <h3 className="mt-6 text-xl font-black">Android APK</h3>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-white/60">版本 1.2.1，可直接覆盖旧版安装。</p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-white/60">版本 {projectIdentity.version}，可直接覆盖旧版安装。</p>
                 </a>
                 <a className="landing-download-option group rounded-lg border border-white/14 bg-white/[0.06] p-5 transition hover:border-[#9CC7E8] hover:bg-white/[0.10]" href={downloadLinks.iosIpa}>
                   <div className="flex items-start justify-between gap-4">
@@ -277,10 +284,11 @@ export default function LandingPage() {
 
       <footer className="border-t border-[#29262A]/12 bg-[#F0ECE3] px-5 py-8">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 text-sm font-bold text-[#6E686D] sm:flex-row sm:items-center sm:justify-between">
-          <p className="flex items-center gap-2"><img className="h-7 w-7 rounded-md" src="/icons/app-icon-32.png" alt="" />土豆时钟ToDo · clock.cinoo.xyz</p>
+          <p className="flex items-center gap-2"><img className="h-7 w-7 rounded-md" src="/icons/app-icon-32.png" alt="" />{projectIdentity.displayName} · cinoo.xyz</p>
           <div className="flex flex-wrap gap-5">
             <a className="hover:text-[#29262A]" href="#top">回到顶部</a>
             <a className="hover:text-[#29262A]" href="#download">下载 App</a>
+            <a className="hover:text-[#29262A]" href={projectIdentity.repositoryUrl} target="_blank" rel="noreferrer">Original project by {projectIdentity.author}</a>
             <a className="hover:text-[#29262A]" href="mailto:support@clock.cinoo.xyz">联系我们</a>
           </div>
         </div>

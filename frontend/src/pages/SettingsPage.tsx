@@ -1,7 +1,13 @@
+/*
+ * Copyright 2026 CintaOvO
+ * Licensed under the Apache License, Version 2.0.
+ * Original project: https://github.com/Cinnamo-roll/Cinta-PotatoClock
+ */
+
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import * as Switch from "@radix-ui/react-switch";
-import { LogOut } from "lucide-react";
+import { ExternalLink, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
@@ -14,6 +20,8 @@ import { useSettingsStore } from "@/stores/settingsStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
 import type { UserSettings } from "@/types/settings";
+import { projectIdentity } from "@/config/projectIdentity";
+import { openExternalLink } from "@/services/externalLinkService";
 
 function SettingRow({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
@@ -101,6 +109,26 @@ export default function SettingsPage() {
         </SettingsSection>
         <SettingsSection title="主题模式" description="选择适合当前环境的显示方式。">
           <ThemeToggle value={settings.theme} onChange={(theme) => void patchSettings({ theme })} />
+        </SettingsSection>
+        <SettingsSection title="关于" description="项目来源与许可信息。">
+          <div className="rounded-3xl bg-white/42 p-4 dark:bg-white/8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-black text-soil dark:text-cream">{projectIdentity.displayName}</p>
+                <p className="mt-1 text-xs text-soil/55 dark:text-cream/55">版本 {projectIdentity.version} · {projectIdentity.license}</p>
+              </div>
+              <button
+                type="button"
+                className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-2xl px-3 text-sm font-bold text-leaf transition hover:bg-leaf/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf/55 dark:text-cream"
+                onClick={() => void openExternalLink(projectIdentity.repositoryUrl)}
+                aria-label="打开 Potato Clock 原始 GitHub 仓库"
+              >
+                GitHub
+                <ExternalLink size={15} aria-hidden="true" />
+              </button>
+            </div>
+            <p className="mt-3 text-sm text-soil/65 dark:text-cream/65">Original project by {projectIdentity.author}</p>
+          </div>
         </SettingsSection>
         <Button
           className="w-full"

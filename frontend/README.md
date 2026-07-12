@@ -11,9 +11,9 @@
 
 ## 产品预览
 
-- [在线产品预览与官网](https://clock.cinoo.xyz)
+- [在线产品预览与官网](https://cinoo.xyz)
 - [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)
-- [iOS 未签名 IPA 构建](https://github.com/Cinnamo-roll/PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：进入最新成功运行，在 Artifacts 区域下载 `tudou-clock-unsigned-ipa`。
+- [iOS 未签名 IPA 构建](https://github.com/Cinnamo-roll/Cinta-PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：进入最新成功运行，在 Artifacts 区域下载 `tudou-clock-unsigned-ipa`。
 
 iOS 构建产物是未签名 IPA，不能直接通过 App Store 安装；需要使用 AltStore、SideStore、TrollStore 或自己的开发者签名方式。Actions Artifact 默认有保留期限，过期后重新运行工作流即可生成。
 
@@ -127,10 +127,10 @@ frontend/
 
 ## 发布版本
 
-- Android `versionName`：`1.2.1`
-- Android `versionCode`：`4`
-- iOS `MARKETING_VERSION`：`1.2.1`，`CURRENT_PROJECT_VERSION`：`4`
-- 公开版本：`1.2.1`
+- Android `versionName`：`1.2.2`
+- Android `versionCode`：`5`
+- iOS `MARKETING_VERSION`：`1.2.2`，`CURRENT_PROJECT_VERSION`：`5`
+- 公开版本：`1.2.2`
 - iOS：由 GitHub Actions 生成 `tudou-clock-unsigned-ipa` Artifact。
 - 正式 APK、IPA、签名文件和 `dist/` 构建产物不提交 GitHub。
 

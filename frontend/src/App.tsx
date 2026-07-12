@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 CintaOvO
+ * Licensed under the Apache License, Version 2.0.
+ * Original project: https://github.com/Cinnamo-roll/Cinta-PotatoClock
+ */
+
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/common/Toaster";
 import { AppToast } from "@/components/common/AppToast";

@@ -24,8 +24,8 @@ public class PublicAppProperties {
         private String appName = "土豆时钟";
         private String slogan = "把今天切成更容易开始的一小块";
         private String description = "专注、倒计时、习惯和目标管理一体的移动端时钟。";
-        private String officialSite = "https://clock.cinoo.xyz";
-        private String privacyUrl = "https://clock.cinoo.xyz/privacy";
+        private String officialSite = "https://cinoo.xyz";
+        private String privacyUrl = "https://cinoo.xyz/privacy";
         private String supportEmail = "support@clock.cinoo.xyz";
     }
 

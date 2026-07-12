@@ -4,9 +4,9 @@
 
 ## 产品预览与下载
 
-- [在线产品预览与官网](https://clock.cinoo.xyz)：查看真实界面、主要功能和版本说明。
-- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.1`，可直接下载安装。
-- [iOS 未签名 IPA](https://github.com/Cinnamo-roll/PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：打开最新一次成功运行，在页面底部下载 `tudou-clock-unsigned-ipa` Artifact；安装前需要自行签名。
+- [在线产品预览与官网](https://cinoo.xyz)：查看真实界面、主要功能和版本说明。
+- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.2`，可直接下载安装。
+- [iOS 未签名 IPA](https://github.com/Cinnamo-roll/Cinta-PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：打开最新一次成功运行，在页面底部下载 `tudou-clock-unsigned-ipa` Artifact；安装前需要自行签名。
 
 正式安装包不提交到 Git 仓库。Android 由官网提供固定下载地址；iOS Artifact 有保留期限，过期后可在 Actions 页面手动重新运行构建。
 
@@ -160,11 +160,16 @@ VITE_USE_MOCK=false
 
 ## 当前发布版本
 
-- Android：`1.2.1`（`versionCode 4`）
-- iOS：`1.2.1`（`build 4`，未签名 IPA）
-- 官网与公开下载信息：`1.2.1`
+- Android：`1.2.2`（`versionCode 5`）
+- iOS：`1.2.2`（`build 5`，未签名 IPA）
+- 官网与公开下载信息：`1.2.2`
 - 安装包文件名：`downloads/tudou-clock.apk`
 - APK/IPA、签名文件、部署压缩包和生产环境变量均不提交 GitHub。
+
+### 1.2.2 Android 启动修复
+
+- 使用 AndroidX 安全区兼容 API，避免 Android 8/9 在加载原生插件时因缺少平台类型而闪退。
+- 作者网站和项目官网统一为 `https://cinoo.xyz`。
 
 ### 1.2.1 体验修正
 
@@ -206,3 +211,17 @@ VITE_USE_MOCK=false
 - [前端说明](frontend/README.md)
 - [后端说明](backend/README.md)
 - [阿里云部署说明](DEPLOY_ALIYUN.md)
+
+## Author
+
+- Created by **CintaOvO**
+- GitHub: https://github.com/Cinnamo-roll
+- Website: https://cinoo.xyz
+- Contact: D1391571546@outlook.com
+- Original repository: https://github.com/Cinnamo-roll/Cinta-PotatoClock
+
+## Attribution
+
+本项目可依照 [Apache License 2.0](LICENSE) 的条款使用、修改和分发。分发本项目或其重要衍生版本时，应保留适用的版权、许可证和署名声明；修改者还应明确标注其修改内容，避免使人误以为修改版本仍由原作者维护或认可。
+
+项目来源和原始作者信息另见 [NOTICE](NOTICE)。第三方依赖仍分别适用其自身的许可证与声明。

@@ -23,6 +23,11 @@ ENV VITE_APP_STORE_URL=$VITE_APP_STORE_URL
 RUN pnpm build
 
 FROM nginx:1.27-alpine
+LABEL org.opencontainers.image.title="Potato Clock" \
+      org.opencontainers.image.authors="CintaOvO <D1391571546@outlook.com>" \
+      org.opencontainers.image.source="https://github.com/Cinnamo-roll/Cinta-PotatoClock" \
+      org.opencontainers.image.url="https://cinoo.xyz" \
+      org.opencontainers.image.licenses="Apache-2.0"
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
