@@ -20,6 +20,11 @@ public class TimerActivityPlugin extends Plugin {
     public void sync(PluginCall call) {
         String state = call.getString("state", "idle");
         Intent intent = new Intent(getContext(), TimerForegroundService.class);
+        if (isInactiveState(state)) {
+            getContext().stopService(intent);
+            call.resolve();
+            return;
+        }
         intent.setAction(TimerForegroundService.ACTION_SYNC);
         intent.putExtra("state", state);
         intent.putExtra("timerType", call.getString("timerType", "countdown"));
@@ -30,15 +35,15 @@ public class TimerActivityPlugin extends Plugin {
         putLong(call, intent, "displaySeconds");
 
         try {
-            if ("running".equals(state) || "paused".equals(state)) {
-                ContextCompat.startForegroundService(getContext(), intent);
-            } else {
-                getContext().startService(intent);
-            }
+            ContextCompat.startForegroundService(getContext(), intent);
             call.resolve();
         } catch (Exception error) {
             call.reject("无法同步系统计时卡片", error);
         }
+    }
+
+    static boolean isInactiveState(String state) {
+        return "idle".equals(state) || "completed".equals(state) || "abandoned".equals(state);
     }
 
     private void putLong(PluginCall call, Intent intent, String key) {

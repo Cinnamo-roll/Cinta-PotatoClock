@@ -40,24 +40,24 @@ jwt:
   expires-in: ${JWT_EXPIRES_IN:86400}
 
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175,https://cinoo.xyz,https://clock.cinoo.xyz,capacitor://localhost,ionic://localhost,http://localhost,https://localhost}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175,https://clock.cinoo.xyz,capacitor://localhost,ionic://localhost,http://localhost,https://localhost}
 
 app:
   info:
     app-name: ${APP_NAME:土豆时钟}
     slogan: ${APP_SLOGAN:把今天切成更容易开始的一小块}
     description: ${APP_DESCRIPTION:专注、倒计时、习惯和目标管理一体的移动端时钟。}
-    official-site: ${APP_OFFICIAL_SITE:https://cinoo.xyz}
-    privacy-url: ${APP_PRIVACY_URL:https://cinoo.xyz/privacy}
+    official-site: ${APP_OFFICIAL_SITE:https://clock.cinoo.xyz}
+    privacy-url: ${APP_PRIVACY_URL:https://clock.cinoo.xyz/privacy}
     support-email: ${APP_SUPPORT_EMAIL:support@clock.cinoo.xyz}
   release:
-    version: ${APP_VERSION:1.2.2}
-    build-number: ${APP_BUILD_NUMBER:5}
+    version: ${APP_VERSION:1.2.3}
+    build-number: ${APP_BUILD_NUMBER:6}
     release-date: ${APP_RELEASE_DATE:2026-07-12}
     force-update: ${APP_FORCE_UPDATE:false}
     changelog:
-      - 修复 Android 8/9 启动闪退
-      - 官网与作者网站统一为 cinoo.xyz
+      - 修复 Android 冷启动时错误创建计时服务导致的闪退
+      - 明确区分项目官网与作者个人网站
     ios:
       available: ${APP_IOS_AVAILABLE:true}
       download-url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
@@ -69,11 +69,11 @@ app:
   downloads:
     android:
       url: ${APP_ANDROID_APK_URL:https://clock.cinoo.xyz/downloads/tudou-clock.apk}
-      version: ${APP_VERSION:1.2.2}
+      version: ${APP_VERSION:1.2.3}
       size: ${APP_ANDROID_APK_SIZE:}
     ios:
       url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
-      version: ${APP_VERSION:1.2.2}
+      version: ${APP_VERSION:1.2.3}
       size: ${APP_IOS_IPA_SIZE:}
       requires-self-signing: ${APP_IOS_REQUIRES_SELF_SIGNING:true}
       note: ${APP_IOS_DOWNLOAD_NOTE:后端只提供 IPA 下载地址，不负责 iOS 签名}

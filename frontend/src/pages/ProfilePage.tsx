@@ -172,7 +172,7 @@ export default function ProfilePage() {
     void openExternalLink(officialSiteUrl).catch(() => {
       toast({
         title: "官网暂时打不开",
-        description: "也可以在浏览器输入 cinoo.xyz。",
+        description: "也可以在浏览器输入 clock.cinoo.xyz。",
         tone: "error",
         durationMs: 7000
       });

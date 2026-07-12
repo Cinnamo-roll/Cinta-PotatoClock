@@ -11,7 +11,7 @@ function normalizeExternalUrl(url: string) {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
-export const officialSiteUrl = normalizeExternalUrl(import.meta.env.VITE_OFFICIAL_SITE_URL || "https://cinoo.xyz");
+export const officialSiteUrl = normalizeExternalUrl(import.meta.env.VITE_OFFICIAL_SITE_URL || "https://clock.cinoo.xyz");
 
 function openWithWindow(url: string, fallbackToCurrentTab: boolean) {
   const target = isNativeApp ? "_system" : "_blank";

@@ -24,19 +24,19 @@ public class PublicAppProperties {
         private String appName = "土豆时钟";
         private String slogan = "把今天切成更容易开始的一小块";
         private String description = "专注、倒计时、习惯和目标管理一体的移动端时钟。";
-        private String officialSite = "https://cinoo.xyz";
-        private String privacyUrl = "https://cinoo.xyz/privacy";
+        private String officialSite = "https://clock.cinoo.xyz";
+        private String privacyUrl = "https://clock.cinoo.xyz/privacy";
         private String supportEmail = "support@clock.cinoo.xyz";
     }
 
     @Getter
     @Setter
     public static class Release {
-        private String version = "1.2.2";
-        private String buildNumber = "5";
+        private String version = "1.2.3";
+        private String buildNumber = "6";
         private LocalDate releaseDate = LocalDate.of(2026, 7, 12);
         private boolean forceUpdate = false;
-        private List<String> changelog = new ArrayList<>(List.of("修复 Android 8/9 启动闪退", "官网与作者网站统一为 cinoo.xyz"));
+        private List<String> changelog = new ArrayList<>(List.of("修复 Android 冷启动时错误创建计时服务导致的闪退", "明确区分项目官网与作者个人网站"));
         private Platform ios = new Platform();
         private Platform android = new Platform();
     }

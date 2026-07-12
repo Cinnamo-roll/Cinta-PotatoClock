@@ -16,7 +16,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>clock-backend</name>
     <description>土豆时钟移动端 Web 后端</description>
-    <url>https://cinoo.xyz</url>
+    <url>https://clock.cinoo.xyz</url>
 
     <licenses>
         <license>

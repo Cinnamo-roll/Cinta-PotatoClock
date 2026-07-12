@@ -284,7 +284,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-[#29262A]/12 bg-[#F0ECE3] px-5 py-8">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 text-sm font-bold text-[#6E686D] sm:flex-row sm:items-center sm:justify-between">
-          <p className="flex items-center gap-2"><img className="h-7 w-7 rounded-md" src="/icons/app-icon-32.png" alt="" />{projectIdentity.displayName} · cinoo.xyz</p>
+          <p className="flex items-center gap-2"><img className="h-7 w-7 rounded-md" src="/icons/app-icon-32.png" alt="" />{projectIdentity.displayName} · clock.cinoo.xyz</p>
           <div className="flex flex-wrap gap-5">
             <a className="hover:text-[#29262A]" href="#top">回到顶部</a>
             <a className="hover:text-[#29262A]" href="#download">下载 App</a>
