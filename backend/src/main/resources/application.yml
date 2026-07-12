@@ -52,12 +52,12 @@ app:
     support-email: ${APP_SUPPORT_EMAIL:support@clock.cinoo.xyz}
   release:
     version: ${APP_VERSION:1.2.2}
-    build-number: ${APP_BUILD_NUMBER:4}
-    release-date: ${APP_RELEASE_DATE:2026-06-25}
+    build-number: ${APP_BUILD_NUMBER:5}
+    release-date: ${APP_RELEASE_DATE:2026-07-12}
     force-update: ${APP_FORCE_UPDATE:false}
     changelog:
-      - 支持移动端 App 下载页
-      - 新增设备注册与通知偏好配置
+      - 修复 Android 8/9 启动闪退
+      - 官网与作者网站统一为 cinoo.xyz
     ios:
       available: ${APP_IOS_AVAILABLE:true}
       download-url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}

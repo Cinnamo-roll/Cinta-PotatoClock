@@ -32,11 +32,11 @@ public class PublicAppProperties {
     @Getter
     @Setter
     public static class Release {
-        private String version = "1.0.0";
-        private String buildNumber = "1";
-        private LocalDate releaseDate = LocalDate.of(2026, 6, 23);
+        private String version = "1.2.2";
+        private String buildNumber = "5";
+        private LocalDate releaseDate = LocalDate.of(2026, 7, 12);
         private boolean forceUpdate = false;
-        private List<String> changelog = new ArrayList<>(List.of("支持移动端 App 下载页", "新增设备注册与通知偏好配置"));
+        private List<String> changelog = new ArrayList<>(List.of("修复 Android 8/9 启动闪退", "官网与作者网站统一为 cinoo.xyz"));
         private Platform ios = new Platform();
         private Platform android = new Platform();
     }
