@@ -27,7 +27,7 @@ LABEL org.opencontainers.image.title="Potato Clock" \
       org.opencontainers.image.authors="CintaOvO <D1391571546@outlook.com>" \
       org.opencontainers.image.source="https://github.com/Cinnamo-roll/Cinta-PotatoClock" \
       org.opencontainers.image.url="https://clock.cinoo.xyz" \
-      org.opencontainers.image.licenses="Apache-2.0"
+      org.opencontainers.image.licenses="PolyForm-Noncommercial-1.0.0"
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80

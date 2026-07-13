@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.title="Potato Clock Backend" \
       org.opencontainers.image.authors="CintaOvO <D1391571546@outlook.com>" \
       org.opencontainers.image.source="https://github.com/Cinnamo-roll/Cinta-PotatoClock" \
       org.opencontainers.image.url="https://clock.cinoo.xyz" \
-      org.opencontainers.image.licenses="Apache-2.0"
+      org.opencontainers.image.licenses="PolyForm-Noncommercial-1.0.0"
 WORKDIR /app
 COPY --from=build /app/target/clock-backend-*.jar app.jar
 EXPOSE 8080

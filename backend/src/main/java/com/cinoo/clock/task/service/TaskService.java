@@ -1,6 +1,6 @@
 /*
  * Copyright 2026 CintaOvO
- * Licensed under the Apache License, Version 2.0.
+ * SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
  * Original project: https://github.com/Cinnamo-roll/Cinta-PotatoClock
  */
 
