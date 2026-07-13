@@ -12,9 +12,9 @@ interface AddCollectionModalProps {
 }
 
 const colors = [
+  { label: "土豆金", value: "#D7AD4A" },
   { label: "薄荷绿", value: "#8FD6B3" },
   { label: "天空蓝", value: "#86B7F3" },
-  { label: "灰蓝", value: "#8EA4BF" },
   { label: "粉色", value: "#F6AFC3" },
   { label: "紫色", value: "#B99CF0" },
   { label: "红色", value: "#EF7D86" },
@@ -26,7 +26,7 @@ const colors = [
 
 export function AddCollectionModal({ open, onOpenChange, onSubmit }: AddCollectionModalProps) {
   const [name, setName] = useState("");
-  const [color, setColor] = useState(colors[3].value);
+  const [color, setColor] = useState(colors[0].value);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,7 +43,7 @@ export function AddCollectionModal({ open, onOpenChange, onSubmit }: AddCollecti
     try {
       await onSubmit({ name: cleanName, color });
       setName("");
-      setColor(colors[3].value);
+      setColor(colors[0].value);
       onOpenChange(false);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "添加失败，请稍后再试。");

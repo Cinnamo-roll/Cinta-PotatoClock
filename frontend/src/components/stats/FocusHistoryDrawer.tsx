@@ -159,7 +159,7 @@ function RecordBadge({ record }: { record: HistoryRecord }) {
     return <Badge className="border-[#D7E7F7] bg-[#EEF7FF] text-[#3574A8]">打卡</Badge>;
   }
   return (
-    <Badge className={record.session.completed ? "border-[#CFEED8] bg-[#EAF8EF] text-[#31935A]" : "border-[#FAD0D5] bg-[#FFE8EA] text-[var(--app-danger)]"}>
+    <Badge className={record.session.completed ? "border-[color-mix(in_srgb,var(--app-success)_28%,var(--app-border))] bg-[color-mix(in_srgb,var(--app-success)_12%,var(--app-card))] text-[var(--app-success)]" : "border-[color-mix(in_srgb,var(--app-danger)_28%,var(--app-border))] bg-[color-mix(in_srgb,var(--app-danger)_10%,var(--app-card))] text-[var(--app-danger)]"}>
       {record.session.completed ? "完成" : "放弃"}
     </Badge>
   );

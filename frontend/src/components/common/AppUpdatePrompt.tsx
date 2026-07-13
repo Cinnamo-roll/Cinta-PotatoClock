@@ -115,15 +115,19 @@ export function AppUpdatePrompt() {
                 : "iOS 将打开土豆时钟官网，由官网提供当前可用的安装方式。"}
             </p>
 
+            {update.release.forceUpdate ? (
+              <p className="mt-3 rounded-2xl bg-[var(--app-primary-soft)] px-3 py-2.5 text-center text-xs font-black leading-5 text-[var(--app-primary-strong)]">
+                此版本为必要更新，完成更新后才能继续使用
+              </p>
+            ) : null}
+
             <div className="mt-5 grid grid-cols-2 gap-3">
               {!update.release.forceUpdate ? (
                 <Button variant="secondary" onClick={() => setUpdate(null)}>
                   稍后提醒
                 </Button>
-              ) : (
-                <div />
-              )}
-              <Button onClick={() => void handleUpdate()} disabled={opening}>
+              ) : null}
+              <Button className={update.release.forceUpdate ? "col-span-2" : undefined} onClick={() => void handleUpdate()} disabled={opening}>
                 {isAndroidDownload ? <Download size={17} /> : <ExternalLink size={17} />}
                 {opening ? "正在打开..." : isAndroidDownload ? "下载并更新" : "前往官网"}
               </Button>

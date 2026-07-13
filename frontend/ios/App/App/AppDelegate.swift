@@ -7,7 +7,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        let potatoBackground = UIColor(red: 248.0 / 255.0, green: 243.0 / 255.0, blue: 231.0 / 255.0, alpha: 1.0)
+        window?.backgroundColor = potatoBackground
+        window?.rootViewController?.view.backgroundColor = potatoBackground
         return true
     }
 

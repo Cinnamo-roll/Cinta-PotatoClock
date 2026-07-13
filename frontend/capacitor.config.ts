@@ -10,17 +10,17 @@ const config: CapacitorConfig = {
   plugins: {
     SplashScreen: {
       launchAutoHide: false,
-      backgroundColor: "#FDECF2",
+      backgroundColor: "#F8F3E7",
       showSpinner: false
     },
     StatusBar: {
-      style: "LIGHT",
-      backgroundColor: "#FDECF2",
-      overlaysWebView: false
+      style: "DARK",
+      backgroundColor: "#F8F3E7",
+      overlaysWebView: true
     },
     LocalNotifications: {
       smallIcon: "ic_stat_icon",
-      iconColor: "#F6AFC3"
+      iconColor: "#D7AD4A"
     }
   }
 };

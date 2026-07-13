@@ -41,10 +41,12 @@ async function applyViewportMetrics() {
 
 export async function setupAppChrome(): Promise<() => void> {
   if (isNativeApp) {
+    // Android 15+ is always edge-to-edge, and iOS also looks most natural when the
+    // themed WebView continues beneath the status bar. Native insets below keep all
+    // interactive content clear of notches, cutouts and the Dynamic Island.
     await Promise.allSettled([
-      StatusBar.setOverlaysWebView({ overlay: false }),
-      StatusBar.setBackgroundColor({ color: "#FDECF2" }),
-      StatusBar.setStyle({ style: Style.Light })
+      StatusBar.setOverlaysWebView({ overlay: true }),
+      StatusBar.setStyle({ style: Style.Dark })
     ]);
   }
 

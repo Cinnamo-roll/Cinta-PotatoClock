@@ -23,7 +23,7 @@ export function RecentSessionsCard({ sessions }: { sessions: RecentSession[] }) 
             <div key={session.id} className="rounded-[18px] bg-[var(--app-card-soft)] p-3">
               <div className="flex items-center justify-between gap-3">
                 <p className="min-w-0 flex-1 truncate text-sm font-black text-[var(--app-text)]">{session.taskTitle || "未命名待办"}</p>
-                <Badge className={session.completed ? "border-[#CFEED8] bg-[#EAF8EF] text-[#31935A]" : "border-[#FAD0D5] bg-[#FFE8EA] text-[var(--app-danger)]"}>
+                <Badge className={session.completed ? "border-[color-mix(in_srgb,var(--app-success)_28%,var(--app-border))] bg-[color-mix(in_srgb,var(--app-success)_12%,var(--app-card))] text-[var(--app-success)]" : "border-[color-mix(in_srgb,var(--app-danger)_28%,var(--app-border))] bg-[color-mix(in_srgb,var(--app-danger)_10%,var(--app-card))] text-[var(--app-danger)]"}>
                   {session.completed ? "完成" : "放弃"}
                 </Badge>
               </div>

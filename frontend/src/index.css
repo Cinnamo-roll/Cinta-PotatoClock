@@ -505,7 +505,7 @@ body.keyboard-open .app-dialog-panel {
 
 .landing-phone:hover {
   transform: translateY(-4px);
-  box-shadow: 0 22px 46px rgba(129, 82, 98, 0.18);
+  box-shadow: 0 22px 46px rgba(105, 79, 32, 0.18);
 }
 
 .landing-device {
@@ -554,7 +554,7 @@ article:hover .landing-feature-icon {
 
 .landing-orbit {
   position: absolute;
-  border: 1px solid rgba(41, 38, 42, 0.13);
+  border: 1px solid rgba(66, 50, 26, 0.16);
   border-radius: 9999px;
   pointer-events: none;
   animation: landing-orbit-drift 8s ease-in-out infinite;

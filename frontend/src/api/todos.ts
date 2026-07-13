@@ -17,7 +17,7 @@ function taskToTodo(task: Task): TodoItem {
     category: task.category ?? "normal",
     collectionId: task.collectionId ?? null,
     status: task.status === "doing" ? "running" : task.status,
-    backgroundStyle: task.backgroundStyle || "bg-gradient-to-br from-[#fff7fb] to-[#ffe1ed]",
+    backgroundStyle: task.backgroundStyle || "bg-gradient-to-br from-[#fffaf0] to-[#f3e1a7]",
     includeInStats: countToStats,
     countToStats,
     sortOrder: task.sortOrder ?? 0,

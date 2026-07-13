@@ -96,7 +96,7 @@ export const initialTodos: TodoItem[] = [
     category: "normal",
     collectionId: 1,
     status: "todo",
-    backgroundStyle: "bg-gradient-to-br from-[#fff7fb] to-[#ffe1ed]",
+    backgroundStyle: "bg-gradient-to-br from-[#fffaf0] to-[#f3e1a7]",
     includeInStats: true,
     countToStats: true,
     createdAt: new Date(Date.now() - 86400000).toISOString(),

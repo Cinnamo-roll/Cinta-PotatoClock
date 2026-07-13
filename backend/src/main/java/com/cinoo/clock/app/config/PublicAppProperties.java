@@ -32,15 +32,15 @@ public class PublicAppProperties {
     @Getter
     @Setter
     public static class Release {
-        private String version = "1.2.6";
-        private String buildNumber = "9";
+        private String version = "1.2.7";
+        private String buildNumber = "10";
         private LocalDate releaseDate = LocalDate.of(2026, 7, 13);
-        private boolean forceUpdate = false;
+        private boolean forceUpdate = true;
         private List<String> changelog = new ArrayList<>(List.of(
-                "修复旧登录凭证干扰登录注册的问题",
-                "恢复游客页面滑动、导航与待办集展开交互",
-                "移除预览提示中的设置入口并保持演示数据只读",
-                "优化登录注册排版，首次进入默认使用土豆金主题"
+                "Android 与 iOS 状态栏改用沉浸式安全区布局，不再填充突兀粉色",
+                "清理启动页、默认待办和打卡动效中的历史固定粉色",
+                "官网减少大面积白底，手机预览统一为土豆金、奶油与叶绿配色",
+                "本版本设为必要更新，旧版本需更新后继续使用"
         ));
         private Platform ios = new Platform();
         private Platform android = new Platform();

@@ -9,7 +9,7 @@ function celebrateCheckin(type: CheckinType) {
   void successFeedback();
   const x = type === "sleep" ? 0.72 : type === "wakeup" ? 0.28 : 0.5;
   confetti({
-    colors: ["#F6AFC3", "#E8F7EF", "#ffffff", "#FFD7A8"],
+    colors: ["#D7AD4A", "#6F8655", "#FFF9ED", "#E9C66C"],
     origin: { x, y: 0.2 },
     particleCount: type === "focus_today" ? 72 : 52,
     scalar: 0.82,

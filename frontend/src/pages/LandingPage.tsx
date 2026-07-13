@@ -60,7 +60,7 @@ const features = [
     icon: ChartNoAxesColumn,
     title: "记录是为了看懂自己",
     desc: "日历热力、专注趋势、任务排行和打卡记录，把投入变成可回看的线索。",
-    tone: "rose"
+    tone: "clay"
   }
 ];
 
@@ -75,8 +75,8 @@ const faqs = [
 function featureTone(tone: string) {
   if (tone === "blue") return "bg-[#DCEEFF] text-[#285F88]";
   if (tone === "green") return "bg-[#DDEFE4] text-[#35664A]";
-  if (tone === "rose") return "bg-[#F8DDE5] text-[#8C425A]";
-  return "bg-[#F7D66E] text-[#594914]";
+  if (tone === "clay") return "bg-[#E9D2AA] text-[#6B4D28]";
+  return "bg-[#F1D17A] text-[#594514]";
 }
 
 export default function LandingPage() {
@@ -99,20 +99,20 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="landing-page min-h-dvh bg-[#F8F6F1] text-[#29262A]">
-      <header className="fixed inset-x-0 top-0 z-40 border-b border-[#29262A]/10 bg-[#F8F6F1] shadow-[0_2px_14px_rgba(41,38,42,0.06)]">
+    <div className="landing-page min-h-dvh bg-[#F3E7C9] text-[#342C20]">
+      <header className="fixed inset-x-0 top-0 z-40 border-b border-[#8A6328]/15 bg-[#F8EED8]/95 shadow-[0_4px_18px_rgba(91,67,28,0.08)] backdrop-blur-xl">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
           <a className="flex min-w-0 items-center gap-2.5 font-black" href="#top" aria-label="土豆时钟首页">
             <img className="h-9 w-9 rounded-lg shadow-[0_5px_14px_rgba(111,85,18,0.18)]" src="/icons/app-icon-64.png" alt="" aria-hidden="true" />
             <span className="truncate">土豆时钟ToDo</span>
           </a>
-          <div className="hidden items-center gap-7 text-sm font-bold text-[#6E686D] md:flex">
-            <a className="transition hover:text-[#29262A]" href="#preview">界面</a>
-            <a className="transition hover:text-[#29262A]" href="#features">体验</a>
-            <a className="transition hover:text-[#29262A]" href="#download">下载</a>
-            <a className="transition hover:text-[#29262A]" href="#faq">问答</a>
+          <div className="hidden items-center gap-7 text-sm font-bold text-[#766A57] md:flex">
+            <a className="transition hover:text-[#342C20]" href="#preview">界面</a>
+            <a className="transition hover:text-[#342C20]" href="#features">体验</a>
+            <a className="transition hover:text-[#342C20]" href="#download">下载</a>
+            <a className="transition hover:text-[#342C20]" href="#faq">问答</a>
           </div>
-          <a className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#29262A] px-4 text-sm font-black text-white transition hover:bg-[#464047]" href="#download">
+          <a className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#342C20] px-4 text-sm font-black text-[#FFF9ED] transition hover:bg-[#55452E]" href="#download">
             <Download size={16} />
             下载
           </a>
@@ -120,7 +120,7 @@ export default function LandingPage() {
       </header>
 
       <main id="top" className="pt-[65px]">
-        <section className="landing-hero relative overflow-hidden bg-[#F7D66E] px-5">
+        <section className="landing-hero relative overflow-hidden bg-[#E0B54E] px-5">
           <span className="landing-orbit landing-orbit-one" aria-hidden="true" />
           <span className="landing-orbit landing-orbit-two" aria-hidden="true" />
           <img className="landing-hero-mark pointer-events-none absolute right-[-7rem] top-[-5rem] w-[34rem] opacity-[0.12]" src="/icons/app-icon-512.png" alt="" aria-hidden="true" />
@@ -130,19 +130,19 @@ export default function LandingPage() {
                 <Sparkles size={17} />
                 把今天安排好，也把每一次投入留下来
               </p>
-              <h1 className="mt-5 text-balance text-5xl font-black leading-[1.04] text-[#242124] sm:text-6xl lg:text-7xl">
+              <h1 className="mt-5 text-balance text-5xl font-black leading-[1.04] text-[#2E271C] sm:text-6xl lg:text-7xl">
                 土豆时钟ToDo
               </h1>
               <p className="mt-5 max-w-xl text-balance text-lg font-bold leading-8 text-[#51471F] sm:text-xl">
                 待办、待办集、专注计时、未来计划与统计复盘，装进一个轻巧顺手的时间工具。
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#29262A] px-6 font-black text-white shadow-[0_12px_24px_rgba(41,38,42,0.20)] transition hover:-translate-y-0.5 hover:bg-[#423D43]" href={downloadLinks.androidApk}>
+                <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#342C20] px-6 font-black text-[#FFF9ED] shadow-[0_12px_24px_rgba(74,54,24,0.22)] transition hover:-translate-y-0.5 hover:bg-[#55452E]" href={downloadLinks.androidApk}>
                   <Smartphone size={18} />
                   Android {projectIdentity.version}
                   <Download size={17} />
                 </a>
-                <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#29262A] bg-[#F8F6F1] px-6 font-black text-[#29262A] transition hover:-translate-y-0.5" href={downloadLinks.iosIpa}>
+                <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#342C20] bg-[#FFF1C9] px-6 font-black text-[#342C20] transition hover:-translate-y-0.5 hover:bg-[#FFF7E4]" href={downloadLinks.iosIpa}>
                   iOS 未签名版
                   <ArrowRight size={18} />
                 </a>
@@ -168,7 +168,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-[#29262A] text-white">
+        <section className="bg-[#342C20] text-[#FFF9ED]">
           <div className="mx-auto grid max-w-6xl grid-cols-2 px-5 py-8 lg:grid-cols-4 lg:py-9">
             {workflow.map((item, index) => (
               <div
@@ -183,13 +183,14 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="preview" className="relative overflow-hidden px-5 py-16 sm:py-24">
-          <div className="pointer-events-none absolute -left-24 top-32 h-72 w-72 rounded-full bg-[#F8DDE5]/55 blur-3xl" aria-hidden="true" />
+        <section id="preview" className="relative overflow-hidden bg-[linear-gradient(145deg,#F7EDD7_0%,#EEDDB9_55%,#F4E8CF_100%)] px-5 py-16 sm:py-24">
+          <div className="pointer-events-none absolute -left-24 top-32 h-72 w-72 rounded-full bg-[#D7AD4A]/22 blur-3xl" aria-hidden="true" />
+          <div className="pointer-events-none absolute -right-28 bottom-8 h-80 w-80 rounded-full bg-[#8FA876]/18 blur-3xl" aria-hidden="true" />
           <div className="mx-auto max-w-6xl">
             <div className="landing-reveal max-w-3xl">
-              <p className="text-sm font-black text-[#8C425A]">真实使用路径</p>
+              <p className="text-sm font-black text-[#7A5924]">真实使用路径</p>
               <h2 className="mt-3 text-balance text-3xl font-black sm:text-4xl">从写下任务，到看见自己做过什么</h2>
-              <p className="mt-4 max-w-2xl text-base font-semibold leading-7 text-[#706A6E]">下面的界面按真实 App 结构重绘：创建待办、选择计时、开始专注，再到统计里回看记录，路径完整而直接。</p>
+              <p className="mt-4 max-w-2xl text-base font-semibold leading-7 text-[#766A57]">下面的界面按真实 App 结构重绘：创建待办、选择计时、开始专注，再到统计里回看记录，路径完整而直接。</p>
             </div>
             <div className="landing-preview-rail no-scrollbar mt-10 flex snap-x gap-5 overflow-x-auto pb-5 lg:grid lg:grid-cols-5 lg:overflow-visible">
               {previews.map((preview, index) => (
@@ -197,7 +198,7 @@ export default function LandingPage() {
                   <PhoneMockup {...preview} compact />
                   <figcaption className="mt-4 border-l-2 border-[#F7D66E] pl-3">
                     <p className="font-black">{preview.title}</p>
-                    <p className="mt-1 text-sm font-semibold leading-5 text-[#777075]">{preview.subtitle}</p>
+                    <p className="mt-1 text-sm font-semibold leading-5 text-[#766A57]">{preview.subtitle}</p>
                   </figcaption>
                 </figure>
               ))}
@@ -205,7 +206,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="features" className="relative overflow-hidden bg-[#E8F1EB] px-5 py-16 sm:py-24">
+        <section id="features" className="relative overflow-hidden bg-[#E3EAD8] px-5 py-16 sm:py-24">
           <div className="mx-auto max-w-6xl">
             <div className="landing-reveal flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-2xl">
@@ -228,7 +229,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="download" className="landing-download-section relative overflow-hidden bg-[#29262A] px-5 py-16 text-white sm:py-24">
+        <section id="download" className="landing-download-section relative overflow-hidden bg-[#342C20] px-5 py-16 text-[#FFF9ED] sm:py-24">
           <div className="mx-auto max-w-6xl">
             <div className="landing-reveal grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
               <div>
@@ -259,10 +260,10 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="faq" className="px-5 py-16 sm:py-20">
+        <section id="faq" className="bg-[linear-gradient(155deg,#F0DFB9,#F7ECD4_58%,#EAD7AD)] px-5 py-16 sm:py-20">
           <div className="mx-auto max-w-4xl">
             <div className="landing-reveal">
-              <p className="text-sm font-black text-[#8C425A]">下载前常见问题</p>
+              <p className="text-sm font-black text-[#7A5924]">下载前常见问题</p>
               <h2 className="mt-3 text-3xl font-black sm:text-4xl">把需要知道的说清楚</h2>
             </div>
             <div className="mt-9 border-t border-[#29262A]/14">
@@ -274,7 +275,7 @@ export default function LandingPage() {
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F1EDE3] text-xl transition group-open:rotate-45">+</span>
                     </span>
                   </summary>
-                  <p className="mt-3 max-w-3xl pr-12 text-sm font-semibold leading-7 text-[#706A6E]">{answer}</p>
+                  <p className="mt-3 max-w-3xl pr-12 text-sm font-semibold leading-7 text-[#766A57]">{answer}</p>
                 </details>
               ))}
             </div>
@@ -282,14 +283,14 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-[#29262A]/12 bg-[#F0ECE3] px-5 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 text-sm font-bold text-[#6E686D] sm:flex-row sm:items-center sm:justify-between">
+      <footer className="border-t border-[#6B4D28]/15 bg-[#DDC792] px-5 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 text-sm font-bold text-[#675A45] sm:flex-row sm:items-center sm:justify-between">
           <p className="flex items-center gap-2"><img className="h-7 w-7 rounded-md" src="/icons/app-icon-32.png" alt="" />{projectIdentity.displayName} · clock.cinoo.xyz</p>
           <div className="flex flex-wrap gap-5">
-            <a className="hover:text-[#29262A]" href="#top">回到顶部</a>
-            <a className="hover:text-[#29262A]" href="#download">下载 App</a>
-            <a className="hover:text-[#29262A]" href={projectIdentity.repositoryUrl} target="_blank" rel="noreferrer">Original project by {projectIdentity.author}</a>
-            <a className="hover:text-[#29262A]" href="mailto:support@clock.cinoo.xyz">联系我们</a>
+            <a className="hover:text-[#342C20]" href="#top">回到顶部</a>
+            <a className="hover:text-[#342C20]" href="#download">下载 App</a>
+            <a className="hover:text-[#342C20]" href={projectIdentity.repositoryUrl} target="_blank" rel="noreferrer">Original project by {projectIdentity.author}</a>
+            <a className="hover:text-[#342C20]" href="mailto:support@clock.cinoo.xyz">联系我们</a>
           </div>
         </div>
       </footer>

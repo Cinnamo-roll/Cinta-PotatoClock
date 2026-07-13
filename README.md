@@ -5,7 +5,7 @@
 ## 产品预览与下载
 
 - [在线产品预览与官网](https://clock.cinoo.xyz)：查看真实界面、主要功能和版本说明。
-- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.6`，可直接下载安装。
+- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.7`，可直接下载安装。
 - [iOS 未签名 IPA](https://github.com/Cinnamo-roll/Cinta-PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：打开最新一次成功运行，在页面底部下载 `tudou-clock-unsigned-ipa` Artifact；安装前需要自行签名。
 
 正式安装包不提交到 Git 仓库。Android 由官网提供固定下载地址；iOS Artifact 有保留期限，过期后可在 Actions 页面手动重新运行构建。
@@ -160,11 +160,18 @@ VITE_USE_MOCK=false
 
 ## 当前发布版本
 
-- Android：`1.2.6`（`versionCode 9`）
-- iOS：`1.2.6`（`build 9`，未签名 IPA）
-- 官网与公开下载信息：`1.2.6`
+- Android：`1.2.7`（`versionCode 10`）
+- iOS：`1.2.7`（`build 10`，未签名 IPA）
+- 官网与公开下载信息：`1.2.7`（必要更新）
 - 安装包文件名：`downloads/tudou-clock.apk`
 - APK/IPA、签名文件、部署压缩包和生产环境变量均不提交 GitHub。
+
+### 1.2.7 状态栏与官网视觉统一
+
+- Android 与 iOS 统一改为沉浸式状态栏：页面背景延伸至系统栏下方，交互内容由原生安全区数据避让刘海、挖孔与灵动岛。
+- 移除启动页、系统栏、通知图标、默认待办和打卡动效中的历史粉色默认值，统一使用土豆金与奶油底色；用户主动选择的粉色主题和颜色选项仍然保留。
+- 官网减少大面积白底，重做手机界面预览的奶油、土豆金和叶绿配色，并增强区块层次。
+- 公开版本标记为必要更新；旧版 App 不可关闭更新弹窗，完成更新后才能继续使用。
 
 ### 1.2.6 登录、游客预览与主题修复
 

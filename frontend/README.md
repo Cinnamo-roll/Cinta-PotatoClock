@@ -127,14 +127,14 @@ frontend/
 
 ## 发布版本
 
-- Android `versionName`：`1.2.6`
-- Android `versionCode`：`9`
-- iOS `MARKETING_VERSION`：`1.2.6`，`CURRENT_PROJECT_VERSION`：`9`
-- 公开版本：`1.2.6`
+- Android `versionName`：`1.2.7`
+- Android `versionCode`：`10`
+- iOS `MARKETING_VERSION`：`1.2.7`，`CURRENT_PROJECT_VERSION`：`10`
+- 公开版本：`1.2.7`（必要更新）
 - iOS：由 GitHub Actions 生成 `tudou-clock-unsigned-ipa` Artifact。
 - 正式 APK、IPA、签名文件和 `dist/` 构建产物不提交 GitHub。
 
-本版移动端回归重点：登录/注册不受历史 JWT 干扰、游客页面可滚动和导航但不可改写数据、待办集可展开、首次进入使用土豆金主题，以及登录/注册页互相跳转排版。
+本版移动端回归重点：Android/iOS 沉浸式状态栏与安全区避让、启动页奶油底色、深浅状态栏图标、官网土豆金视觉、强制更新弹窗无法关闭，以及 Android 15/16 边到边布局。
 
 历史记录编辑器使用单个 Radix Dialog 与内部状态机切换“日历、记录操作、时间编辑、删除确认”，不再嵌套弹窗。专注时间采用小时/分钟原生选择器组合，避免 iOS 与 Android WebView 对 `input[type=time]` 的尺寸、键盘和关闭事件差异；结束时刻早于开始时刻时明确按次日计算，相同时刻禁止保存。
 
