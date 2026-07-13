@@ -62,9 +62,9 @@ services:
       JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Shanghai -Xms96m -Xmx320m -XX:MaxMetaspaceSize=160m
       SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: prod
-      MYSQL_HOST: mysql
+      MYSQL_HOST: potato-clock-mysql
       MYSQL_PORT: 3306
-      REDIS_HOST: redis
+      REDIS_HOST: potato-clock-redis
       REDIS_PORT: 6379
     expose:
       - "8080"
