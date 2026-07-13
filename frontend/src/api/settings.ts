@@ -1,9 +1,9 @@
-import { http, useMockApi } from "./http";
+import { http, shouldUsePreviewApi } from "./http";
 import { mockClient } from "@/mocks/mockClient";
 import type { UserSettings } from "@/types/settings";
 
 export const settingsApi = {
-  getSettings: () => (useMockApi ? mockClient.getSettings() : http.get<never, UserSettings>("/settings")),
+  getSettings: () => (shouldUsePreviewApi() ? mockClient.getSettings() : http.get<never, UserSettings>("/settings")),
   updateSettings: (payload: Partial<UserSettings>) =>
-    useMockApi ? mockClient.updateSettings(payload) : http.put<never, UserSettings>("/settings", payload)
+    shouldUsePreviewApi() ? mockClient.updateSettings(payload) : http.put<never, UserSettings>("/settings", payload)
 };

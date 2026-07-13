@@ -1,4 +1,4 @@
-import { http, useMockApi } from "./http";
+import { http, shouldUsePreviewApi } from "./http";
 import { mockClient } from "@/mocks/mockClient";
 import type { CheckinPayload } from "@/services/checkinService";
 import type {
@@ -303,7 +303,7 @@ async function requestStatsBundle(range: StatsRange = "day", dateRange?: StatsDa
 }
 
 async function requestOrMock<T>(request: () => Promise<T>, fallback: () => Promise<T>) {
-  if (useMockApi) return fallback();
+  if (shouldUsePreviewApi()) return fallback();
   return request();
 }
 

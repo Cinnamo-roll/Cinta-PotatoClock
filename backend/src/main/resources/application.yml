@@ -51,13 +51,15 @@ app:
     privacy-url: ${APP_PRIVACY_URL:https://clock.cinoo.xyz/privacy}
     support-email: ${APP_SUPPORT_EMAIL:support@clock.cinoo.xyz}
   release:
-    version: ${APP_VERSION:1.2.4}
-    build-number: ${APP_BUILD_NUMBER:7}
+    version: ${APP_VERSION:1.2.5}
+    build-number: ${APP_BUILD_NUMBER:8}
     release-date: ${APP_RELEASE_DATE:2026-07-13}
     force-update: ${APP_FORCE_UPDATE:false}
     changelog:
-      - 修复 Android 启动背景资源无效导致的闪退
-      - 修复官网手机卡片首次加载时的异常倾斜
+      - 新增应用内版本检查，Android 直达 APK 更新，iOS 前往官网
+      - 补充待办集删除入口并保留集内待办
+      - 新增未登录全页面只读预览，重做统一演示数据与登录引导
+      - 重做土豆金主题、缩小 Android 图标并优化滚动动画
     ios:
       available: ${APP_IOS_AVAILABLE:true}
       download-url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
@@ -69,11 +71,11 @@ app:
   downloads:
     android:
       url: ${APP_ANDROID_APK_URL:https://clock.cinoo.xyz/downloads/tudou-clock.apk}
-      version: ${APP_VERSION:1.2.4}
+      version: ${APP_VERSION:1.2.5}
       size: ${APP_ANDROID_APK_SIZE:}
     ios:
       url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
-      version: ${APP_VERSION:1.2.4}
+      version: ${APP_VERSION:1.2.5}
       size: ${APP_IOS_IPA_SIZE:}
       requires-self-signing: ${APP_IOS_REQUIRES_SELF_SIGNING:true}
       note: ${APP_IOS_DOWNLOAD_NOTE:后端只提供 IPA 下载地址，不负责 iOS 签名}

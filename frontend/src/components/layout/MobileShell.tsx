@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { motion } from "motion/react";
 import { BottomNav } from "./BottomNav";
+import { GuestPreviewBanner } from "@/components/common/GuestPreviewBanner";
+import { useAuthStore } from "@/stores/authStore";
 import { cn } from "@/utils/cn";
 
 interface MobileShellProps {
@@ -10,19 +11,27 @@ interface MobileShellProps {
 }
 
 export function MobileShell({ children, withNav = true, className }: MobileShellProps) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const showGuestBanner = withNav && !isAuthenticated;
+
   return (
     <div className="h-dvh w-full overflow-hidden">
       <main
+        inert={showGuestBanner ? true : undefined}
         className={cn(
           "app-screen-bg app-scroll mx-auto h-dvh w-full max-w-[430px] overflow-x-hidden overflow-y-auto px-4 pt-[calc(var(--safe-top)+0.75rem)]",
-          withNav ? "pb-[calc(var(--safe-bottom)+112px)]" : "pb-[calc(var(--safe-bottom)+1.5rem)]",
+          showGuestBanner && "app-preview-readonly",
+          withNav
+            ? showGuestBanner
+              ? "pb-[calc(var(--safe-bottom)+176px)]"
+              : "pb-[calc(var(--safe-bottom)+112px)]"
+            : "pb-[calc(var(--safe-bottom)+1.5rem)]",
           className
         )}
       >
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-          {children}
-        </motion.div>
+        <div className="app-page-content">{children}</div>
       </main>
+      {showGuestBanner ? <GuestPreviewBanner /> : null}
       {withNav ? <BottomNav /> : null}
     </div>
   );

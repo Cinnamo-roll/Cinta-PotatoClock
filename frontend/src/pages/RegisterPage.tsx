@@ -48,7 +48,7 @@ export default function RegisterPage() {
         password: form.password
       });
       toast({ title: "账号已创建", description: "去开始第一次专注吧", tone: "success" });
-      navigate("/", { replace: true });
+      window.location.replace("/");
     } catch (error) {
       if (error instanceof RegistrationCompletedError) {
         toast({ title: "账号已创建", description: "自动登录没有完成，请直接登录", tone: "success", durationMs: 4800 });

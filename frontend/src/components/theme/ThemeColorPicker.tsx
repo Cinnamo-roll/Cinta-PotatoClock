@@ -9,12 +9,12 @@ interface ThemeColorPickerProps {
 }
 
 export function ThemeColorPicker({ value, customColor, onChange, onCustomColorChange }: ThemeColorPickerProps) {
-  const customSwatches = ["#F58CB2", "#8FD6B3", "#86B7F3", "#F4C95D", "#B99CF0", "#EF7D86", "#62646F", "#D95F9F"];
+  const customSwatches = ["#D7AD4A", "#6F8655", "#C98278", "#7EACB5", "#9A86C8", "#A97952", "#62646F", "#B86D8D"];
   const options: Array<{ value: ThemeColor; label: string; color: string }> = [
     { value: "rose", label: "粉白", color: themePalettes.rose.primary },
     { value: "mint", label: "薄荷绿", color: themePalettes.mint.primary },
     { value: "sky", label: "天空蓝", color: themePalettes.sky.primary },
-    { value: "cream", label: "奶油黄", color: themePalettes.cream.primary },
+    { value: "cream", label: "土豆金", color: themePalettes.cream.primary },
     { value: "lavender", label: "薰衣草", color: themePalettes.lavender.primary },
     { value: "mocha", label: "浅咖啡", color: themePalettes.mocha.primary },
     { value: "custom", label: "自定义", color: customColor }

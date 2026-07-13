@@ -32,11 +32,16 @@ public class PublicAppProperties {
     @Getter
     @Setter
     public static class Release {
-        private String version = "1.2.4";
-        private String buildNumber = "7";
+        private String version = "1.2.5";
+        private String buildNumber = "8";
         private LocalDate releaseDate = LocalDate.of(2026, 7, 13);
         private boolean forceUpdate = false;
-        private List<String> changelog = new ArrayList<>(List.of("修复 Android 启动背景资源无效导致的闪退", "修复官网手机卡片首次加载时的异常倾斜"));
+        private List<String> changelog = new ArrayList<>(List.of(
+                "新增应用内版本检查，Android 直达 APK 更新，iOS 前往官网",
+                "补充待办集删除入口并保留集内待办",
+                "新增未登录全页面只读预览，重做统一演示数据与登录引导",
+                "重做土豆金主题、缩小 Android 图标并优化滚动动画"
+        ));
         private Platform ios = new Platform();
         private Platform android = new Platform();
     }

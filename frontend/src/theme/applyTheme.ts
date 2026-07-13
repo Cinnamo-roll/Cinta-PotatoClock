@@ -16,6 +16,7 @@ export function applyAppTheme(params: { themeColor: ThemeColor; themeMode: Theme
   root.style.setProperty("--app-primary", palette.primary);
   root.style.setProperty("--app-primary-soft", palette.primarySoft);
   root.style.setProperty("--app-primary-strong", palette.primaryStrong);
+  root.style.setProperty("--app-accent", palette.accent);
   root.style.setProperty("--app-text", palette.text);
   root.style.setProperty("--app-muted", palette.muted);
   root.style.setProperty("--app-border", palette.border);

@@ -48,6 +48,12 @@ export function TodoCard({
   const completed = isTodoCompleted(todo, sessions);
   const isNoTimer = todo.timerType === "none";
   const categoryText = todo.category === "habit" ? "习惯" : todo.category === "goal" ? "目标" : "待办";
+  const categoryClass =
+    todo.category === "habit"
+      ? "bg-[color-mix(in_srgb,var(--app-accent)_16%,var(--app-card))] text-[var(--app-accent)]"
+      : todo.category === "goal"
+        ? "bg-[var(--app-primary-soft)] text-[var(--app-primary-strong)]"
+        : "bg-[var(--app-card-soft)] text-[var(--app-muted)]";
   const periodText = targetPeriodText(todo);
   const timerText = todo.timerType === "countdown" ? `${todo.durationMinutes} 分钟` : timerTypeText[todo.timerType];
   const showProgress = todo.category !== "normal" || isNoTimer;
@@ -114,7 +120,7 @@ export function TodoCard({
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-black text-[var(--app-muted)]">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--app-card-soft)] px-2.5 py-1">
+            <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-1", categoryClass)}>
               <Target size={13} />
               {categoryText}
             </span>
@@ -132,8 +138,8 @@ export function TodoCard({
 
           <div className="mt-3 grid grid-cols-3 gap-2 text-center">
             <MetricTile compact className="bg-[var(--app-primary-soft)]" label="今日" value={`${today.completedCount} 次`} />
-            <MetricTile compact className="bg-[var(--app-primary-soft)]" label="累计" value={`${total.completedCount} 次`} />
-            <MetricTile compact className="bg-[var(--app-primary-soft)]" label={showProgress ? "进度" : "今日时长"} value={showProgress ? `${progress.percent}%` : `${today.focusMinutes} 分钟`} />
+            <MetricTile compact className="bg-[color-mix(in_srgb,var(--app-accent)_14%,var(--app-card))]" label="累计" value={`${total.completedCount} 次`} />
+            <MetricTile compact className="bg-[var(--app-card-soft)]" label={showProgress ? "进度" : "今日时长"} value={showProgress ? `${progress.percent}%` : `${today.focusMinutes} 分钟`} />
           </div>
           {todayCompletedCount > 0 ? <p className="mt-2 text-xs font-bold text-[var(--app-primary-strong)]">今日已完成 {todayCompletedCount} 次</p> : null}
         </div>

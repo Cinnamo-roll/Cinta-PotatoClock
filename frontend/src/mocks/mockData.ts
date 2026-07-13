@@ -5,7 +5,7 @@ import type { PotatoSession } from "@/types/timer";
 import type { TimerSession } from "@/types/session";
 import type { FuturePlan } from "@/types/futurePlan";
 import type { TodoCollection, TodoItem } from "@/types/todo";
-import { localDateKey } from "@/utils/date";
+import { localDateKey, localDateTime } from "@/utils/date";
 
 type MockCheckinType = "wakeup" | "focus_today" | "sleep";
 
@@ -21,11 +21,11 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 function dateAt(daysAgo: number, hour: number, minute: number) {
   const date = new Date(Date.now() - daysAgo * DAY_MS);
   date.setHours(hour, minute, 0, 0);
-  return date.toISOString();
+  return localDateTime(date);
 }
 
 function minutesAfter(value: string, minutes: number) {
-  return new Date(new Date(value).getTime() + minutes * 60 * 1000).toISOString();
+  return localDateTime(new Date(new Date(value).getTime() + minutes * 60 * 1000));
 }
 
 export const mockUser: User = {
@@ -50,8 +50,8 @@ export const defaultSettings: UserSettings = {
 export const initialTasks: Task[] = [
   {
     id: "task-1",
-    title: "整理今天的学习计划",
-    description: "先把最重要的三件事写清楚。",
+    title: "完成更新提示交互",
+    description: "Android 直达安装包，iOS 前往官网。",
     status: "doing",
     priority: "high",
     estimatedPotatoes: 4,
@@ -63,8 +63,8 @@ export const initialTasks: Task[] = [
   },
   {
     id: "task-2",
-    title: "阅读技术文章",
-    description: "慢慢读，不赶时间。",
+    title: "阅读《深度工作》",
+    description: "每天读 20 分钟并记下一条启发。",
     status: "todo",
     priority: "medium",
     estimatedPotatoes: 3,
@@ -75,7 +75,7 @@ export const initialTasks: Task[] = [
   },
   {
     id: "task-3",
-    title: "复盘一次专注",
+    title: "整理本周发布说明",
     status: "done",
     priority: "low",
     estimatedPotatoes: 1,
@@ -90,7 +90,7 @@ export const initialTasks: Task[] = [
 export const initialTodos: TodoItem[] = [
   {
     id: 1,
-    title: "背英语单词",
+    title: "背 30 个英语单词",
     durationMinutes: 25,
     timerType: "countdown",
     category: "normal",
@@ -104,7 +104,7 @@ export const initialTodos: TodoItem[] = [
   },
   {
     id: 2,
-    title: "写代码",
+    title: "完成更新提示交互",
     durationMinutes: 45,
     timerType: "countdown",
     category: "normal",
@@ -118,7 +118,7 @@ export const initialTodos: TodoItem[] = [
   },
   {
     id: 3,
-    title: "阅读",
+    title: "阅读《深度工作》",
     durationMinutes: 20,
     timerType: "countup",
     category: "habit",
@@ -152,7 +152,7 @@ export const initialTodos: TodoItem[] = [
   },
   {
     id: 5,
-    title: "整理产品想法",
+    title: "推进土豆时钟 1.3 原型",
     durationMinutes: 30,
     timerType: "countup",
     category: "goal",
@@ -164,13 +164,13 @@ export const initialTodos: TodoItem[] = [
     targetAmount: 8,
     targetUnit: "次",
     deadline: dateAt(-10, 23, 59),
-    note: "每次只写一个可执行点。",
+    note: "每次完成一个可演示的小模块。",
     createdAt: dateAt(12, 10, 0),
     updatedAt: new Date().toISOString()
   },
   {
     id: 6,
-    title: "写周报",
+    title: "整理本周发布说明",
     durationMinutes: 35,
     timerType: "countdown",
     category: "normal",
@@ -184,7 +184,7 @@ export const initialTodos: TodoItem[] = [
   },
   {
     id: 7,
-    title: "复盘错题",
+    title: "复盘本周错题",
     durationMinutes: 40,
     timerType: "countdown",
     category: "normal",
@@ -220,15 +220,15 @@ export const initialCollections: TodoCollection[] = [
     id: 1,
     name: "学习",
     description: "英语、阅读和复盘",
-    color: "#F6AFC3",
+    color: "#6F8655",
     createdAt: new Date(Date.now() - 172800000).toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
     id: 2,
-    name: "工作",
-    description: "代码、文档和沟通",
-    color: "#F3B36A",
+    name: "土豆时钟项目",
+    description: "功能、交互和发布准备",
+    color: "#D7AD4A",
     createdAt: new Date(Date.now() - 172800000).toISOString(),
     updatedAt: new Date().toISOString()
   },
@@ -236,16 +236,8 @@ export const initialCollections: TodoCollection[] = [
     id: 3,
     name: "生活",
     description: "运动、睡眠和日常恢复",
-    color: "#8FCFA4",
+    color: "#89AA78",
     createdAt: dateAt(18, 8, 0),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 4,
-    name: "长期目标",
-    description: "需要慢慢推进的大块任务",
-    color: "#AFA6F5",
-    createdAt: dateAt(14, 9, 30),
     updatedAt: new Date().toISOString()
   }
 ];
@@ -253,9 +245,25 @@ export const initialCollections: TodoCollection[] = [
 export const initialFuturePlans: FuturePlan[] = [
   {
     id: "future-1",
-    title: "毕业论文提交",
-    note: "提前准备终稿和检查清单",
-    targetDate: localDateKey(new Date(Date.now() + 38 * DAY_MS)),
+    title: "土豆时钟 1.3 版本复盘",
+    note: "整理反馈、数据和下一版优先级",
+    targetDate: localDateKey(new Date(Date.now() + 7 * DAY_MS)),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "future-2",
+    title: "英语阶段测验",
+    note: "复习本月单词和错题",
+    targetDate: localDateKey(new Date(Date.now() + 18 * DAY_MS)),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "future-3",
+    title: "周末短途旅行",
+    note: "提前确认车票和住宿",
+    targetDate: localDateKey(new Date(Date.now() + 32 * DAY_MS)),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
@@ -265,7 +273,7 @@ export const initialSessions: PotatoSession[] = [
   {
     id: "s-1",
     taskId: "task-1",
-    taskTitle: "整理今天的学习计划",
+    taskTitle: "完成更新提示交互",
     mode: "focus",
     startedAt: new Date(Date.now() - 7200000).toISOString(),
     endedAt: new Date(Date.now() - 5700000).toISOString(),
@@ -276,7 +284,7 @@ export const initialSessions: PotatoSession[] = [
   {
     id: "s-2",
     taskId: "task-1",
-    taskTitle: "整理今天的学习计划",
+    taskTitle: "完成更新提示交互",
     mode: "focus",
     startedAt: new Date(Date.now() - 3600000).toISOString(),
     endedAt: new Date(Date.now() - 2100000).toISOString(),
@@ -287,27 +295,47 @@ export const initialSessions: PotatoSession[] = [
 ];
 
 const sessionPlans = [
-  { taskId: 1, collectionId: 1, taskTitle: "背英语单词", timerType: "countdown" as const, category: "normal" as const, plannedMinutes: 25 },
-  { taskId: 2, collectionId: 2, taskTitle: "写代码", timerType: "countdown" as const, category: "normal" as const, plannedMinutes: 45 },
-  { taskId: 3, collectionId: 1, taskTitle: "阅读", timerType: "countup" as const, category: "habit" as const, plannedMinutes: 20 },
+  { taskId: 1, collectionId: 1, taskTitle: "背 30 个英语单词", timerType: "countdown" as const, category: "normal" as const, plannedMinutes: 25 },
+  { taskId: 2, collectionId: 2, taskTitle: "完成更新提示交互", timerType: "countdown" as const, category: "normal" as const, plannedMinutes: 45 },
+  { taskId: 3, collectionId: 1, taskTitle: "阅读《深度工作》", timerType: "countup" as const, category: "habit" as const, plannedMinutes: 20 },
   { taskId: 4, collectionId: 3, taskTitle: "晨间拉伸", timerType: "countdown" as const, category: "habit" as const, plannedMinutes: 15 },
-  { taskId: 5, collectionId: 2, taskTitle: "整理产品想法", timerType: "countup" as const, category: "goal" as const, plannedMinutes: 30 },
-  { taskId: 6, collectionId: 2, taskTitle: "写周报", timerType: "countdown" as const, category: "normal" as const, plannedMinutes: 35 },
-  { taskId: 7, collectionId: 1, taskTitle: "复盘错题", timerType: "countdown" as const, category: "normal" as const, plannedMinutes: 40 }
+  { taskId: 5, collectionId: 2, taskTitle: "推进土豆时钟 1.3 原型", timerType: "countup" as const, category: "goal" as const, plannedMinutes: 30 },
+  { taskId: 6, collectionId: 2, taskTitle: "整理本周发布说明", timerType: "countdown" as const, category: "normal" as const, plannedMinutes: 35 },
+  { taskId: 7, collectionId: 1, taskTitle: "复盘本周错题", timerType: "countdown" as const, category: "normal" as const, plannedMinutes: 40 },
+  { taskId: 8, collectionId: 3, taskTitle: "睡前放松", timerType: "none" as const, category: "habit" as const, plannedMinutes: 0 }
 ];
 
-const interruptReasons = ["临时电话", "有点困", "计划调整", "被消息打断", "需要处理家务"];
+const completedPlanIdsByDay = [
+  [4, 2],
+  [3, 1, 5, 8],
+  [4, 2, 3],
+  [3, 7],
+  [4, 1, 5],
+  [3, 2, 6],
+  [4, 1, 8],
+  [3, 2, 5],
+  [4, 7],
+  [3, 1, 2],
+  [4, 5, 8],
+  [3, 2],
+  [4, 1, 7],
+  [3, 2, 6]
+];
+
+const interruptedPlanByDay = new Map([
+  [0, { taskId: 3, actualMinutes: 8, reason: "消息打断" }],
+  [5, { taskId: 1, actualMinutes: 11, reason: "临时电话" }],
+  [9, { taskId: 5, actualMinutes: 12, reason: "状态不佳" }]
+]);
 
 function buildTimerSessionSeed(): TimerSession[] {
   const sessions: TimerSession[] = [];
   let id = 100;
-  for (let daysAgo = 0; daysAgo < 30; daysAgo += 1) {
-    const sessionsInDay = daysAgo % 6 === 0 ? 1 : daysAgo % 5 === 0 ? 4 : daysAgo % 3 === 0 ? 3 : 2;
-    for (let index = 0; index < sessionsInDay; index += 1) {
-      const plan = sessionPlans[(daysAgo + index * 2) % sessionPlans.length];
-      const interrupted = (daysAgo + index) % 9 === 0;
-      const actualMinutes = interrupted ? Math.max(8, Math.round(plan.plannedMinutes * 0.45)) : plan.plannedMinutes + ((daysAgo + index) % 3) * 5;
-      const startedAt = dateAt(daysAgo, [7, 10, 14, 20][index] ?? 20, (daysAgo * 7 + index * 11) % 50);
+  completedPlanIdsByDay.forEach((planIds, daysAgo) => {
+    planIds.forEach((taskId, index) => {
+      const plan = sessionPlans.find((item) => item.taskId === taskId)!;
+      const actualMinutes = plan.plannedMinutes;
+      const startedAt = dateAt(daysAgo, [7, 9, 14, 21][index] ?? 21, [35, 20, 10, 15][index] ?? 0);
       sessions.push({
         id: id++,
         taskId: plan.taskId,
@@ -321,20 +349,45 @@ function buildTimerSessionSeed(): TimerSession[] {
         actualSeconds: actualMinutes * 60,
         startedAt,
         endedAt: minutesAfter(startedAt, actualMinutes),
-        completed: !interrupted,
-        interrupted,
-        interruptReason: interrupted ? interruptReasons[(daysAgo + index) % interruptReasons.length] : null,
-        note: interrupted ? "下次把手机放远一点。" : index === 0 && daysAgo % 4 === 0 ? "状态不错，进入得很快。" : undefined
+        completed: true,
+        interrupted: false,
+        countToStats: plan.timerType !== "none",
+        note: index === 0 && daysAgo % 4 === 0 ? "按计划完成，状态比较稳定。" : undefined
+      });
+    });
+
+    const interruption = interruptedPlanByDay.get(daysAgo);
+    if (interruption) {
+      const plan = sessionPlans.find((item) => item.taskId === interruption.taskId)!;
+      const startedAt = dateAt(daysAgo, 11, 40);
+      sessions.push({
+        id: id++,
+        taskId: plan.taskId,
+        collectionId: plan.collectionId,
+        taskTitle: plan.taskTitle,
+        mode: "focus",
+        timerType: plan.timerType,
+        category: plan.category,
+        plannedMinutes: plan.plannedMinutes,
+        actualMinutes: interruption.actualMinutes,
+        actualSeconds: interruption.actualMinutes * 60,
+        startedAt,
+        endedAt: minutesAfter(startedAt, interruption.actualMinutes),
+        completed: false,
+        interrupted: true,
+        interruptReason: interruption.reason,
+        countToStats: true,
+        note: "记录原因后重新安排，不把中断当成失败。"
       });
     }
-  }
+  });
   return sessions.sort((a, b) => b.startedAt.localeCompare(a.startedAt));
 }
 
 function buildCheckinSeed(): MockCheckinSeed[] {
   const checkins: MockCheckinSeed[] = [];
   let id = 100;
-  for (let daysAgo = 0; daysAgo < 30; daysAgo += 1) {
+  for (let daysAgo = 0; daysAgo < 14; daysAgo += 1) {
     if (daysAgo % 6 !== 2) {
       checkins.push({
         id: id++,
@@ -352,7 +405,7 @@ function buildCheckinSeed(): MockCheckinSeed[] {
         note: sleepHour >= 1 ? "稍微有点晚，明天提前收尾。" : null
       });
     }
-    if (daysAgo % 3 !== 1) {
+    if (daysAgo > 0 && daysAgo % 3 !== 1) {
       checkins.push({
         id: id++,
         type: "focus_today",

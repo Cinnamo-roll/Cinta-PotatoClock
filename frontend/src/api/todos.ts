@@ -1,4 +1,4 @@
-import { http, useMockApi } from "./http";
+import { http, shouldUsePreviewApi } from "./http";
 import { mockClient } from "@/mocks/mockClient";
 import type { Task } from "@/types/task";
 import type { TodoInput, TodoItem, TodoStatus } from "@/types/todo";
@@ -55,21 +55,21 @@ function todoToTaskPayload(payload: Partial<TodoInput>) {
 
 export const todosApi = {
   list: () =>
-    (useMockApi ? mockClient.getTodos() : http.get<never, Task[]>("/tasks").then((tasks) => tasks.map(taskToTodo))).then((todos) =>
+    (shouldUsePreviewApi() ? mockClient.getTodos() : http.get<never, Task[]>("/tasks").then((tasks) => tasks.map(taskToTodo))).then((todos) =>
       [...todos].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || b.createdAt.localeCompare(a.createdAt))
     ),
-  get: (id: number) => (useMockApi ? mockClient.getTodo(id) : http.get<never, Task>(`/tasks/${id}`).then(taskToTodo)),
+  get: (id: number) => (shouldUsePreviewApi() ? mockClient.getTodo(id) : http.get<never, Task>(`/tasks/${id}`).then(taskToTodo)),
   create: (payload: TodoInput) =>
-    useMockApi
+    shouldUsePreviewApi()
       ? mockClient.createTodo(payload)
       : http.post<never, Task>("/tasks", todoToTaskPayload(payload)).then(taskToTodo),
   update: (id: number, payload: Partial<TodoInput>) =>
-    useMockApi
+    shouldUsePreviewApi()
       ? mockClient.updateTodo(id, payload)
       : http.put<never, Task>(`/tasks/${id}`, todoToTaskPayload(payload)).then(taskToTodo),
   updateStatus: (id: number, status: TodoStatus) =>
-    useMockApi ? mockClient.updateTodoStatus(id, status) : http.patch<never, Task>(`/tasks/${id}/status`, { status }).then(taskToTodo),
+    shouldUsePreviewApi() ? mockClient.updateTodoStatus(id, status) : http.patch<never, Task>(`/tasks/${id}/status`, { status }).then(taskToTodo),
   updateSort: (id: number, sortOrder: number) =>
-    useMockApi ? mockClient.updateTodoSort(id, sortOrder) : http.patch<never, Task>(`/tasks/${id}/sort`, { sortOrder }).then(taskToTodo),
-  remove: (id: number) => (useMockApi ? mockClient.deleteTodo(id) : http.delete<never, void>(`/tasks/${id}`))
+    shouldUsePreviewApi() ? mockClient.updateTodoSort(id, sortOrder) : http.patch<never, Task>(`/tasks/${id}/sort`, { sortOrder }).then(taskToTodo),
+  remove: (id: number) => (shouldUsePreviewApi() ? mockClient.deleteTodo(id) : http.delete<never, void>(`/tasks/${id}`))
 };

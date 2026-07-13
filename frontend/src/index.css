@@ -13,18 +13,19 @@
   --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--native-safe-bottom));
   --visual-viewport-height: 100dvh;
   --visual-viewport-offset-top: 0px;
-  --app-bg: #FFF7FA;
-  --app-bg-soft: #FFEAF2;
-  --app-card: #FFFFFF;
-  --app-card-soft: #FFF0F6;
-  --app-primary: #F58CB2;
-  --app-primary-soft: #FFE1EC;
-  --app-primary-strong: #E86C9B;
-  --app-text: #28242B;
-  --app-muted: #8D7F88;
-  --app-border: #F3D9E3;
-  --app-success: #22C55E;
-  --app-danger: #EF4444;
+  --app-bg: #F8F3E7;
+  --app-bg-soft: #EFE4CB;
+  --app-card: #FFFCF5;
+  --app-card-soft: #F5EBD7;
+  --app-primary: #D7AD4A;
+  --app-primary-soft: #F3E1A7;
+  --app-primary-strong: #8A6328;
+  --app-accent: #6F8655;
+  --app-text: #342C20;
+  --app-muted: #766A57;
+  --app-border: #E2D2B2;
+  --app-success: #5E8B57;
+  --app-danger: #C65D4B;
 }
 
 .dark {
@@ -65,8 +66,9 @@ body {
   overflow: hidden;
   overflow-x: hidden;
   background:
-    linear-gradient(150deg, color-mix(in srgb, var(--app-bg) 92%, var(--app-card) 8%) 0%, color-mix(in srgb, var(--app-bg-soft) 68%, var(--app-card) 32%) 48%, color-mix(in srgb, var(--app-card) 76%, var(--app-primary-soft) 24%) 100%),
-    linear-gradient(90deg, color-mix(in srgb, var(--app-success) 7%, transparent) 0%, transparent 42%, color-mix(in srgb, var(--app-primary) 8%, transparent) 100%);
+    radial-gradient(circle at 88% 4%, color-mix(in srgb, var(--app-primary) 12%, transparent), transparent 34%),
+    radial-gradient(circle at 4% 96%, color-mix(in srgb, var(--app-accent) 10%, transparent), transparent 36%),
+    linear-gradient(150deg, var(--app-bg) 0%, color-mix(in srgb, var(--app-bg-soft) 72%, var(--app-card) 28%) 54%, var(--app-card) 100%);
   color: var(--app-text);
 }
 
@@ -157,6 +159,21 @@ body:not(.landing-scroll-body) .recharts-surface *:focus-visible {
   overscroll-behavior: contain;
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.app-preview-readonly :is(button, input, textarea, select, [role="button"]):not([data-guest-allow]) {
+  pointer-events: none;
+}
+
+.app-preview-readonly :is(button, input, textarea, select):not([data-guest-allow]) {
+  cursor: not-allowed;
+  filter: saturate(0.58);
+  opacity: 0.66;
+}
+
+.app-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .app-modal-scroll {
@@ -193,6 +210,22 @@ body:not(.landing-scroll-body) .recharts-surface *:focus-visible {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes app-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-page-content {
+  animation: app-page-enter 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .app-dialog-panel {
@@ -236,11 +269,12 @@ body.keyboard-open .app-dialog-panel {
 }
 
 .app-screen-bg {
+  background-color: var(--app-bg);
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--app-primary) 4%, transparent) 1px, transparent 1px),
-    linear-gradient(180deg, color-mix(in srgb, var(--app-card) 26%, transparent) 0%, transparent 44%),
-    linear-gradient(150deg, color-mix(in srgb, var(--app-bg) 88%, var(--app-card) 12%) 0%, color-mix(in srgb, var(--app-bg-soft) 58%, var(--app-card) 42%) 48%, color-mix(in srgb, var(--app-card) 76%, var(--app-primary-soft) 24%) 100%);
-  background-size: 30px 30px, 100% 100%, 100% 100%;
+    radial-gradient(ellipse 240px 170px at 112% 4%, color-mix(in srgb, var(--app-primary) 20%, transparent), transparent 72%),
+    radial-gradient(ellipse 210px 170px at -18% 40%, color-mix(in srgb, var(--app-accent) 12%, transparent), transparent 74%),
+    linear-gradient(165deg, var(--app-bg) 0%, color-mix(in srgb, var(--app-bg-soft) 70%, var(--app-card) 30%) 52%, color-mix(in srgb, var(--app-card) 86%, var(--app-primary-soft) 14%) 100%);
+  background-repeat: no-repeat;
 }
 
 .app-page-header {
@@ -253,7 +287,6 @@ body.keyboard-open .app-dialog-panel {
   box-shadow:
     0 10px 30px color-mix(in srgb, var(--app-primary) 9%, transparent),
     inset 0 -1px 0 color-mix(in srgb, var(--app-card) 72%, transparent);
-  backdrop-filter: blur(18px) saturate(1.25);
 }
 
 .app-page-title {
@@ -285,7 +318,6 @@ body.keyboard-open .app-dialog-panel {
   background-clip: padding-box;
   color: var(--app-primary-strong);
   box-shadow: 0 6px 16px color-mix(in srgb, var(--app-primary) 11%, transparent);
-  backdrop-filter: blur(16px);
 }
 
 .app-header-button {
@@ -300,7 +332,6 @@ body.keyboard-open .app-dialog-panel {
   background-clip: padding-box;
   color: var(--app-primary-strong);
   box-shadow: 0 8px 20px color-mix(in srgb, var(--app-primary) 10%, transparent);
-  backdrop-filter: blur(18px);
   transition: transform 150ms ease, background 150ms ease;
 }
 
@@ -369,7 +400,6 @@ body.keyboard-open .app-dialog-panel {
     0 12px 28px color-mix(in srgb, var(--app-primary) 8%, transparent),
     0 2px 10px color-mix(in srgb, var(--app-text) 4%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--app-card) 92%, transparent);
-  backdrop-filter: blur(18px) saturate(1.18);
 }
 
 .app-metric-tile {
@@ -415,7 +445,6 @@ body.keyboard-open .app-dialog-panel {
     0 12px 34px color-mix(in srgb, var(--app-primary) 14%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--app-card) 92%, transparent),
     inset 0 -1px 0 color-mix(in srgb, var(--app-primary) 14%, transparent);
-  backdrop-filter: blur(22px) saturate(1.5);
 }
 
 .app-bottom-nav-sheen {

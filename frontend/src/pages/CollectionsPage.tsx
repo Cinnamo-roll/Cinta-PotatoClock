@@ -1,5 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowUpDown, BarChart3, Check, ChevronDown, FolderKanban, Plus, X } from "lucide-react";
+import { ArrowUpDown, BarChart3, Check, ChevronDown, FolderKanban, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AddCollectionModal } from "@/components/collection/AddCollectionModal";
@@ -21,6 +21,7 @@ import {
   useCreateCollectionMutation,
   useCreateTimerSessionMutation,
   useCreateTodoMutation,
+  useDeleteCollectionMutation,
   useDeleteTodoMutation,
   useTimerSessionsRangeQuery,
   useTodosQuery,
@@ -62,6 +63,7 @@ export default function CollectionsPage() {
   const updateTodo = useUpdateTodoMutation();
   const updateTodoStatus = useUpdateTodoStatusMutation();
   const updateTodoSort = useUpdateTodoSortMutation();
+  const deleteCollection = useDeleteCollectionMutation();
   const deleteTodo = useDeleteTodoMutation();
   const createSession = useCreateTimerSessionMutation();
   const today = useTodayKey();
@@ -80,6 +82,7 @@ export default function CollectionsPage() {
   const [todoOrderIds, setTodoOrderIds] = useState<number[]>([]);
   const [reorderMode, setReorderMode] = useState(false);
   const [pendingCompleteTodo, setPendingCompleteTodo] = useState<TodoItem | undefined>();
+  const [pendingDeleteCollection, setPendingDeleteCollection] = useState<TodoCollection | undefined>();
 
   const orderedCollectionsSource = useMemo(
     () => [...collections].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || b.createdAt.localeCompare(a.createdAt)),
@@ -226,6 +229,28 @@ export default function CollectionsPage() {
     setCollectionOpen(true);
   };
 
+  const handleDeleteCollection = async () => {
+    if (!pendingDeleteCollection || deleteCollection.isPending) return;
+    const deleting = pendingDeleteCollection;
+    try {
+      await deleteCollection.mutateAsync(deleting.id);
+      setExpandedIds((ids) => ids.filter((id) => id !== deleting.id));
+      setPendingDeleteCollection(undefined);
+      void successFeedback();
+      toast({
+        title: "待办集已删除",
+        description: "集内待办已保留，并移到未分组待办中。",
+        tone: "success"
+      });
+    } catch (error) {
+      toast({
+        title: "待办集删除失败",
+        description: error instanceof Error ? error.message : "请检查网络后重试。",
+        tone: "error"
+      });
+    }
+  };
+
   return (
     <MobileShell>
       <div className="space-y-5">
@@ -290,6 +315,18 @@ export default function CollectionsPage() {
                       <p className="text-xs font-bold text-[var(--app-muted)]">{childTodos.length} 个待办</p>
                     </div>
                     <ChevronDown className={expanded ? "rotate-180 text-[var(--app-muted)] transition" : "text-[var(--app-muted)] transition"} size={18} />
+                    <button
+                      className="rounded-full bg-[color-mix(in_srgb,var(--app-danger)_9%,var(--app-card))] p-2 text-[var(--app-danger)]"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void lightImpact();
+                        setPendingDeleteCollection(collection);
+                      }}
+                      aria-label={`删除待办集“${collection.name}”`}
+                      type="button"
+                    >
+                      <Trash2 size={17} />
+                    </button>
                     <button
                       className="rounded-full bg-[var(--app-card-soft)] p-2 text-[var(--app-primary-strong)]"
                       onClick={(event) => {
@@ -431,6 +468,18 @@ export default function CollectionsPage() {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
+      <ConfirmDialog
+        open={!!pendingDeleteCollection}
+        title="删除这个待办集？"
+        description={pendingDeleteCollection ? `“${pendingDeleteCollection.name}”会被删除，集内待办会保留并移到未分组待办中。` : undefined}
+        confirmText={deleteCollection.isPending ? "删除中..." : "确认删除"}
+        tone="danger"
+        onOpenChange={(open) => {
+          if (!open && !deleteCollection.isPending) setPendingDeleteCollection(undefined);
+        }}
+        onConfirm={() => void handleDeleteCollection()}
+      />
 
       <ConfirmDialog
         open={!!pendingCompleteTodo}

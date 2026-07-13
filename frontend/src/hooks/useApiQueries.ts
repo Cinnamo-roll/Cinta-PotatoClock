@@ -174,7 +174,12 @@ export function useDeleteCollectionMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => collectionsApi.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["collections"] })
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["collections"] }),
+        queryClient.invalidateQueries({ queryKey: ["todos"] })
+      ]);
+    }
   });
 }
 

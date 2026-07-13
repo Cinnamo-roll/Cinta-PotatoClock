@@ -9,7 +9,6 @@ import {
   initialTodos,
   mockUser
 } from "./mockData";
-import { statsMock } from "./statsMock";
 import { checkinBusinessDate, checkinLabel, checkinWindowError, type CheckinPayload } from "@/services/checkinService";
 import type { LoginRequest, LoginResponse, RegisterRequest, User } from "@/types/auth";
 import type { Task, TaskInput, TaskStatus } from "@/types/task";
@@ -38,7 +37,7 @@ import type { TodoCollection, TodoCollectionInput, TodoInput, TodoItem, TodoStat
 import { isTodoCompleted } from "@/utils/todoMetrics";
 
 const STORAGE_KEY = "potato-clock-mock";
-const MOCK_DATA_VERSION = 4;
+const MOCK_DATA_VERSION = 5;
 
 type MockCheckinType = "wakeup" | "focus_today" | "sleep";
 
@@ -62,36 +61,24 @@ interface MockState {
   checkins: MockCheckin[];
 }
 
-function mergeById<T extends { id: number | string }>(current: T[] | undefined, seed: T[]) {
-  const existing = current ?? [];
-  const ids = new Set(existing.map((item) => item.id));
-  return [...existing, ...seed.filter((item) => !ids.has(item.id))];
+function freshState(user: User = mockUser, settings: UserSettings = defaultSettings): MockState {
+  return {
+    mockDataVersion: MOCK_DATA_VERSION,
+    user: { ...user },
+    tasks: initialTasks.map((item) => ({ ...item })),
+    settings: { ...settings },
+    sessions: initialSessions.map((item) => ({ ...item })),
+    todos: initialTodos.map((item) => ({ ...item })),
+    collections: initialCollections.map((item) => ({ ...item })),
+    futurePlans: initialFuturePlans.map((item) => ({ ...item })),
+    timerSessions: initialTimerSessions.map((item) => ({ ...item })),
+    checkins: initialCheckins.map((item) => ({ ...item }))
+  };
 }
 
 function normalizeState(state: MockState): MockState {
   if (state.mockDataVersion === MOCK_DATA_VERSION) return state;
-  const todos = mergeById(state.todos, initialTodos)
-    .map((todo) =>
-      todo.timerType === "none" && (todo.targetUnit !== "次" || todo.targetAmount == null)
-        ? {
-            ...todo,
-            durationMinutes: 0,
-            targetUnit: todo.category === "normal" ? undefined : ("次" as const),
-            targetAmount: todo.category === "normal" ? undefined : 1,
-            countToStats: todo.countToStats ?? todo.includeInStats
-          }
-        : { ...todo, countToStats: todo.countToStats ?? todo.includeInStats }
-    )
-    .sort((a, b) => (a.sortOrder ?? a.id) - (b.sortOrder ?? b.id));
-  return {
-    ...state,
-    mockDataVersion: MOCK_DATA_VERSION,
-    todos,
-    collections: mergeById(state.collections, initialCollections),
-    futurePlans: mergeById(state.futurePlans, initialFuturePlans).sort((a, b) => a.targetDate.localeCompare(b.targetDate)),
-    timerSessions: mergeById(state.timerSessions, initialTimerSessions).sort((a, b) => b.startedAt.localeCompare(a.startedAt)),
-    checkins: mergeById(state.checkins, initialCheckins).sort((a, b) => b.checkedAt.localeCompare(a.checkedAt))
-  };
+  return freshState(state.user, state.settings);
 }
 
 function loadState(): MockState {
@@ -113,18 +100,7 @@ function loadState(): MockState {
     saveState(state);
     return state;
   }
-  return {
-    mockDataVersion: MOCK_DATA_VERSION,
-    user: mockUser,
-    tasks: initialTasks,
-    settings: defaultSettings,
-    sessions: initialSessions,
-    todos: initialTodos,
-    collections: initialCollections,
-    futurePlans: initialFuturePlans,
-    timerSessions: initialTimerSessions,
-    checkins: initialCheckins
-  };
+  return freshState();
 }
 
 function saveState(state: MockState) {
@@ -133,6 +109,16 @@ function saveState(state: MockState) {
 
 function delay<T>(value: T, ms = 260): Promise<T> {
   return new Promise((resolve) => window.setTimeout(() => resolve(value), ms));
+}
+
+function assertPreviewWritable() {
+  try {
+    const raw = localStorage.getItem("potato-auth");
+    if (raw && JSON.parse(raw)?.state?.token) return;
+  } catch {
+    localStorage.removeItem("potato-auth");
+  }
+  throw new Error("预览模式仅支持查看，请登录后再操作");
 }
 
 function isSameDate(value: string, date: Date) {
@@ -483,7 +469,22 @@ function buildYearStats(sessions: TimerSession[], year: number): YearStats {
   };
 }
 
-function buildWeeklySummary(trend: DistributionItem[], taskRanking: TaskStatsItem[], interruptedCount: number, start: Date, end: Date): WeeklySummary {
+function bestFocusPeriod(sessions: TimerSession[]) {
+  const totals = new Map([
+    ["清晨", 0],
+    ["上午", 0],
+    ["下午", 0],
+    ["晚上", 0]
+  ]);
+  focusCompleted(sessions).forEach((session) => {
+    const hour = new Date(session.startedAt).getHours();
+    const label = hour < 8 ? "清晨" : hour < 12 ? "上午" : hour < 18 ? "下午" : "晚上";
+    totals.set(label, (totals.get(label) ?? 0) + sessionFocusSeconds(session));
+  });
+  return Array.from(totals.entries()).sort((left, right) => right[1] - left[1])[0]?.[0] ?? "暂无";
+}
+
+function buildWeeklySummary(trend: DistributionItem[], taskRanking: TaskStatsItem[], sessions: TimerSession[], start: Date, end: Date): WeeklySummary {
   const fallbackBest: DistributionItem = { label: "\u4eca\u5929", focusCount: 0, focusMinutes: 0 };
   const best = trend.reduce((max, item) => (item.focusMinutes > max.focusMinutes ? item : max), trend[0] ?? fallbackBest);
   const totalFocusMinutes = trend.reduce((sum, item) => sum + item.focusMinutes, 0);
@@ -495,9 +496,9 @@ function buildWeeklySummary(trend: DistributionItem[], taskRanking: TaskStatsIte
     totalFocusCount,
     totalFocusMinutes,
     totalFocusSeconds: totalFocusMinutes * 60,
-    abandonedCount: interruptedCount,
+    abandonedCount: sessions.filter((session) => session.interrupted).length,
     bestDay: best.label,
-    bestPeriod: statsMock.weeklySummary.bestPeriod,
+    bestPeriod: bestFocusPeriod(sessions),
     topTasks: taskRanking.slice(0, 3),
     trend,
     summaryText: totalFocusMinutes
@@ -534,7 +535,6 @@ function buildStatsFromSessions(sessions: TimerSession[], checkins: MockCheckin[
   const sleepLine = buildCheckinLine(checkins, "sleep", monthKey);
 
   return {
-    ...statsMock,
     today: {
       todayFocusCount: todayCompleted.length,
       todayFocusMinutes: focusSeconds(todayCompleted) / 60,
@@ -559,7 +559,7 @@ function buildStatsFromSessions(sessions: TimerSession[], checkins: MockCheckin[
     historySessions: [...rangeSessions].sort((a, b) => b.startedAt.localeCompare(a.startedAt)).slice(0, 50).map(toRecentSession),
     taskRanking: rangeTaskRanking,
     interruptionReasons: buildInterruptionReasons(monthSessions),
-    weeklySummary: buildWeeklySummary(rangeTrend, rangeTaskRanking, rangeSessions.filter((session) => session.interrupted).length, resolvedRange.start, resolvedRange.end),
+    weeklySummary: buildWeeklySummary(rangeTrend, rangeTaskRanking, rangeSessions, resolvedRange.start, resolvedRange.end),
     wakeupDistribution: buildCheckinDistribution(checkins, "wakeup", monthKey),
     sleepDistribution: buildCheckinDistribution(checkins, "sleep", monthKey),
     wakeupLine,
@@ -600,6 +600,7 @@ export const mockClient = {
     return delay(loadState().user);
   },
   async updateProfile(payload: { nickname?: string; email?: string }): Promise<User> {
+    assertPreviewWritable();
     const state = loadState();
     const nickname = payload.nickname?.trim();
     if (!nickname) throw new Error("昵称不能为空");
@@ -613,6 +614,7 @@ export const mockClient = {
     return delay(state.user);
   },
   async changePassword(payload: { oldPassword: string; newPassword: string; confirmPassword: string }): Promise<void> {
+    assertPreviewWritable();
     if (!payload.oldPassword) throw new Error("请输入当前密码");
     if (payload.newPassword.length < 6) throw new Error("新密码至少 6 位");
     if (payload.newPassword !== payload.confirmPassword) throw new Error("两次输入的新密码不一致");
@@ -625,6 +627,7 @@ export const mockClient = {
     return delay(loadState().settings);
   },
   async updateSettings(settings: Partial<UserSettings>): Promise<UserSettings> {
+    assertPreviewWritable();
     const state = loadState();
     state.settings = { ...state.settings, ...settings };
     saveState(state);
@@ -634,6 +637,7 @@ export const mockClient = {
     return delay(loadState().tasks.sort((a, b) => a.sortOrder - b.sortOrder));
   },
   async createTask(input: TaskInput): Promise<Task> {
+    assertPreviewWritable();
     const state = loadState();
     const now = new Date().toISOString();
     const task: Task = {
@@ -650,6 +654,7 @@ export const mockClient = {
     return delay(task);
   },
   async updateTask(id: string, input: Partial<TaskInput>): Promise<Task> {
+    assertPreviewWritable();
     const state = loadState();
     const task = state.tasks.find((item) => item.id === id);
     if (!task) throw new Error("这个待办不存在");
@@ -658,6 +663,7 @@ export const mockClient = {
     return delay(task);
   },
   async updateTaskStatus(id: string, status: TaskStatus): Promise<Task> {
+    assertPreviewWritable();
     const state = loadState();
     const task = state.tasks.find((item) => item.id === id);
     if (!task) throw new Error("这个待办不存在");
@@ -668,6 +674,7 @@ export const mockClient = {
     return delay(task);
   },
   async selectTask(id: string): Promise<Task> {
+    assertPreviewWritable();
     const state = loadState();
     let selected: Task | undefined;
     state.tasks = state.tasks.map((task) => {
@@ -680,12 +687,14 @@ export const mockClient = {
     return delay(selected);
   },
   async deleteTask(id: string): Promise<void> {
+    assertPreviewWritable();
     const state = loadState();
     state.tasks = state.tasks.filter((task) => task.id !== id);
     saveState(state);
     return delay(undefined);
   },
   async createSession(session: Omit<PotatoSession, "id">): Promise<PotatoSession> {
+    assertPreviewWritable();
     const state = loadState();
     const saved = { ...session, id: crypto.randomUUID() };
     state.sessions.unshift(saved);
@@ -709,6 +718,7 @@ export const mockClient = {
     return delay(todo);
   },
   async createTodo(input: TodoInput): Promise<TodoItem> {
+    assertPreviewWritable();
     const state = loadState();
     const now = new Date().toISOString();
     const todo: TodoItem = {
@@ -725,6 +735,7 @@ export const mockClient = {
     return delay(todo);
   },
   async updateTodo(id: number, input: Partial<TodoInput>): Promise<TodoItem> {
+    assertPreviewWritable();
     const state = loadState();
     const todo = state.todos.find((item) => item.id === id);
     if (!todo) throw new Error("这个待办不存在");
@@ -736,6 +747,7 @@ export const mockClient = {
     return delay(todo);
   },
   async updateTodoStatus(id: number, status: TodoStatus): Promise<TodoItem> {
+    assertPreviewWritable();
     const state = loadState();
     const todo = state.todos.find((item) => item.id === id);
     if (!todo) throw new Error("这个待办不存在");
@@ -745,6 +757,7 @@ export const mockClient = {
     return delay(todo);
   },
   async updateTodoSort(id: number, sortOrder: number): Promise<TodoItem> {
+    assertPreviewWritable();
     const state = loadState();
     const todo = state.todos.find((item) => item.id === id);
     if (!todo) throw new Error("这个待办不存在");
@@ -754,6 +767,7 @@ export const mockClient = {
     return delay(todo);
   },
   async deleteTodo(id: number): Promise<void> {
+    assertPreviewWritable();
     const state = loadState();
     state.todos = state.todos.filter((todo) => todo.id !== id);
     saveState(state);
@@ -763,6 +777,7 @@ export const mockClient = {
     return delay(loadState().collections);
   },
   async createCollection(input: TodoCollectionInput): Promise<TodoCollection> {
+    assertPreviewWritable();
     const state = loadState();
     const now = new Date().toISOString();
     const collection: TodoCollection = {
@@ -776,6 +791,7 @@ export const mockClient = {
     return delay(collection);
   },
   async updateCollection(id: number, input: Partial<TodoCollectionInput>): Promise<TodoCollection> {
+    assertPreviewWritable();
     const state = loadState();
     const collection = state.collections.find((item) => item.id === id);
     if (!collection) throw new Error("这个待办集不存在");
@@ -784,6 +800,7 @@ export const mockClient = {
     return delay(collection);
   },
   async deleteCollection(id: number): Promise<void> {
+    assertPreviewWritable();
     const state = loadState();
     state.collections = state.collections.filter((collection) => collection.id !== id);
     state.todos = state.todos.map((todo) => (todo.collectionId === id ? { ...todo, collectionId: null } : todo));
@@ -794,6 +811,7 @@ export const mockClient = {
     return delay([...loadState().futurePlans].sort((a, b) => a.targetDate.localeCompare(b.targetDate)));
   },
   async createFuturePlan(input: FuturePlanInput): Promise<FuturePlan> {
+    assertPreviewWritable();
     const state = loadState();
     const now = new Date().toISOString();
     const plan: FuturePlan = {
@@ -809,6 +827,7 @@ export const mockClient = {
     return delay(plan);
   },
   async updateFuturePlan(id: string | number, input: Partial<FuturePlanInput>): Promise<FuturePlan> {
+    assertPreviewWritable();
     const state = loadState();
     const plan = state.futurePlans.find((item) => item.id === id);
     if (!plan) throw new Error("未来计划不存在");
@@ -817,12 +836,14 @@ export const mockClient = {
     return delay(plan);
   },
   async deleteFuturePlan(id: string | number): Promise<void> {
+    assertPreviewWritable();
     const state = loadState();
     state.futurePlans = state.futurePlans.filter((plan) => plan.id !== id);
     saveState(state);
     return delay(undefined);
   },
   async createTimerSession(input: TimerSessionInput): Promise<TimerSession> {
+    assertPreviewWritable();
     const state = loadState();
     const todo = state.todos.find((item) => item.id === input.taskId);
     const session: TimerSession = {
@@ -851,6 +872,7 @@ export const mockClient = {
     return delay([...sessions].sort((a, b) => b.startedAt.localeCompare(a.startedAt)));
   },
   async updateTimerSession(id: number, input: { actualMinutes?: number; startedAt?: string; endedAt?: string; note?: string }): Promise<TimerSession> {
+    assertPreviewWritable();
     const state = loadState();
     const session = state.timerSessions.find((item) => item.id === id);
     if (!session) throw new Error("这条专注记录不存在");
@@ -873,12 +895,14 @@ export const mockClient = {
     return delay(session);
   },
   async deleteTimerSession(id: number): Promise<void> {
+    assertPreviewWritable();
     const state = loadState();
     state.timerSessions = state.timerSessions.filter((item) => item.id !== id);
     saveState(state);
     return delay(undefined);
   },
   async createCheckin(input: CheckinPayload): Promise<{ ok: boolean }> {
+    assertPreviewWritable();
     const state = loadState();
     const checkedAt = input.checkinTime ?? new Date().toISOString();
     const checkedDate = new Date(checkedAt);
@@ -915,6 +939,7 @@ export const mockClient = {
     return delay(checkins);
   },
   async updateCheckin(id: number, input: { checkinTime?: string; note?: string }): Promise<CheckinRecordItem> {
+    assertPreviewWritable();
     const state = loadState();
     const checkin = state.checkins.find((item) => item.id === id);
     if (!checkin) throw new Error("这条打卡记录不存在");
@@ -938,6 +963,7 @@ export const mockClient = {
     });
   },
   async deleteCheckin(id: number): Promise<void> {
+    assertPreviewWritable();
     const state = loadState();
     state.checkins = state.checkins.filter((item) => item.id !== id);
     saveState(state);

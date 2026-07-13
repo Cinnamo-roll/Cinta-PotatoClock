@@ -25,12 +25,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/common/Button";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { CuteEmptyState } from "@/components/common/CuteEmptyState";
+import { GuestPreviewBanner } from "@/components/common/GuestPreviewBanner";
 import { useCreateTimerSessionMutation, useTimerSessionsRangeQuery, useTodoQuery, useUpdateTodoStatusMutation } from "@/hooks/useApiQueries";
 import { useTodayKey } from "@/hooks/useTodayKey";
 import { lightImpact, successFeedback, warningFeedback } from "@/services/hapticsService";
 import { cancelFocusNotification, scheduleFocusEndNotification } from "@/services/notificationService";
 import { playFocusDoneSound } from "@/services/soundService";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useTimerStore } from "@/stores/timerStore";
 import { useUiStore } from "@/stores/uiStore";
 import { formatSeconds } from "@/utils/format";
@@ -81,6 +83,7 @@ export default function FocusPage() {
   const updateStatus = useUpdateTodoStatusMutation();
   const createSession = useCreateTimerSessionMutation();
   const toast = useUiStore((state) => state.toast);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const settings = useSettingsStore((state) => state.settings);
   const updateSettings = useSettingsStore((state) => state.updateSettings);
   const activeTodo = useTimerStore((state) => state.todo);
@@ -205,7 +208,7 @@ export default function FocusPage() {
     if (timerState === "completed") {
       if (settings.vibrationEnabled) void successFeedback();
       void playFocusDoneSound(settings.soundEnabled);
-      confetti({ particleCount: 80, spread: 62, origin: { y: 0.78 }, colors: ["#F6AFC3", "#E8F7EF", "#ffffff"] });
+      confetti({ particleCount: 80, spread: 62, origin: { y: 0.78 }, colors: ["#D7AD4A", "#6F8655", "#FFF8E7"] });
     } else if (settings.vibrationEnabled) {
       void warningFeedback();
     }
@@ -413,7 +416,15 @@ export default function FocusPage() {
   };
 
   return (
-    <div className="app-screen-bg app-scroll mx-auto flex min-h-[100dvh] max-w-[430px] flex-col overflow-x-hidden overflow-y-auto px-5 pb-[calc(var(--safe-bottom)+18px)] pt-[calc(var(--safe-top)+1.25rem)] text-[var(--app-text)]">
+    <>
+      <div
+        inert={!isAuthenticated ? true : undefined}
+        className={cn(
+          "app-screen-bg app-scroll mx-auto flex min-h-[100dvh] max-w-[430px] flex-col overflow-x-hidden overflow-y-auto px-5 pt-[calc(var(--safe-top)+1.25rem)] text-[var(--app-text)]",
+          !isAuthenticated && "app-preview-readonly",
+          isAuthenticated ? "pb-[calc(var(--safe-bottom)+18px)]" : "pb-[calc(var(--safe-bottom)+94px)]"
+        )}
+      >
       {shortTip ? (
         <div className="fixed left-1/2 top-[calc(var(--safe-top)+1rem)] z-50 flex w-[calc(100%-40px)] max-w-[390px] -translate-x-1/2 items-start gap-3 rounded-2xl border border-[var(--app-border)] bg-[var(--app-card)] p-4 text-[var(--app-text)] shadow-[0_12px_30px_rgba(80,40,60,0.10)]">
           <CheckCircle2 className="mt-0.5 text-[#48a568]" size={20} />
@@ -609,6 +620,8 @@ export default function FocusPage() {
         onOpenChange={setInstantCompleteOpen}
         onConfirm={() => void handleInstantComplete()}
       />
-    </div>
+      </div>
+      {!isAuthenticated ? <GuestPreviewBanner withNav={false} /> : null}
+    </>
   );
 }

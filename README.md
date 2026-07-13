@@ -5,7 +5,7 @@
 ## 产品预览与下载
 
 - [在线产品预览与官网](https://clock.cinoo.xyz)：查看真实界面、主要功能和版本说明。
-- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.4`，可直接下载安装。
+- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.5`，可直接下载安装。
 - [iOS 未签名 IPA](https://github.com/Cinnamo-roll/Cinta-PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：打开最新一次成功运行，在页面底部下载 `tudou-clock-unsigned-ipa` Artifact；安装前需要自行签名。
 
 正式安装包不提交到 Git 仓库。Android 由官网提供固定下载地址；iOS Artifact 有保留期限，过期后可在 Actions 页面手动重新运行构建。
@@ -160,11 +160,18 @@ VITE_USE_MOCK=false
 
 ## 当前发布版本
 
-- Android：`1.2.4`（`versionCode 7`）
-- iOS：`1.2.4`（`build 7`，未签名 IPA）
-- 官网与公开下载信息：`1.2.4`
+- Android：`1.2.5`（`versionCode 8`）
+- iOS：`1.2.5`（`build 8`，未签名 IPA）
+- 官网与公开下载信息：`1.2.5`
 - 安装包文件名：`downloads/tudou-clock.apk`
 - APK/IPA、签名文件、部署压缩包和生产环境变量均不提交 GitHub。
+
+### 1.2.5 更新、预览与整体体验优化
+
+- 新增原生 App 版本检查；Android 可从提示直接下载新版 APK，iOS 跳转项目官网。
+- 为待办集补充删除入口，删除分组时保留集内待办并移至未分组。
+- 未登录用户可只读预览首页、待办集、统计、未来、设置、个人页和专注页；演示数据来自同一套相互关联的待办、记录与日期种子。
+- 默认主题改为更贴合产品的“土豆金”，增加叶绿色点缀，缩小 Android 自适应图标前景，并减少 WebView 滚动时的模糊重绘和冗余动画。
 
 ### 1.2.4 Android 启动与官网动画修复
 

@@ -40,6 +40,7 @@ export function paletteFromPrimary(primary: string): AppThemePalette {
     primary,
     primarySoft: mix(primary, "#ffffff", 0.82),
     primaryStrong: mix(primary, "#000000", 0.16),
+    accent: mix(primary, "#6F8655", 0.62),
     text: "#2F2F35",
     muted: "#8A8A93",
     border: mix(primary, "#ffffff", 0.74),

@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Lock, UserRound } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
@@ -10,7 +10,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
   const location = useLocation();
   const login = useAuthStore((state) => state.login);
   const isLoading = useAuthStore((state) => state.isLoading);
@@ -18,10 +17,11 @@ export default function LoginPage() {
   const toast = useUiStore((state) => state.toast);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const returnPath = (location.state as { from?: string } | null)?.from || "/";
 
   useEffect(() => {
-    if (isAuthenticated) navigate((location.state as { from?: string } | null)?.from || "/", { replace: true });
-  }, [isAuthenticated, location.state, navigate]);
+    if (isAuthenticated) window.location.replace(returnPath);
+  }, [isAuthenticated, returnPath]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -33,7 +33,7 @@ export default function LoginPage() {
     try {
       await login({ username: normalizedUsername, password });
       toast({ title: "欢迎回来", description: "今天也要保持专注", tone: "success" });
-      navigate("/", { replace: true });
+      window.location.replace(returnPath);
     } catch (error) {
       toast({ title: "登录失败啦", description: error instanceof Error ? error.message : "检查一下用户名或密码", tone: "error" });
     }
@@ -73,6 +73,9 @@ export default function LoginPage() {
               去注册
             </Link>
           </p>
+          <Link className="mt-3 flex min-h-10 items-center justify-center rounded-2xl text-sm font-black text-[var(--app-accent)] transition hover:bg-[var(--app-card-soft)]" to="/">
+            先预览全部功能
+          </Link>
         </Card>
       </section>
     </MobileShell>

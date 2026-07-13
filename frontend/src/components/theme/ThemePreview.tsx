@@ -12,7 +12,10 @@ export function ThemePreview({ themeColor, customColor }: ThemePreviewProps) {
   return (
     <div className="rounded-[24px] border p-4" style={{ background: palette.bg, borderColor: palette.border }}>
       <div className="rounded-[20px] p-4 shadow-sm" style={{ background: palette.card }}>
-        <div className="h-3 w-20 rounded-full" style={{ background: palette.primarySoft }} />
+        <div className="flex items-center gap-2">
+          <div className="h-3 w-20 rounded-full" style={{ background: palette.primarySoft }} />
+          <div className="h-3 w-3 rounded-full" style={{ background: palette.accent }} />
+        </div>
         <div className="mt-4 flex items-center justify-between">
           <div>
             <div className="h-4 w-24 rounded-full" style={{ background: palette.text }} />

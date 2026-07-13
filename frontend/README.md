@@ -127,14 +127,14 @@ frontend/
 
 ## 发布版本
 
-- Android `versionName`：`1.2.4`
-- Android `versionCode`：`7`
-- iOS `MARKETING_VERSION`：`1.2.4`，`CURRENT_PROJECT_VERSION`：`7`
-- 公开版本：`1.2.4`
+- Android `versionName`：`1.2.5`
+- Android `versionCode`：`8`
+- iOS `MARKETING_VERSION`：`1.2.5`，`CURRENT_PROJECT_VERSION`：`8`
+- 公开版本：`1.2.5`
 - iOS：由 GitHub Actions 生成 `tudou-clock-unsigned-ipa` Artifact。
 - 正式 APK、IPA、签名文件和 `dist/` 构建产物不提交 GitHub。
 
-本版移动端回归重点：Recharts 图表点按不显示系统焦点框；历史记录的记录操作层与时间编辑层独立关闭；相同起止时间校验为无效；标题栏不再按右侧操作区叠加异色背景；手机官网工作流两列分别对齐；待办时长与计划量统一使用纯数字键盘和数字过滤；快捷打卡菜单只保留容器级展开动画，三项内容不再二次闪烁。
+本版移动端回归重点：应用内更新提示、Android APK 直达下载、游客全页面只读预览与关联演示数据、待办集删除、土豆金主题、自适应图标尺寸，以及 Android WebView 冷启动与长列表滚动流畅度。
 
 历史记录编辑器使用单个 Radix Dialog 与内部状态机切换“日历、记录操作、时间编辑、删除确认”，不再嵌套弹窗。专注时间采用小时/分钟原生选择器组合，避免 iOS 与 Android WebView 对 `input[type=time]` 的尺寸、键盘和关闭事件差异；结束时刻早于开始时刻时明确按次日计算，相同时刻禁止保存。
 

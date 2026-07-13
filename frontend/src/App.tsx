@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/common/Toaster";
 import { AppToast } from "@/components/common/AppToast";
+import { AppUpdatePrompt } from "@/components/common/AppUpdatePrompt";
 import { useScrollBoundaryGuard } from "@/hooks/useScrollBoundaryGuard";
 import { AppRouter } from "@/router/AppRouter";
 import LandingPage from "@/pages/LandingPage";
@@ -54,6 +55,7 @@ export default function App() {
   return (
     <>
       <AppRouter />
+      <AppUpdatePrompt />
       <Toaster />
       <AppToast />
     </>

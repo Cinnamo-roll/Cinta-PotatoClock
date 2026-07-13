@@ -6,12 +6,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream: "#fff7fb",
-        potato: "#f7a7bd",
-        caramel: "#c46a86",
-        leaf: "#92b6a2",
-        soil: "#4c3941",
-        cocoa: "#241b20"
+        cream: "#fffaf0",
+        potato: "#d7ad4a",
+        caramel: "#9a6b2f",
+        leaf: "#6f8655",
+        soil: "#3b3124",
+        cocoa: "#241e17"
       },
       boxShadow: {
         soft: "0 18px 45px rgba(117, 78, 36, 0.14)",

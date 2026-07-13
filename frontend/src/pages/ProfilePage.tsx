@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AtSign, Award, ChevronRight, Globe2, HelpCircle, KeyRound, LogOut, Mail, Palette, PenLine, UserRound, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
@@ -85,8 +84,8 @@ function Divider() {
 }
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const logout = useAuthStore((state) => state.logout);
   const fetchMe = useAuthStore((state) => state.fetchMe);
   const updateProfile = useAuthStore((state) => state.updateProfile);
@@ -110,8 +109,8 @@ export default function ProfilePage() {
     : "正在整理你的成就墙";
 
   useEffect(() => {
-    void fetchMe().catch(() => undefined);
-  }, [fetchMe]);
+    if (isAuthenticated) void fetchMe().catch(() => undefined);
+  }, [fetchMe, isAuthenticated]);
 
   useEffect(() => {
     setProfileForm({ nickname: user?.nickname ?? user?.username ?? "", email: user?.email ?? "" });
@@ -188,15 +187,23 @@ export default function ProfilePage() {
               <UserRound size={30} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-black text-[var(--app-primary-strong)]">我的账号</p>
-              <h1 className="mt-1 truncate text-xl font-black text-[var(--app-text)]">{user?.nickname || user?.username || "未命名用户"}</h1>
-              <p className="mt-1 truncate text-sm font-semibold text-[var(--app-muted)]">@{user?.username || "potato"}</p>
+              <p className="text-xs font-black text-[var(--app-primary-strong)]">{isAuthenticated ? "我的账号" : "访客预览"}</p>
+              <h1 className="mt-1 truncate text-xl font-black text-[var(--app-text)]">{isAuthenticated ? user?.nickname || user?.username || "未命名用户" : "土豆体验官"}</h1>
+              <p className="mt-1 truncate text-sm font-semibold text-[var(--app-muted)]">{isAuthenticated ? `@${user?.username || "potato"}` : "登录后同步你的专注记录"}</p>
             </div>
           </div>
           <div className="grid gap-2">
-            <InfoRow icon={<AtSign size={17} />} label="账号" value={user?.username || "未登录"} />
-            <InfoRow icon={<UserRound size={17} />} label="昵称" value={user?.nickname || "未设置"} />
-            <InfoRow icon={<Mail size={17} />} label="邮箱" value={user?.email || "未设置"} />
+            {isAuthenticated ? (
+              <>
+                <InfoRow icon={<AtSign size={17} />} label="账号" value={user?.username || "未登录"} />
+                <InfoRow icon={<UserRound size={17} />} label="昵称" value={user?.nickname || "未设置"} />
+                <InfoRow icon={<Mail size={17} />} label="邮箱" value={user?.email || "未设置"} />
+              </>
+            ) : (
+              <div className="rounded-2xl bg-[var(--app-card-soft)] px-4 py-3 text-center text-sm font-bold text-[var(--app-muted)]">
+                登录后可保存设置并同步专注记录
+              </div>
+            )}
           </div>
         </Card>
 
@@ -204,10 +211,14 @@ export default function ProfilePage() {
           <div className="px-4 pb-2 pt-4">
             <h2 className="text-sm font-black text-[var(--app-text)]">个人资料与偏好</h2>
           </div>
-          <SettingRow icon={<PenLine size={19} />} title="编辑资料" description="修改昵称和邮箱" onClick={() => setProfileOpen(true)} />
-          <Divider />
-          <SettingRow icon={<KeyRound size={19} />} title="修改密码" description="修改账号密码" onClick={() => setPasswordOpen(true)} />
-          <Divider />
+          {isAuthenticated ? (
+            <>
+              <SettingRow icon={<PenLine size={19} />} title="编辑资料" description="修改昵称和邮箱" onClick={() => setProfileOpen(true)} />
+              <Divider />
+              <SettingRow icon={<KeyRound size={19} />} title="修改密码" description="修改账号密码" onClick={() => setPasswordOpen(true)} />
+              <Divider />
+            </>
+          ) : null}
           <SettingRow
             icon={<Award size={19} />}
             title="查看所有成就"
@@ -229,15 +240,17 @@ export default function ProfilePage() {
           <SettingRow icon={<Mail size={19} />} title="反馈入口" description={`遇到问题或有建议，可以发邮件到 ${feedbackEmail}`} href={feedbackHref} />
         </Card>
 
-        <Card className="p-0">
-          <SettingRow
-            danger
-            icon={<LogOut size={19} />}
-            title="退出登录"
-            description="退出当前账号，回到登录页"
-            onClick={() => setLogoutConfirmOpen(true)}
-          />
-        </Card>
+        {isAuthenticated ? (
+          <Card className="p-0">
+            <SettingRow
+              danger
+              icon={<LogOut size={19} />}
+              title="退出登录"
+              description="退出当前账号，回到登录页"
+              onClick={() => setLogoutConfirmOpen(true)}
+            />
+          </Card>
+        ) : null}
       </div>
 
       <Dialog.Root open={profileOpen} onOpenChange={setProfileOpen}>
@@ -297,7 +310,7 @@ export default function ProfilePage() {
         onConfirm={() => {
           setLogoutConfirmOpen(false);
           logout();
-          navigate("/login", { replace: true });
+          window.location.replace("/login");
         }}
       />
     </MobileShell>

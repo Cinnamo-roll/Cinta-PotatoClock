@@ -20,10 +20,7 @@ const FocusPage = lazy(() => import("@/pages/FocusPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const FutureCountdownPage = lazy(() => import("@/pages/FutureCountdownPage"));
 
-function ProtectedRoute({ children }: { children: ReactElement }) {
-  const location = useLocation();
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+function PreviewableRoute({ children }: { children: ReactElement }) {
   return children;
 }
 
@@ -56,73 +53,73 @@ export function AppRouter() {
           <Route
             path="/"
             element={
-              <ProtectedRoute>
+              <PreviewableRoute>
                 <HomePage />
-              </ProtectedRoute>
+              </PreviewableRoute>
             }
           />
           <Route
             path="/focus/:todoId"
             element={
-              <ProtectedRoute>
+              <PreviewableRoute>
                 <FocusPage />
-              </ProtectedRoute>
+              </PreviewableRoute>
             }
           />
           <Route
             path="/timer/:todoId"
             element={
-              <ProtectedRoute>
+              <PreviewableRoute>
                 <FocusPage />
-              </ProtectedRoute>
+              </PreviewableRoute>
             }
           />
           <Route
             path="/tasks"
             element={
-              <ProtectedRoute>
+              <PreviewableRoute>
                 <TasksPage />
-              </ProtectedRoute>
+              </PreviewableRoute>
             }
           />
           <Route
             path="/collections"
             element={
-              <ProtectedRoute>
+              <PreviewableRoute>
                 <CollectionsPage />
-              </ProtectedRoute>
+              </PreviewableRoute>
             }
           />
           <Route
             path="/stats"
             element={
-              <ProtectedRoute>
+              <PreviewableRoute>
                 <StatsPage />
-              </ProtectedRoute>
+              </PreviewableRoute>
             }
           />
           <Route
             path="/future"
             element={
-              <ProtectedRoute>
+              <PreviewableRoute>
                 <FutureCountdownPage />
-              </ProtectedRoute>
+              </PreviewableRoute>
             }
           />
           <Route
             path="/settings"
             element={
-              <ProtectedRoute>
+              <PreviewableRoute>
                 <SettingsPage />
-              </ProtectedRoute>
+              </PreviewableRoute>
             }
           />
           <Route
             path="/profile"
             element={
-              <ProtectedRoute>
+              <PreviewableRoute>
                 <ProfilePage />
-              </ProtectedRoute>
+              </PreviewableRoute>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -13,7 +13,7 @@ interface AnimatedListItemProps {
   className?: string;
 }
 
-export function AnimatedList({ children, className, stagger = 0.045 }: AnimatedListProps) {
+export function AnimatedList({ children, className, stagger = 0.03 }: AnimatedListProps) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -38,10 +38,10 @@ export function AnimatedListItem({ children, className }: AnimatedListItemProps)
     <motion.div
       className={cn("min-w-0", className)}
       variants={{
-        hidden: { opacity: 0, y: 10 },
+        hidden: { opacity: 0, y: 6 },
         show: { opacity: 1, y: 0 }
       }}
-      transition={reduceMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+      transition={reduceMotion ? { duration: 0 } : { duration: 0.18, ease: "easeOut" }}
     >
       {children}
     </motion.div>
