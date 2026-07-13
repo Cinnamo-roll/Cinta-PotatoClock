@@ -64,7 +64,23 @@ export const useThemeStore = create<ThemeState>()(
       version: 2,
       migrate: (persistedState, version) => {
         const state = persistedState as Partial<ThemeState>;
-        if (version < 2 || !state.hasUserSelectedColor) {
+        if (version < 2) {
+          const isHistoricalRoseDefault = (!state.themeColor || state.themeColor === "rose")
+            && (!state.customColor || state.customColor.toUpperCase() === "#F58CB2");
+          if (!isHistoricalRoseDefault) {
+            const selectedColor = state.themeColor ?? defaultThemeColor;
+            const selectedCustomColor = state.customColor ?? defaultCustomColor;
+            return {
+              ...state,
+              themeColor: selectedColor,
+              customColor: selectedCustomColor,
+              draftThemeColor: selectedColor,
+              draftCustomColor: selectedCustomColor,
+              hasUserSelectedColor: true
+            } as ThemeState;
+          }
+        }
+        if (!state.hasUserSelectedColor) {
           return {
             ...state,
             themeColor: defaultThemeColor,
