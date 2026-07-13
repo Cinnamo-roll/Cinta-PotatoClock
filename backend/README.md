@@ -102,7 +102,7 @@ mvn -s maven-settings.xml package
 | `CORS_ALLOWED_ORIGINS` | `https://<CLOCK_DOMAIN>,...` | 允许跨域来源 |
 | `APP_ANDROID_APK_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.apk` | APK 下载地址 |
 | `APP_IOS_IPA_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.ipa` | IPA 下载地址；仅在服务器已放置 IPA 时可用 |
-| `APP_VERSION` | `1.2.5` | 官网公开版本号 |
+| `APP_VERSION` | `1.2.6` | 官网公开版本号 |
 
 不要把真实密码、JWT 密钥和服务器敏感信息提交到仓库。
 
@@ -212,4 +212,4 @@ Flyway 脚本位于 `src/main/resources/db/migration`。
 mvn -s maven-settings.xml test
 ```
 
-最近一次验证结果：46 个测试通过。
+最近一次验证结果：51 个测试通过。

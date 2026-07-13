@@ -60,30 +60,32 @@ export default function RegisterPage() {
   };
 
   return (
-    <MobileShell withNav={false} className="py-8">
-      <CutePotatoLogo />
-      <div className="mt-4 text-center">
-        <h1 className="app-brand-title text-[34px] font-black leading-none tracking-normal">创建账号</h1>
-        <p className="app-brand-subtitle mt-2 text-sm font-black">一个待办，一段安静时间</p>
-      </div>
-      <Card className="mt-6">
+    <MobileShell withNav={false} className="py-7">
+      <section className="mx-auto w-full max-w-[380px]">
+        <CutePotatoLogo />
+        <div className="mt-4 text-center">
+          <h1 className="app-brand-title text-[34px] font-black leading-none tracking-normal">创建账号</h1>
+          <p className="app-brand-subtitle mt-2 text-sm font-black">一个待办，一段安静时间</p>
+        </div>
+        <Card className="mt-6 p-5 sm:p-6">
         <form className="space-y-3" onSubmit={handleSubmit}>
-          <Input value={form.username} onChange={(event) => setValue("username", event.target.value)} placeholder="用户名，3-20 位字母数字下划线" autoComplete="username" maxLength={20} />
-          <Input value={form.nickname} onChange={(event) => setValue("nickname", event.target.value)} placeholder="昵称，最多 20 字" maxLength={20} />
-          <Input value={form.email} onChange={(event) => setValue("email", event.target.value)} placeholder="邮箱，可选" inputMode="email" maxLength={100} />
-          <Input value={form.password} onChange={(event) => setValue("password", event.target.value)} placeholder="密码，6-72 位" type="password" maxLength={72} />
-          <Input value={form.confirmPassword} onChange={(event) => setValue("confirmPassword", event.target.value)} placeholder="确认密码" type="password" maxLength={72} />
+          <Input value={form.username} onChange={(event) => setValue("username", event.target.value)} placeholder="用户名，3-20 位字母数字下划线" autoComplete="username" autoCapitalize="none" spellCheck={false} maxLength={20} />
+          <Input value={form.nickname} onChange={(event) => setValue("nickname", event.target.value)} placeholder="昵称，最多 20 字" autoComplete="nickname" maxLength={20} />
+          <Input value={form.email} onChange={(event) => setValue("email", event.target.value)} placeholder="邮箱，可选" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" spellCheck={false} maxLength={100} />
+          <Input value={form.password} onChange={(event) => setValue("password", event.target.value)} placeholder="密码，6-72 位" type="password" autoComplete="new-password" maxLength={72} />
+          <Input value={form.confirmPassword} onChange={(event) => setValue("confirmPassword", event.target.value)} placeholder="确认密码" type="password" autoComplete="new-password" maxLength={72} />
           <Button className="w-full" disabled={isLoading} type="submit">
             {isLoading ? "正在种下..." : "注册"}
           </Button>
         </form>
-        <p className="mt-5 text-center text-sm text-soil/60 dark:text-cream/60">
-          已经有账号？
-          <Link className="font-bold text-caramel dark:text-potato" to="/login">
+        <div className="mt-5 flex min-h-9 items-center justify-center gap-2 text-sm">
+          <span className="font-semibold text-[var(--app-muted)]">已经有账号？</span>
+          <Link className="inline-flex min-h-9 items-center rounded-full border border-[var(--app-border)] bg-[var(--app-card-soft)] px-3 font-black text-[var(--app-primary-strong)] transition active:scale-[0.97]" to="/login">
             去登录
           </Link>
-        </p>
-      </Card>
+        </div>
+        </Card>
+      </section>
     </MobileShell>
   );
 }

@@ -418,10 +418,8 @@ export default function FocusPage() {
   return (
     <>
       <div
-        inert={!isAuthenticated ? true : undefined}
         className={cn(
           "app-screen-bg app-scroll mx-auto flex min-h-[100dvh] max-w-[430px] flex-col overflow-x-hidden overflow-y-auto px-5 pt-[calc(var(--safe-top)+1.25rem)] text-[var(--app-text)]",
-          !isAuthenticated && "app-preview-readonly",
           isAuthenticated ? "pb-[calc(var(--safe-bottom)+18px)]" : "pb-[calc(var(--safe-bottom)+94px)]"
         )}
       >

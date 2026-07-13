@@ -12,9 +12,9 @@ services:
       JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Shanghai
       SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: prod
-      MYSQL_HOST: shared-mysql
+      MYSQL_HOST: potato-clock-mysql
       MYSQL_PORT: 3306
-      REDIS_HOST: shared-redis
+      REDIS_HOST: potato-clock-redis
       REDIS_PORT: 6379
     expose:
       - "8080"
@@ -22,7 +22,10 @@ services:
       - ./deploy/backend/app.jar:/app/app.jar:ro
     networks:
       - potato-clock-internal
-      - shared-data-net
+    mem_limit: 640m
+    memswap_limit: 1g
+    cpus: 0.75
+    pids_limit: 256
 
   frontend:
     image: nginx:1.27-alpine
@@ -46,6 +49,4 @@ networks:
   potato-clock-internal:
     name: potato-clock-internal
   proxy:
-    external: true
-  shared-data-net:
     external: true

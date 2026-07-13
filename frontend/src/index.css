@@ -162,16 +162,6 @@ body:not(.landing-scroll-body) .recharts-surface *:focus-visible {
   scrollbar-width: none;
 }
 
-.app-preview-readonly :is(button, input, textarea, select, [role="button"]):not([data-guest-allow]) {
-  pointer-events: none;
-}
-
-.app-preview-readonly :is(button, input, textarea, select):not([data-guest-allow]) {
-  cursor: not-allowed;
-  filter: saturate(0.58);
-  opacity: 0.66;
-}
-
 .app-scroll::-webkit-scrollbar {
   display: none;
 }

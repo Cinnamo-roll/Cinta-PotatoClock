@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Lock, UserRound } from "lucide-react";
+import { Eye, Lock, UserRound } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
 import { CutePotatoLogo } from "@/components/common/CutePotatoLogo";
@@ -40,14 +40,14 @@ export default function LoginPage() {
   };
 
   return (
-    <MobileShell withNav={false} className="flex min-h-screen items-center justify-center py-8">
-      <section className="w-full">
+    <MobileShell withNav={false} className="flex min-h-dvh items-center justify-center py-7">
+      <section className="mx-auto w-full max-w-[380px]">
         <CutePotatoLogo size="lg" />
         <div className="mt-5 text-center">
           <h1 className="app-brand-title text-[34px] font-black leading-none tracking-normal">土豆时钟ToDo</h1>
           <p className="app-brand-subtitle mt-2 text-sm font-black">记录待办，开始专注</p>
         </div>
-        <Card className="mt-7">
+        <Card className="mt-7 p-5 sm:p-6">
           <form className="space-y-4" onSubmit={handleSubmit}>
             <label className="block space-y-2">
               <span className="flex items-center gap-2 text-sm font-bold text-soil/75 dark:text-cream/75">
@@ -67,13 +67,14 @@ export default function LoginPage() {
               {isLoading ? "正在登录..." : "登录"}
             </Button>
           </form>
-          <p className="mt-5 text-center text-sm text-soil/60 dark:text-cream/60">
-            还没有账号？
-            <Link className="font-bold text-caramel dark:text-potato" to="/register">
+          <div className="mt-5 flex min-h-9 items-center justify-center gap-2 text-sm">
+            <span className="font-semibold text-[var(--app-muted)]">还没有账号？</span>
+            <Link className="inline-flex min-h-9 items-center rounded-full border border-[var(--app-border)] bg-[var(--app-card-soft)] px-3 font-black text-[var(--app-primary-strong)] transition active:scale-[0.97]" to="/register">
               去注册
             </Link>
-          </p>
-          <Link className="mt-3 flex min-h-10 items-center justify-center rounded-2xl text-sm font-black text-[var(--app-accent)] transition hover:bg-[var(--app-card-soft)]" to="/">
+          </div>
+          <Link className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[color-mix(in_srgb,var(--app-primary)_38%,var(--app-border))] bg-[var(--app-primary-soft)] px-4 text-sm font-black text-[var(--app-primary-strong)] transition active:scale-[0.98]" to="/">
+            <Eye size={17} />
             先预览全部功能
           </Link>
         </Card>

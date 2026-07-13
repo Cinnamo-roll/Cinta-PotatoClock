@@ -10,6 +10,7 @@ interface ThemeState {
   customColor: string;
   draftThemeColor: ThemeColor;
   draftCustomColor: string;
+  hasUserSelectedColor: boolean;
   previewTheme: (themeColor: ThemeColor, customColor?: string) => void;
   saveTheme: () => Promise<void>;
   restoreDraft: () => void;
@@ -25,6 +26,7 @@ export const useThemeStore = create<ThemeState>()(
       customColor: defaultCustomColor,
       draftThemeColor: defaultThemeColor,
       draftCustomColor: defaultCustomColor,
+      hasUserSelectedColor: false,
       previewTheme: (themeColor, customColor) => {
         const nextCustom = customColor ?? get().draftCustomColor;
         set({ draftThemeColor: themeColor, draftCustomColor: nextCustom });
@@ -32,7 +34,7 @@ export const useThemeStore = create<ThemeState>()(
       },
       saveTheme: async () => {
         const { draftThemeColor, draftCustomColor, themeMode } = get();
-        set({ themeColor: draftThemeColor, customColor: draftCustomColor });
+        set({ themeColor: draftThemeColor, customColor: draftCustomColor, hasUserSelectedColor: true });
         applyAppTheme({ themeColor: draftThemeColor, themeMode, customColor: draftCustomColor });
         await storageService.set("appTheme", JSON.stringify({ themeColor: draftThemeColor, customColor: draftCustomColor, themeMode }));
       },
@@ -46,7 +48,8 @@ export const useThemeStore = create<ThemeState>()(
           themeColor: defaultThemeColor,
           customColor: defaultCustomColor,
           draftThemeColor: defaultThemeColor,
-          draftCustomColor: defaultCustomColor
+          draftCustomColor: defaultCustomColor,
+          hasUserSelectedColor: false
         });
         applyAppTheme({ themeColor: defaultThemeColor, themeMode: get().themeMode, customColor: defaultCustomColor });
         await storageService.set("appTheme", JSON.stringify({ themeColor: defaultThemeColor, customColor: defaultCustomColor, themeMode: get().themeMode }));
@@ -58,12 +61,28 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: "app-theme",
+      version: 2,
+      migrate: (persistedState, version) => {
+        const state = persistedState as Partial<ThemeState>;
+        if (version < 2 || !state.hasUserSelectedColor) {
+          return {
+            ...state,
+            themeColor: defaultThemeColor,
+            customColor: defaultCustomColor,
+            draftThemeColor: defaultThemeColor,
+            draftCustomColor: defaultCustomColor,
+            hasUserSelectedColor: false
+          } as ThemeState;
+        }
+        return state as ThemeState;
+      },
       partialize: (state) => ({
         themeColor: state.themeColor,
         themeMode: state.themeMode,
         customColor: state.customColor,
         draftThemeColor: state.draftThemeColor,
-        draftCustomColor: state.draftCustomColor
+        draftCustomColor: state.draftCustomColor,
+        hasUserSelectedColor: state.hasUserSelectedColor
       })
     }
   )

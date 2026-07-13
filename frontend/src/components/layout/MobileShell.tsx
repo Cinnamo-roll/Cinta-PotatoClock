@@ -17,10 +17,8 @@ export function MobileShell({ children, withNav = true, className }: MobileShell
   return (
     <div className="h-dvh w-full overflow-hidden">
       <main
-        inert={showGuestBanner ? true : undefined}
         className={cn(
           "app-screen-bg app-scroll mx-auto h-dvh w-full max-w-[430px] overflow-x-hidden overflow-y-auto px-4 pt-[calc(var(--safe-top)+0.75rem)]",
-          showGuestBanner && "app-preview-readonly",
           withNav
             ? showGuestBanner
               ? "pb-[calc(var(--safe-bottom)+176px)]"

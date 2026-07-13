@@ -264,14 +264,14 @@ deploy/backend/app.jar
 deploy/frontend/
 ```
 
-上传产物后使用 `docker-compose.lowmem.yml` 启动已有基础镜像：
+上传产物后使用 `docker-compose.runtime.yml` 启动已有基础镜像：
 
 ```bash
 cd <PROJECT_DIR>
-sudo docker compose --env-file .env.production -f docker-compose.lowmem.yml up -d --no-build backend frontend
+sudo docker compose --env-file .env.production -f docker-compose.runtime.yml up -d --no-build --no-deps --force-recreate backend frontend
 ```
 
-低内存配置依赖服务器已有的 `shared-mysql`、`shared-redis` 和外部网络 `shared-data-net`。首次部署或没有共享数据库环境时，请使用标准的 `docker-compose.prod.yml`。
+运行时配置固定使用土豆时钟独立的 `potato-clock-mysql`、`potato-clock-redis` 和 `potato-clock-internal` 网络，不与 MatchMate 共用数据库或 Redis。后端限制为 640 MiB 内存、1 GiB 含交换空间、0.75 CPU 和 256 个进程；MatchMate 容器可保持停止且 `restart=no`。
 
 ## 11. 备份与回滚
 

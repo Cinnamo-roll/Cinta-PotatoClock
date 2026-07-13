@@ -43,9 +43,15 @@ export const useSettingsStore = create<SettingsState>()(
         const optimistic = { ...previous, ...payload };
         set({ settings: optimistic });
         get().applyTheme();
-        const settings = await settingsApi.updateSettings(payload);
-        set({ settings });
-        get().applyTheme();
+        try {
+          const settings = await settingsApi.updateSettings(payload);
+          set({ settings });
+          get().applyTheme();
+        } catch (error) {
+          set({ settings: previous });
+          get().applyTheme();
+          throw error;
+        }
       },
       setTheme: async (theme) => {
         localStorage.setItem("potato-theme", theme);

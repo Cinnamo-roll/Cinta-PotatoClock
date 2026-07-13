@@ -51,15 +51,15 @@ app:
     privacy-url: ${APP_PRIVACY_URL:https://clock.cinoo.xyz/privacy}
     support-email: ${APP_SUPPORT_EMAIL:support@clock.cinoo.xyz}
   release:
-    version: ${APP_VERSION:1.2.5}
-    build-number: ${APP_BUILD_NUMBER:8}
+    version: ${APP_VERSION:1.2.6}
+    build-number: ${APP_BUILD_NUMBER:9}
     release-date: ${APP_RELEASE_DATE:2026-07-13}
     force-update: ${APP_FORCE_UPDATE:false}
     changelog:
-      - 新增应用内版本检查，Android 直达 APK 更新，iOS 前往官网
-      - 补充待办集删除入口并保留集内待办
-      - 新增未登录全页面只读预览，重做统一演示数据与登录引导
-      - 重做土豆金主题、缩小 Android 图标并优化滚动动画
+      - 修复旧登录凭证干扰登录注册的问题
+      - 恢复游客页面滑动、导航与待办集展开交互
+      - 移除预览提示中的设置入口并保持演示数据只读
+      - 优化登录注册排版，首次进入默认使用土豆金主题
     ios:
       available: ${APP_IOS_AVAILABLE:true}
       download-url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
@@ -71,11 +71,11 @@ app:
   downloads:
     android:
       url: ${APP_ANDROID_APK_URL:https://clock.cinoo.xyz/downloads/tudou-clock.apk}
-      version: ${APP_VERSION:1.2.5}
+      version: ${APP_VERSION:1.2.6}
       size: ${APP_ANDROID_APK_SIZE:}
     ios:
       url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
-      version: ${APP_VERSION:1.2.5}
+      version: ${APP_VERSION:1.2.6}
       size: ${APP_IOS_IPA_SIZE:}
       requires-self-signing: ${APP_IOS_REQUIRES_SELF_SIGNING:true}
       note: ${APP_IOS_DOWNLOAD_NOTE:后端只提供 IPA 下载地址，不负责 iOS 签名}

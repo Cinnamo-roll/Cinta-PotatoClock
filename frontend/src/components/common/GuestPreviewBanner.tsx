@@ -30,11 +30,8 @@ export function GuestPreviewBanner({ withNav = true }: { withNav?: boolean }) {
         <strong className="block text-sm font-black text-[var(--app-text)]">当前是预览模式</strong>
         <span className="block truncate text-[11px] font-bold text-[var(--app-muted)]">演示数据只读，登录后即可使用</span>
       </span>
-      <Link className="shrink-0 text-xs font-black text-[var(--app-accent)]" to={location.pathname === "/settings" ? "/" : "/settings"}>
-        {location.pathname === "/settings" ? "回首页" : "设置"}
-      </Link>
       <Link
-        className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-xl bg-[var(--app-text)] px-3 text-xs font-black text-white transition active:scale-[0.97]"
+        className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-xl bg-[var(--app-primary-strong)] px-3 text-xs font-black text-white shadow-sm transition active:scale-[0.97]"
         to="/login"
         state={{ from: location.pathname }}
       >

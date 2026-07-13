@@ -32,15 +32,15 @@ public class PublicAppProperties {
     @Getter
     @Setter
     public static class Release {
-        private String version = "1.2.5";
-        private String buildNumber = "8";
+        private String version = "1.2.6";
+        private String buildNumber = "9";
         private LocalDate releaseDate = LocalDate.of(2026, 7, 13);
         private boolean forceUpdate = false;
         private List<String> changelog = new ArrayList<>(List.of(
-                "新增应用内版本检查，Android 直达 APK 更新，iOS 前往官网",
-                "补充待办集删除入口并保留集内待办",
-                "新增未登录全页面只读预览，重做统一演示数据与登录引导",
-                "重做土豆金主题、缩小 Android 图标并优化滚动动画"
+                "修复旧登录凭证干扰登录注册的问题",
+                "恢复游客页面滑动、导航与待办集展开交互",
+                "移除预览提示中的设置入口并保持演示数据只读",
+                "优化登录注册排版，首次进入默认使用土豆金主题"
         ));
         private Platform ios = new Platform();
         private Platform android = new Platform();

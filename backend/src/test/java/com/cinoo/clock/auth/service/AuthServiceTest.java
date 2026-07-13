@@ -5,6 +5,7 @@ import com.cinoo.clock.auth.dto.RegisterRequest;
 import com.cinoo.clock.common.enums.ErrorCode;
 import com.cinoo.clock.common.exception.BusinessException;
 import com.cinoo.clock.security.JwtService;
+import com.cinoo.clock.security.JwtToken;
 import com.cinoo.clock.security.TokenBlacklistService;
 import com.cinoo.clock.settings.repository.UserSettingRepository;
 import com.cinoo.clock.user.entity.User;
@@ -62,5 +63,28 @@ class AuthServiceTest {
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.LOGIN_TOO_MANY_ATTEMPTS);
         verify(attempts, never()).recordFailure(any());
+    }
+
+    @Test
+    void loginWithCorrectPasswordReturnsTokenAndClearsFailures() {
+        UserRepository userRepository = mock(UserRepository.class);
+        LoginAttemptService attempts = mock(LoginAttemptService.class);
+        JwtService jwtService = mock(JwtService.class);
+        User user = new User();
+        user.setId(7L);
+        user.setUsername("cinoo");
+        user.setNickname("土豆");
+        user.setStatus(com.cinoo.clock.common.enums.UserStatus.ACTIVE);
+        user.setPasswordHash(new BCryptPasswordEncoder().encode("right-password"));
+        when(userRepository.findByUsername("cinoo")).thenReturn(Optional.of(user));
+        when(jwtService.generate(user)).thenReturn(new JwtToken("access-token", "jti", 86400));
+        AuthService service = new AuthService(userRepository, mock(UserSettingRepository.class),
+                new BCryptPasswordEncoder(), jwtService, mock(TokenBlacklistService.class), attempts);
+
+        var response = service.login(new LoginRequest(" cinoo ", "right-password"));
+
+        assertThat(response.accessToken()).isEqualTo("access-token");
+        assertThat(response.user().username()).isEqualTo("cinoo");
+        verify(attempts).reset("cinoo");
     }
 }

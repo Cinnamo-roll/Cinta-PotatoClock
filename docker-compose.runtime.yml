@@ -46,6 +46,10 @@ services:
     restart: unless-stopped
     working_dir: /app
     command: ["java", "-jar", "/app/app.jar"]
+    mem_limit: 640m
+    memswap_limit: 1g
+    cpus: 0.75
+    pids_limit: 256
     depends_on:
       mysql:
         condition: service_healthy
@@ -55,7 +59,7 @@ services:
       - .env.production
     environment:
       TZ: Asia/Shanghai
-      JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Shanghai
+      JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Shanghai -Xms96m -Xmx320m -XX:MaxMetaspaceSize=160m
       SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: prod
       MYSQL_HOST: mysql

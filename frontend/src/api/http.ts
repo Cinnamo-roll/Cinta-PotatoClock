@@ -27,7 +27,9 @@ export const http = axios.create({
 
 http.interceptors.request.use((config) => {
   const token = readStoredToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const requestUrl = String(config.url ?? "");
+  const isPublicAuthRequest = /\/auth\/(login|register)$/.test(requestUrl);
+  if (token && !isPublicAuthRequest) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 

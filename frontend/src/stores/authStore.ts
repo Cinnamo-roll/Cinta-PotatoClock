@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       login: async (payload) => {
-        set({ isLoading: true });
+        set({ token: undefined, user: undefined, isAuthenticated: false, isLoading: true });
         try {
           const result = await authApi.login(payload);
           set({ token: tokenFrom(result), user: result.user, isAuthenticated: true, isLoading: false });
@@ -52,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
         }
       },
       register: async (payload) => {
-        set({ isLoading: true });
+        set({ token: undefined, user: undefined, isAuthenticated: false, isLoading: true });
         let accountCreated = false;
         try {
           await authApi.register(payload);

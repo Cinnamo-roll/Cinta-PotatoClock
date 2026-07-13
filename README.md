@@ -5,7 +5,7 @@
 ## 产品预览与下载
 
 - [在线产品预览与官网](https://clock.cinoo.xyz)：查看真实界面、主要功能和版本说明。
-- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.5`，可直接下载安装。
+- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.6`，可直接下载安装。
 - [iOS 未签名 IPA](https://github.com/Cinnamo-roll/Cinta-PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：打开最新一次成功运行，在页面底部下载 `tudou-clock-unsigned-ipa` Artifact；安装前需要自行签名。
 
 正式安装包不提交到 Git 仓库。Android 由官网提供固定下载地址；iOS Artifact 有保留期限，过期后可在 Actions 页面手动重新运行构建。
@@ -104,7 +104,7 @@ mvn -s maven-settings.xml test
 
 - `corepack pnpm build:app` 通过
 - `corepack pnpm build:landing` 通过
-- `mvn -s maven-settings.xml test` 通过，46 个测试成功
+- `mvn -s maven-settings.xml test` 通过，51 个测试成功
 
 ## 环境变量
 
@@ -113,8 +113,8 @@ mvn -s maven-settings.xml test
 关键变量：
 
 ```env
-MYSQL_DATABASE=potato_clock
-MYSQL_USER=potato_clock
+MYSQL_DATABASE=clock
+MYSQL_USER=clock_user
 MYSQL_PASSWORD=<strong_password>
 MYSQL_ROOT_PASSWORD=<strong_root_password>
 JWT_SECRET=<at_least_32_chars_secret>
@@ -160,11 +160,18 @@ VITE_USE_MOCK=false
 
 ## 当前发布版本
 
-- Android：`1.2.5`（`versionCode 8`）
-- iOS：`1.2.5`（`build 8`，未签名 IPA）
-- 官网与公开下载信息：`1.2.5`
+- Android：`1.2.6`（`versionCode 9`）
+- iOS：`1.2.6`（`build 9`，未签名 IPA）
+- 官网与公开下载信息：`1.2.6`
 - 安装包文件名：`downloads/tudou-clock.apk`
 - APK/IPA、签名文件、部署压缩包和生产环境变量均不提交 GitHub。
+
+### 1.2.6 登录、游客预览与主题修复
+
+- 登录和注册请求不再携带历史 JWT；即使旧账号数据已被清理，也会正常进入凭据校验流程。
+- 游客预览恢复页面滚动、底部导航、待办集展开与查看；所有新增、编辑、删除操作仍保持只读拦截。
+- 移除游客提示中的设置入口，修正登录/注册页互相跳转的排版，并提升“先预览全部功能”按钮的可读性。
+- 首次进入统一使用“土豆金”主题；仅在用户明确保存其他主题色后持续使用其选择。
 
 ### 1.2.5 更新、预览与整体体验优化
 
