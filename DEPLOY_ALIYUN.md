@@ -1,6 +1,6 @@
 # 土豆时钟阿里云 Docker 部署指南
 
-本指南适用于将土豆时钟部署到阿里云 ECS，并使用 Caddy 提供 HTTPS 访问。默认方案由 Docker Compose 管理官网、后端、MySQL 和 Redis，适合首次部署；文末另附低内存服务器的更新建议。
+本指南介绍如何在阿里云 ECS 上通过 Docker Compose 部署土豆时钟，并使用 Caddy 提供 HTTPS。标准方案会构建并运行官网、后端、MySQL 和 Redis；低内存服务器可以改用预构建产物。
 
 以下命令中的 `<...>` 表示需要按实际环境填写的内容，例如服务器地址、域名和安装目录。建议使用独立子域名，并将项目放在 `/opt/potato-clock`。
 
@@ -120,7 +120,7 @@ APP_IOS_IPA_URL=https://<CLOCK_DOMAIN>/downloads/tudou-clock.ipa
 openssl rand -base64 48
 ```
 
-`.env.production` 包含密码和密钥，已被 Git 忽略。不要将它复制到聊天记录、截图或代码提交中。
+`.env.production` 包含密码和密钥，已被 Git 忽略，请勿提交到仓库。
 
 ## 6. 放置 Android 和 iOS 安装包
 
@@ -264,14 +264,20 @@ deploy/backend/app.jar
 deploy/frontend/
 ```
 
-上传产物后使用 `docker-compose.runtime.yml` 启动已有基础镜像：
+首次使用预构建产物部署时，启动完整运行环境：
 
 ```bash
 cd <PROJECT_DIR>
-sudo docker compose --env-file .env.production -f docker-compose.runtime.yml up -d --no-build --no-deps --force-recreate backend frontend
+sudo docker compose --env-file .env.production -f docker-compose.runtime.yml up -d
 ```
 
-运行时配置固定使用土豆时钟独立的 `potato-clock-mysql`、`potato-clock-redis` 和 `potato-clock-internal` 网络，不与 MatchMate 共用数据库或 Redis。后端限制为 640 MiB 内存、1 GiB 含交换空间、0.75 CPU 和 256 个进程；MatchMate 容器可保持停止且 `restart=no`。
+后续只更新前后端产物时，不需要重建数据库和 Redis：
+
+```bash
+sudo docker compose --env-file .env.production -f docker-compose.runtime.yml up -d --no-deps --force-recreate backend frontend
+```
+
+运行时方案使用独立的 MySQL、Redis 和 `potato-clock-internal` 网络。后端默认限制为 640 MiB 内存、1 GiB 含交换空间、0.75 CPU 和 256 个进程，适合资源较小的服务器。
 
 ## 11. 备份与回滚
 

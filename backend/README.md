@@ -1,116 +1,66 @@
 # 土豆时钟后端
 
-`backend/` 是土豆时钟的 API 服务，负责认证、待办、待办集、专注记录、统计、打卡、未来计划、设置、设备信息和官网公开下载信息。
-
-## 产品关联入口
-
-- [在线产品预览与官网](https://clock.cinoo.xyz)
-- 公开版本信息：`GET /api/public/app/releases/latest`
-- 公开下载信息：`GET /api/public/app/downloads`
-
-真实官网地址只用于产品展示和生产配置。下面的部署变量示例统一使用占位符，复制到其他环境时应替换为自己的域名。
+`backend/` 是土豆时钟的 Spring Boot API 服务，负责认证、待办、专注记录、统计、打卡、未来计划、用户设置和公开版本信息。
 
 ## 技术栈
 
 | 分类 | 技术 |
 | --- | --- |
-| 语言 | Java 21 |
+| 运行环境 | Java 21 |
 | 框架 | Spring Boot 3.3.5 |
-| Web | Spring Web, Validation |
 | 安全 | Spring Security, JWT |
 | 数据访问 | Spring Data JPA |
 | 数据库 | MySQL 8 |
 | 缓存 | Redis |
-| 迁移 | Flyway |
-| 文档 | springdoc-openapi |
+| 数据迁移 | Flyway |
+| API 文档 | springdoc-openapi |
 | 构建 | Maven |
-| 辅助 | Lombok, Actuator |
-
-## 目录结构
-
-```text
-backend/
-├── src/main/java/com/cinoo/clock/
-│   ├── app/             # 官网公开信息、版本和下载接口
-│   ├── auth/            # 注册、登录、退出、密码修改
-│   ├── checkin/         # 打卡记录
-│   ├── collection/      # 待办集
-│   ├── common/          # 通用响应、异常、枚举
-│   ├── config/          # Security、Redis、OpenAPI、JWT 配置
-│   ├── device/          # 设备注册和通知偏好
-│   ├── futureplan/      # 未来计划
-│   ├── potato/          # 专注记录，技术命名统一为 potato
-│   ├── security/        # JWT 过滤器、用户上下文、黑名单
-│   ├── settings/        # 用户设置
-│   ├── stats/           # 统计聚合
-│   ├── task/            # 待办
-│   └── user/            # 用户资料
-├── src/main/resources/
-│   ├── application.yml
-│   ├── application-dev.yml
-│   ├── application-prod.yml
-│   └── db/migration/
-├── Dockerfile
-├── docker-compose.yml
-├── maven-settings.xml
-└── pom.xml
-```
 
 ## 本地运行
 
-环境要求：
-
-- Java 21
-- Maven
-- MySQL 8
-- Redis
-
-运行测试：
+需要 Java 21、MySQL 8 和 Redis。默认开发配置会连接本机 `3306` 和 `6379` 端口，变量名称可参考 [`.env.example`](.env.example)。
 
 ```bash
+# 运行测试
 mvn -s maven-settings.xml test
-```
 
-启动服务：
-
-```bash
+# 启动开发服务
 mvn -s maven-settings.xml spring-boot:run
-```
 
-打包：
-
-```bash
+# 构建可执行 JAR
 mvn -s maven-settings.xml package
 ```
 
+服务默认监听 `http://localhost:8080`。
+
 ## 环境变量
 
-| 变量 | 示例 | 说明 |
+| 变量 | 默认值或示例 | 说明 |
 | --- | --- | --- |
-| `SPRING_PROFILES_ACTIVE` | `prod` | 运行环境 |
+| `SPRING_PROFILES_ACTIVE` | `dev` | Spring 运行环境 |
 | `SERVER_PORT` | `8080` | 服务端口 |
-| `DB_HOST` | `mysql` | MySQL 主机 |
-| `DB_PORT` | `3306` | MySQL 端口 |
-| `DB_NAME` | `potato_clock` | 数据库名 |
-| `DB_USERNAME` | `potato_clock` | 数据库用户 |
-| `DB_PASSWORD` | `<strong_password>` | 数据库密码 |
-| `REDIS_HOST` | `redis` | Redis 主机 |
+| `MYSQL_HOST` | `localhost` | MySQL 主机 |
+| `MYSQL_PORT` | `3306` | MySQL 端口 |
+| `MYSQL_DATABASE` | `clock` | 数据库名 |
+| `MYSQL_USER` | `clock_user` | 数据库用户 |
+| `MYSQL_PASSWORD` | `<strong_password>` | 数据库密码 |
+| `REDIS_HOST` | `localhost` | Redis 主机 |
 | `REDIS_PORT` | `6379` | Redis 端口 |
-| `REDIS_PASSWORD` | `<optional_password>` | Redis 密码，可为空 |
-| `JWT_SECRET` | `<at_least_32_chars_secret>` | JWT 密钥 |
-| `JWT_EXPIRATION` | `604800000` | Token 有效期，毫秒 |
-| `CORS_ALLOWED_ORIGINS` | `https://<CLOCK_DOMAIN>,...` | 允许跨域来源 |
-| `APP_ANDROID_APK_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.apk` | APK 下载地址 |
-| `APP_IOS_IPA_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.ipa` | IPA 下载地址；仅在服务器已放置 IPA 时可用 |
-| `APP_VERSION` | `1.2.8` | 官网公开版本号 |
-| `APP_BUILD_NUMBER` | `10` | 原生安装包构建号 |
-| `APP_FORCE_UPDATE` | `true` | 新版本是否为不可跳过的必要更新 |
+| `REDIS_PASSWORD` | 空 | Redis 密码 |
+| `JWT_SECRET` | `<at_least_32_chars>` | JWT 签名密钥 |
+| `JWT_EXPIRES_IN` | `86400` | Token 有效期，秒 |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:5173,...` | 允许的跨域来源 |
+| `APP_VERSION` | 由发布环境设置 | 公开版本号 |
+| `APP_BUILD_NUMBER` | 由发布环境设置 | 原生构建号 |
+| `APP_FORCE_UPDATE` | `false` / `true` | 是否要求客户端强制更新 |
+| `APP_ANDROID_APK_URL` | 完整 HTTPS 地址 | Android 下载地址 |
+| `APP_IOS_IPA_URL` | 完整 HTTPS 地址 | iOS 下载地址 |
 
-不要把真实密码、JWT 密钥和服务器敏感信息提交到仓库。
+生产环境请从根目录 [`.env.production.example`](../.env.production.example) 创建独立配置，不要提交真实密码和密钥。
 
-## 响应格式
+## API
 
-成功响应：
+所有业务响应使用统一结构：
 
 ```json
 {
@@ -120,98 +70,70 @@ mvn -s maven-settings.xml package
 }
 ```
 
-错误响应会使用非 0 `code` 和可读 `message`。前端默认按这个结构解包。
+主要接口分组：
 
-## API 总览
-
-认证与用户：
-
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| `POST` | `/api/auth/register` | 注册 |
-| `POST` | `/api/auth/login` | 登录 |
-| `POST` | `/api/auth/logout` | 退出 |
-| `GET` | `/api/auth/me` | 当前用户 |
-| `PUT` | `/api/auth/password` | 修改密码 |
-| `GET` | `/api/users/me` | 用户资料 |
-| `PUT` | `/api/users/me` | 更新资料 |
-
-待办与待办集：
-
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| `GET` | `/api/tasks` | 待办列表 |
-| `POST` | `/api/tasks` | 创建待办 |
-| `GET` | `/api/tasks/{id}` | 待办详情 |
-| `PUT` | `/api/tasks/{id}` | 更新待办 |
-| `PATCH` | `/api/tasks/{id}/status` | 更新状态 |
-| `PATCH` | `/api/tasks/{id}/select` | 选择待办 |
-| `PATCH` | `/api/tasks/{id}/sort` | 更新排序 |
-| `DELETE` | `/api/tasks/{id}` | 删除待办 |
-| `GET` | `/api/todos` | 待办兼容别名 |
-| `GET` | `/api/collections` | 待办集列表 |
-| `POST` | `/api/collections` | 创建待办集 |
-| `PUT` | `/api/collections/{id}` | 更新待办集 |
-| `DELETE` | `/api/collections/{id}` | 删除待办集 |
-
-专注记录：
-
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| `POST` | `/api/potato/sessions` | 创建记录 |
-| `GET` | `/api/potato/sessions` | 查询记录 |
-| `GET` | `/api/potato/sessions/today` | 今日记录 |
-| `GET` | `/api/potato/sessions/recent` | 最近记录 |
-| `PATCH` | `/api/potato/sessions/{id}` | 修改记录 |
-| `DELETE` | `/api/potato/sessions/{id}` | 删除记录 |
-| `GET` | `/api/sessions` | 简短别名 |
-| `POST` | `/api/sessions` | 简短别名 |
-
-编辑专注时间段时，客户端提交完整的 `startedAt` 与 `endedAt`：结束时刻早于开始时刻表示跨到次日；两者相同属于无效时间段，不应按 24 小时提交。
-
-统计、打卡、未来计划和设置：
-
-| 模块 | 主要路径 |
+| 模块 | 路径 |
 | --- | --- |
-| 统计 | `/api/stats/today`, `/api/stats/week`, `/api/stats/month`, `/api/stats/year`, `/api/stats/summary`, `/api/stats/calendar` |
-| 打卡 | `/api/checkins` |
-| 未来计划 | `/api/future-plans` |
+| 认证 | `/api/auth/*` |
+| 用户 | `/api/users/*` |
+| 待办 | `/api/tasks/*`，兼容别名 `/api/todos/*` |
+| 待办集 | `/api/collections/*` |
+| 专注记录 | `/api/potato/sessions/*`，兼容别名 `/api/sessions/*` |
+| 统计 | `/api/stats/*` |
+| 打卡 | `/api/checkins/*` |
+| 未来计划 | `/api/future-plans/*` |
 | 设置 | `/api/settings` |
-| 设备 | `/api/devices/register`, `/api/devices/current` |
-| 公开下载信息 | `/api/public/app/info`, `/api/public/app/releases/latest`, `/api/public/app/downloads` |
+| 设备 | `/api/devices/*` |
+| 公开应用信息 | `/api/public/app/*` |
 
-## 数据模型与命名约定
+开发环境启动后可以访问：
 
-产品对用户展示为“土豆时钟”。专注记录的技术命名统一为 `potato`，用于避免历史命名混乱：
+- Swagger UI：`http://localhost:8080/swagger-ui/index.html`
+- OpenAPI JSON：`http://localhost:8080/v3/api-docs`
+- 健康检查：`http://localhost:8080/actuator/health`
 
-- Java 包：`com.cinoo.clock.potato`
-- 实体：`PotatoSession`
-- Repository：`PotatoSessionRepository`
-- Service：`PotatoSessionService`
-- 表名：`potato_sessions`
-- 任务字段：`estimated_potatoes`、`completed_potatoes`
+## 目录结构
 
-`/api/sessions` 是简短别名，保留给前端历史记录等通用场景。
+```text
+backend/
+├── src/main/java/com/cinoo/clock/
+│   ├── app/             # 公开应用与下载信息
+│   ├── auth/            # 注册、登录与认证
+│   ├── checkin/         # 打卡
+│   ├── collection/      # 待办集
+│   ├── common/          # 通用响应、异常和枚举
+│   ├── config/          # 安全、Redis、OpenAPI
+│   ├── device/          # 设备信息
+│   ├── futureplan/      # 未来计划
+│   ├── potato/          # 专注记录
+│   ├── security/        # JWT 过滤与用户上下文
+│   ├── settings/        # 用户设置
+│   ├── stats/           # 统计聚合
+│   ├── task/            # 待办
+│   └── user/            # 用户资料
+├── src/main/resources/
+│   ├── application.yml
+│   └── db/migration/
+├── Dockerfile
+├── maven-settings.xml
+└── pom.xml
+```
 
 ## 数据迁移
 
 Flyway 脚本位于 `src/main/resources/db/migration`。
 
-注意事项：
+- 已经在生产环境执行的迁移不要直接修改。
+- 新增结构变更时创建新的迁移文件。
+- 迁移失败时先检查 `flyway_schema_history` 和后端日志。
+- 数据库回滚前先完成备份，不要直接删除生产数据卷。
 
-- 新环境从 `V1__init_schema.sql` 开始执行。
-- 已在生产执行过的迁移不要直接修改。
-- 如果迁移失败，先检查 `flyway_schema_history`，确认失败版本和错误信息后再处理。
-- 新增字段时优先写兼容式迁移，避免影响已有数据。
-
-## 测试
-
-当前测试覆盖认证、打卡、设备、设置、专注记录、统计和任务服务。
-
-运行：
+## 验证
 
 ```bash
 mvn -s maven-settings.xml test
 ```
 
-最近一次验证结果：51 个测试通过。
+涉及迁移或生产配置时，还应启动真实服务并检查 `/actuator/health` 与 `/api/public/app/info`。
+
+本目录中的项目代码遵循仓库根目录的 [PolyForm Noncommercial License 1.0.0](../LICENSE)。
