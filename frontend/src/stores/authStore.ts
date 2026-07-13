@@ -22,14 +22,6 @@ interface AuthState {
   changePassword: (payload: ChangePasswordRequest) => Promise<void>;
 }
 
-export class RegistrationCompletedError extends Error {
-  constructor(cause?: unknown) {
-    super("账号已创建，但自动登录失败，请直接登录");
-    this.name = "RegistrationCompletedError";
-    this.cause = cause;
-  }
-}
-
 function tokenFrom(result: LoginResponse) {
   return result.accessToken;
 }
@@ -53,15 +45,11 @@ export const useAuthStore = create<AuthState>()(
       },
       register: async (payload) => {
         set({ token: undefined, user: undefined, isAuthenticated: false, isLoading: true });
-        let accountCreated = false;
         try {
-          await authApi.register(payload);
-          accountCreated = true;
-          const result = await authApi.login({ username: payload.username, password: payload.password });
+          const result = await authApi.register(payload);
           set({ token: tokenFrom(result), user: result.user, isAuthenticated: true, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
-          if (accountCreated) throw new RegistrationCompletedError(error);
           throw error;
         }
       },

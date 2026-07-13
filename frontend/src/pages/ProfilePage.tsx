@@ -179,7 +179,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <MobileShell>
+    <MobileShell statusBarTone="background">
       <div className="space-y-4 pt-1">
         <Card className="space-y-4 bg-[linear-gradient(135deg,var(--app-card)_0%,var(--app-card-soft)_100%)]">
           <div className="flex items-center gap-4">

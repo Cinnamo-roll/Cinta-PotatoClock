@@ -127,14 +127,14 @@ frontend/
 
 ## 发布版本
 
-- Android `versionName`：`1.2.7`
-- Android `versionCode`：`10`
-- iOS `MARKETING_VERSION`：`1.2.7`，`CURRENT_PROJECT_VERSION`：`10`
-- 公开版本：`1.2.7`（必要更新）
+- Android `versionName`：`1.2.8`
+- Android `versionCode`：`11`
+- iOS `MARKETING_VERSION`：`1.2.8`，`CURRENT_PROJECT_VERSION`：`11`
+- 公开版本：`1.2.8`（必要更新）
 - iOS：由 GitHub Actions 生成 `tudou-clock-unsigned-ipa` Artifact。
 - 正式 APK、IPA、签名文件和 `dist/` 构建产物不提交 GitHub。
 
-本版移动端回归重点：Android/iOS 沉浸式状态栏与安全区避让、启动页奶油底色、深浅状态栏图标、官网土豆金视觉、强制更新弹窗无法关闭，以及 Android 15/16 边到边布局。
+本版移动端回归重点：注册后直接获得登录令牌、用户名大小写一致性、Android/iOS 顶部卡片与状态栏连续、注册页安全区、原生惯性滚动、完整游客提示，以及强制更新弹窗无法关闭。
 
 历史记录编辑器使用单个 Radix Dialog 与内部状态机切换“日历、记录操作、时间编辑、删除确认”，不再嵌套弹窗。专注时间采用小时/分钟原生选择器组合，避免 iOS 与 Android WebView 对 `input[type=time]` 的尺寸、键盘和关闭事件差异；结束时刻早于开始时刻时明确按次日计算，相同时刻禁止保存。
 

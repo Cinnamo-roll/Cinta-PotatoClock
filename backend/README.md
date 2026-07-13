@@ -102,7 +102,7 @@ mvn -s maven-settings.xml package
 | `CORS_ALLOWED_ORIGINS` | `https://<CLOCK_DOMAIN>,...` | 允许跨域来源 |
 | `APP_ANDROID_APK_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.apk` | APK 下载地址 |
 | `APP_IOS_IPA_URL` | `https://<CLOCK_DOMAIN>/downloads/tudou-clock.ipa` | IPA 下载地址；仅在服务器已放置 IPA 时可用 |
-| `APP_VERSION` | `1.2.7` | 官网公开版本号 |
+| `APP_VERSION` | `1.2.8` | 官网公开版本号 |
 | `APP_BUILD_NUMBER` | `10` | 原生安装包构建号 |
 | `APP_FORCE_UPDATE` | `true` | 新版本是否为不可跳过的必要更新 |
 

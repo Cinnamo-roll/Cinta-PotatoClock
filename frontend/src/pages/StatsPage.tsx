@@ -276,7 +276,7 @@ export default function StatsPage() {
       <FocusHistoryDrawer open={historyOpen} collectionId={collectionId} todoId={todoId} includeCheckins={!isScopedStats} onClose={() => setHistoryOpen(false)} />
       <FocusHeatmapDrawer open={heatmapOpen} collectionId={collectionId} todoId={todoId} onClose={() => setHeatmapOpen(false)} />
       <WeeklySummaryModal open={weeklyOpen} collectionId={collectionId} todoId={todoId} onClose={() => setWeeklyOpen(false)} />
-      <StatsSharePanel open={shareOpen} summary={data.summary} onClose={() => setShareOpen(false)} />
+      <StatsSharePanel open={shareOpen} onClose={() => setShareOpen(false)} />
       <AchievementEntry open={achievementOpen} summary={data.summary} stats={data} onClose={() => setAchievementOpen(false)} />
     </MobileShell>
   );

@@ -32,14 +32,15 @@ public class PublicAppProperties {
     @Getter
     @Setter
     public static class Release {
-        private String version = "1.2.7";
-        private String buildNumber = "10";
+        private String version = "1.2.8";
+        private String buildNumber = "11";
         private LocalDate releaseDate = LocalDate.of(2026, 7, 13);
         private boolean forceUpdate = true;
         private List<String> changelog = new ArrayList<>(List.of(
-                "Android 与 iOS 状态栏改用沉浸式安全区布局，不再填充突兀粉色",
-                "清理启动页、默认待办和打卡动效中的历史固定粉色",
-                "官网减少大面积白底，手机预览统一为土豆金、奶油与叶绿配色",
+                "注册成功后由后端直接签发登录令牌，并清除残留失败计数",
+                "Android 与 iOS 状态栏颜色跟随顶部卡片，注册页完整避让安全区",
+                "恢复系统原生惯性滚动，移除逐帧触摸拦截与列表位移动画",
+                "精简游客预览提示，统计分享入口暂调整为待开发",
                 "本版本设为必要更新，旧版本需更新后继续使用"
         ));
         private Platform ios = new Platform();

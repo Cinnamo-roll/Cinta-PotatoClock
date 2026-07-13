@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/utils/cn";
 
 interface AnimatedListProps {
@@ -14,36 +13,17 @@ interface AnimatedListItemProps {
 }
 
 export function AnimatedList({ children, className, stagger = 0.03 }: AnimatedListProps) {
-  const reduceMotion = useReducedMotion();
-
   return (
-    <motion.div
-      className={className}
-      initial={reduceMotion ? false : "hidden"}
-      animate="show"
-      variants={{
-        hidden: {},
-        show: { transition: { staggerChildren: reduceMotion ? 0 : stagger } }
-      }}
-    >
+    <div className={className} data-stagger={stagger}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 export function AnimatedListItem({ children, className }: AnimatedListItemProps) {
-  const reduceMotion = useReducedMotion();
-
   return (
-    <motion.div
-      className={cn("min-w-0", className)}
-      variants={{
-        hidden: { opacity: 0, y: 6 },
-        show: { opacity: 1, y: 0 }
-      }}
-      transition={reduceMotion ? { duration: 0 } : { duration: 0.18, ease: "easeOut" }}
-    >
+    <div className={cn("min-w-0", className)}>
       {children}
-    </motion.div>
+    </div>
   );
 }

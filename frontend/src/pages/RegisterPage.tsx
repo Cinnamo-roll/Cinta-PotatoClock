@@ -1,15 +1,14 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/common/Button";
 import { Card } from "@/components/common/Card";
 import { CutePotatoLogo } from "@/components/common/CutePotatoLogo";
 import { Input } from "@/components/common/Input";
 import { MobileShell } from "@/components/layout/MobileShell";
-import { RegistrationCompletedError, useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
 
 export default function RegisterPage() {
-  const navigate = useNavigate();
   const register = useAuthStore((state) => state.register);
   const isLoading = useAuthStore((state) => state.isLoading);
   const toast = useUiStore((state) => state.toast);
@@ -50,11 +49,6 @@ export default function RegisterPage() {
       toast({ title: "账号已创建", description: "去开始第一次专注吧", tone: "success" });
       window.location.replace("/");
     } catch (error) {
-      if (error instanceof RegistrationCompletedError) {
-        toast({ title: "账号已创建", description: "自动登录没有完成，请直接登录", tone: "success", durationMs: 4800 });
-        navigate("/login", { replace: true });
-        return;
-      }
       toast({ title: "注册失败啦", description: error instanceof Error ? error.message : "稍后再试试", tone: "error" });
     }
   };

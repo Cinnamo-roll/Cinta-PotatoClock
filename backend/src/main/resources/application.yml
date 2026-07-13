@@ -51,14 +51,15 @@ app:
     privacy-url: ${APP_PRIVACY_URL:https://clock.cinoo.xyz/privacy}
     support-email: ${APP_SUPPORT_EMAIL:support@clock.cinoo.xyz}
   release:
-    version: ${APP_VERSION:1.2.7}
-    build-number: ${APP_BUILD_NUMBER:10}
+    version: ${APP_VERSION:1.2.8}
+    build-number: ${APP_BUILD_NUMBER:11}
     release-date: ${APP_RELEASE_DATE:2026-07-13}
     force-update: ${APP_FORCE_UPDATE:true}
     changelog:
-      - Android 与 iOS 状态栏改用沉浸式安全区布局，不再填充突兀粉色
-      - 清理启动页、默认待办和打卡动效中的历史固定粉色
-      - 官网减少大面积白底，手机预览统一为土豆金、奶油与叶绿配色
+      - 注册成功后由后端直接签发登录令牌，并清除残留失败计数
+      - Android 与 iOS 状态栏颜色跟随顶部卡片，注册页完整避让安全区
+      - 恢复系统原生惯性滚动，移除逐帧触摸拦截与列表位移动画
+      - 精简游客预览提示，统计分享入口暂调整为待开发
       - 本版本设为必要更新，旧版本需更新后继续使用
     ios:
       available: ${APP_IOS_AVAILABLE:true}
@@ -71,11 +72,11 @@ app:
   downloads:
     android:
       url: ${APP_ANDROID_APK_URL:https://clock.cinoo.xyz/downloads/tudou-clock.apk}
-      version: ${APP_VERSION:1.2.7}
+      version: ${APP_VERSION:1.2.8}
       size: ${APP_ANDROID_APK_SIZE:}
     ios:
       url: ${APP_IOS_IPA_URL:https://clock.cinoo.xyz/downloads/tudou-clock.ipa}
-      version: ${APP_VERSION:1.2.7}
+      version: ${APP_VERSION:1.2.8}
       size: ${APP_IOS_IPA_SIZE:}
       requires-self-signing: ${APP_IOS_REQUIRES_SELF_SIGNING:true}
       note: ${APP_IOS_DOWNLOAD_NOTE:后端只提供 IPA 下载地址，不负责 iOS 签名}

@@ -5,7 +5,7 @@
 ## 产品预览与下载
 
 - [在线产品预览与官网](https://clock.cinoo.xyz)：查看真实界面、主要功能和版本说明。
-- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.7`，可直接下载安装。
+- [Android APK](https://clock.cinoo.xyz/downloads/tudou-clock.apk)：当前版本 `1.2.8`，可直接下载安装。
 - [iOS 未签名 IPA](https://github.com/Cinnamo-roll/Cinta-PotatoClock/actions/workflows/build-ios-unsigned-ipa.yml)：打开最新一次成功运行，在页面底部下载 `tudou-clock-unsigned-ipa` Artifact；安装前需要自行签名。
 
 正式安装包不提交到 Git 仓库。Android 由官网提供固定下载地址；iOS Artifact 有保留期限，过期后可在 Actions 页面手动重新运行构建。
@@ -160,11 +160,19 @@ VITE_USE_MOCK=false
 
 ## 当前发布版本
 
-- Android：`1.2.7`（`versionCode 10`）
-- iOS：`1.2.7`（`build 10`，未签名 IPA）
-- 官网与公开下载信息：`1.2.7`（必要更新）
+- Android：`1.2.8`（`versionCode 11`）
+- iOS：`1.2.8`（`build 11`，未签名 IPA）
+- 官网与公开下载信息：`1.2.8`（必要更新）
 - 安装包文件名：`downloads/tudou-clock.apk`
 - APK/IPA、签名文件、部署压缩包和生产环境变量均不提交 GitHub。
+
+### 1.2.8 注册登录与移动端流畅度修复
+
+- 注册成功后由后端在同一请求中直接签发登录令牌，不再依赖第二次登录请求；同时清理该用户名的失败计数，并统一用户名大小写匹配。
+- Android 与 iOS 的透明状态栏加入主题顶部承接层，普通页面与顶部卡片保持同色；“我的”页面继续使用页面背景色，注册页安全区不再被页面间距覆盖。
+- 移除全局逐帧触摸拦截和列表逐项位移动画，恢复 WebView 原生惯性滚动，减少长列表与统计图表滑动时的合成负担。
+- 游客提示改为更短且完整显示的“演示内容仅供查看”；统计页右上角分享入口暂显示“待开发”。
+- 公开版本继续标记为必要更新，旧版 App 必须完成更新后使用。
 
 ### 1.2.7 状态栏与官网视觉统一
 

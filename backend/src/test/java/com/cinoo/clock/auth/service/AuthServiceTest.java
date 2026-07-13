@@ -25,7 +25,7 @@ class AuthServiceTest {
     @Test
     void registerRejectsDuplicatedUsername() {
         UserRepository userRepository = mock(UserRepository.class);
-        when(userRepository.existsByUsername("cinoo")).thenReturn(true);
+        when(userRepository.existsByUsernameIgnoreCase("cinoo")).thenReturn(true);
         AuthService service = new AuthService(userRepository, mock(UserSettingRepository.class),
                 new BCryptPasswordEncoder(), mock(JwtService.class), mock(TokenBlacklistService.class), mock(LoginAttemptService.class));
 
@@ -36,13 +36,39 @@ class AuthServiceTest {
     }
 
     @Test
+    void registerCreatesAuthenticatedSessionAndClearsPreviousFailures() {
+        UserRepository userRepository = mock(UserRepository.class);
+        UserSettingRepository settingRepository = mock(UserSettingRepository.class);
+        LoginAttemptService attempts = mock(LoginAttemptService.class);
+        JwtService jwtService = mock(JwtService.class);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setId(9L);
+            return user;
+        });
+        when(jwtService.generate(any(User.class))).thenReturn(new JwtToken("registered-token", "jti", 86400));
+        AuthService service = new AuthService(userRepository, settingRepository, encoder, jwtService,
+                mock(TokenBlacklistService.class), attempts);
+
+        var response = service.register(new RegisterRequest("NewUser", "新土豆", "USER@EXAMPLE.COM", "secret123"));
+
+        assertThat(response.accessToken()).isEqualTo("registered-token");
+        assertThat(response.user().username()).isEqualTo("NewUser");
+        assertThat(response.user().email()).isEqualTo("user@example.com");
+        verify(attempts).reset("NewUser");
+        verify(settingRepository).save(any());
+        verify(userRepository).save(argThat(user -> encoder.matches("secret123", user.getPasswordHash())));
+    }
+
+    @Test
     void loginWithWrongPasswordRecordsFailure() {
         UserRepository userRepository = mock(UserRepository.class);
         LoginAttemptService attempts = mock(LoginAttemptService.class);
         User user = new User();
         user.setUsername("cinoo");
         user.setPasswordHash(new BCryptPasswordEncoder().encode("right-password"));
-        when(userRepository.findByUsername("cinoo")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsernameIgnoreCase("cinoo")).thenReturn(Optional.of(user));
         AuthService service = new AuthService(userRepository, mock(UserSettingRepository.class),
                 new BCryptPasswordEncoder(), mock(JwtService.class), mock(TokenBlacklistService.class), attempts);
 
@@ -76,7 +102,7 @@ class AuthServiceTest {
         user.setNickname("土豆");
         user.setStatus(com.cinoo.clock.common.enums.UserStatus.ACTIVE);
         user.setPasswordHash(new BCryptPasswordEncoder().encode("right-password"));
-        when(userRepository.findByUsername("cinoo")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsernameIgnoreCase("cinoo")).thenReturn(Optional.of(user));
         when(jwtService.generate(user)).thenReturn(new JwtToken("access-token", "jti", 86400));
         AuthService service = new AuthService(userRepository, mock(UserSettingRepository.class),
                 new BCryptPasswordEncoder(), jwtService, mock(TokenBlacklistService.class), attempts);

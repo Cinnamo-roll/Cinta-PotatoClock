@@ -156,7 +156,8 @@ body:not(.landing-scroll-body) .recharts-surface *:focus-visible {
 
 .app-scroll {
   overflow-x: hidden;
-  overscroll-behavior: contain;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: contain;
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -265,6 +266,26 @@ body.keyboard-open .app-dialog-panel {
     radial-gradient(ellipse 210px 170px at -18% 40%, color-mix(in srgb, var(--app-accent) 12%, transparent), transparent 74%),
     linear-gradient(165deg, var(--app-bg) 0%, color-mix(in srgb, var(--app-bg-soft) 70%, var(--app-card) 30%) 52%, color-mix(in srgb, var(--app-card) 86%, var(--app-primary-soft) 14%) 100%);
   background-repeat: no-repeat;
+}
+
+.app-status-surface {
+  position: fixed;
+  left: 50%;
+  top: 0;
+  z-index: 20;
+  height: var(--safe-top);
+  width: 100%;
+  max-width: 430px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.app-status-surface-card {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--app-card) 88%, var(--app-bg-soft) 12%) 0%, color-mix(in srgb, var(--app-card) 80%, var(--app-bg-soft) 20%) 100%);
+}
+
+.app-status-surface-background {
+  background: var(--app-bg);
 }
 
 .app-page-header {

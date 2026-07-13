@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -42,14 +43,17 @@ public class AuthService {
     private final LoginAttemptService loginAttemptService;
 
     @Transactional
-    public UserResponse register(RegisterRequest request) {
+    public LoginResponse register(RegisterRequest request) {
         String username = request.username().trim();
         String nickname = request.nickname().trim();
         String email = blankToNull(request.email());
-        if (userRepository.existsByUsername(username)) {
+        if (userRepository.existsByUsernameIgnoreCase(username)) {
             throw new BusinessException(ErrorCode.USERNAME_EXISTS);
         }
-        if (email != null && userRepository.existsByEmail(email)) {
+        if (email != null) {
+            email = email.toLowerCase(Locale.ROOT);
+        }
+        if (email != null && userRepository.existsByEmailIgnoreCase(email)) {
             throw new BusinessException(ErrorCode.EMAIL_EXISTS);
         }
 
@@ -62,7 +66,9 @@ public class AuthService {
         user.setStatus(UserStatus.ACTIVE);
         User saved = userRepository.save(user);
         userSettingRepository.save(UserSetting.defaults(saved.getId()));
-        return UserResponse.from(saved);
+        loginAttemptService.reset(username);
+        saved.setLastLoginAt(LocalDateTime.now());
+        return issueLoginResponse(saved);
     }
 
     @Transactional
@@ -72,7 +78,7 @@ public class AuthService {
             throw new BusinessException(ErrorCode.LOGIN_TOO_MANY_ATTEMPTS);
         }
 
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> failLogin(username));
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash()) || user.getStatus() != UserStatus.ACTIVE) {
             throw failLogin(username);
@@ -80,8 +86,7 @@ public class AuthService {
 
         loginAttemptService.reset(username);
         user.setLastLoginAt(LocalDateTime.now());
-        JwtToken token = jwtService.generate(user);
-        return new LoginResponse(token.token(), "Bearer", token.expiresIn(), UserResponse.from(user));
+        return issueLoginResponse(user);
     }
 
     @Transactional(readOnly = true)
@@ -113,6 +118,11 @@ public class AuthService {
     private BusinessException failLogin(String username) {
         loginAttemptService.recordFailure(username);
         return new BusinessException(ErrorCode.INVALID_CREDENTIALS);
+    }
+
+    private LoginResponse issueLoginResponse(User user) {
+        JwtToken token = jwtService.generate(user);
+        return new LoginResponse(token.token(), "Bearer", token.expiresIn(), UserResponse.from(user));
     }
 
     private User currentUser() {

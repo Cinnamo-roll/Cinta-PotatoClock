@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { Toaster } from "@/components/common/Toaster";
 import { AppToast } from "@/components/common/AppToast";
 import { AppUpdatePrompt } from "@/components/common/AppUpdatePrompt";
-import { useScrollBoundaryGuard } from "@/hooks/useScrollBoundaryGuard";
 import { AppRouter } from "@/router/AppRouter";
 import LandingPage from "@/pages/LandingPage";
 import { initAppLifecycle } from "@/services/appLifecycleService";
@@ -23,7 +22,6 @@ export default function App() {
   const applyTheme = useSettingsStore((state) => state.applyTheme);
   const applyAppTheme = useThemeStore((state) => state.applyTheme);
   const [chromeReady, setChromeReady] = useState(!isNativeApp || isLandingTarget);
-  useScrollBoundaryGuard(undefined, !isLandingTarget);
 
   useEffect(() => {
     if (isLandingTarget) return;

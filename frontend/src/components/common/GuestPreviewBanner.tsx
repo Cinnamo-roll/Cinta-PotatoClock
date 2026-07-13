@@ -27,8 +27,8 @@ export function GuestPreviewBanner({ withNav = true }: { withNav?: boolean }) {
         <Sparkles size={17} />
       </span>
       <span className="min-w-0 flex-1">
-        <strong className="block text-sm font-black text-[var(--app-text)]">当前是预览模式</strong>
-        <span className="block truncate text-[11px] font-bold text-[var(--app-muted)]">演示数据只读，登录后即可使用</span>
+        <strong className="block text-sm font-black text-[var(--app-text)]">功能预览</strong>
+        <span className="block whitespace-nowrap text-[11px] font-bold text-[var(--app-muted)]">演示内容仅供查看</span>
       </span>
       <Link
         className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-xl bg-[var(--app-primary-strong)] px-3 text-xs font-black text-white shadow-sm transition active:scale-[0.97]"
@@ -36,7 +36,7 @@ export function GuestPreviewBanner({ withNav = true }: { withNav?: boolean }) {
         state={{ from: location.pathname }}
       >
         <LogIn size={14} />
-        登录同步
+        去登录
       </Link>
     </aside>
   );

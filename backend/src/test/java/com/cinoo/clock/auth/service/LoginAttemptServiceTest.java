@@ -27,8 +27,8 @@ class LoginAttemptServiceTest {
             service.recordFailure("test-user");
         }
 
-        assertThat(service.isBlocked("test-user")).isTrue();
-        service.reset("test-user");
+        assertThat(service.isBlocked(" TEST-USER ")).isTrue();
+        service.reset("Test-User");
         assertThat(service.isBlocked("test-user")).isFalse();
     }
 }

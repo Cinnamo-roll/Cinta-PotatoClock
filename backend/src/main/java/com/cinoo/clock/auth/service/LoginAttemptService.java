@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,6 +28,7 @@ public class LoginAttemptService {
     private final ConcurrentMap<String, LocalAttempt> localAttempts = new ConcurrentHashMap<>();
 
     public boolean isBlocked(String username) {
+        username = normalizedUsername(username);
         boolean locallyBlocked = isLocallyBlocked(username);
         try {
             String value = redisTemplate.opsForValue().get(key(username));
@@ -38,6 +40,7 @@ public class LoginAttemptService {
     }
 
     public void recordFailure(String username) {
+        username = normalizedUsername(username);
         try {
             Long count = redisTemplate.opsForValue().increment(key(username));
             if (count != null && count == 1L) {
@@ -50,6 +53,7 @@ public class LoginAttemptService {
     }
 
     public void reset(String username) {
+        username = normalizedUsername(username);
         localAttempts.remove(username);
         try {
             redisTemplate.delete(key(username));
@@ -59,7 +63,7 @@ public class LoginAttemptService {
     }
 
     private String key(String username) {
-        return "login:fail:" + username;
+        return "login:fail:" + normalizedUsername(username);
     }
 
     private boolean isLocallyBlocked(String username) {
@@ -83,5 +87,9 @@ public class LoginAttemptService {
     }
 
     private record LocalAttempt(int count, Instant expiresAt) {
+    }
+
+    private String normalizedUsername(String username) {
+        return username.trim().toLowerCase(Locale.ROOT);
     }
 }

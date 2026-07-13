@@ -8,24 +8,26 @@ interface MobileShellProps {
   children: ReactNode;
   withNav?: boolean;
   className?: string;
+  statusBarTone?: "card" | "background";
 }
 
-export function MobileShell({ children, withNav = true, className }: MobileShellProps) {
+export function MobileShell({ children, withNav = true, className, statusBarTone = "card" }: MobileShellProps) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const showGuestBanner = withNav && !isAuthenticated;
+  const bottomPadding = withNav ? (showGuestBanner ? "calc(var(--safe-bottom) + 176px)" : "calc(var(--safe-bottom) + 112px)") : "calc(var(--safe-bottom) + 1.5rem)";
 
   return (
-    <div className="h-dvh w-full overflow-hidden">
+    <div className="relative h-dvh w-full overflow-hidden">
+      <div
+        aria-hidden="true"
+        className={cn("app-status-surface", statusBarTone === "card" ? "app-status-surface-card" : "app-status-surface-background")}
+      />
       <main
         className={cn(
-          "app-screen-bg app-scroll mx-auto h-dvh w-full max-w-[430px] overflow-x-hidden overflow-y-auto px-4 pt-[calc(var(--safe-top)+0.75rem)]",
-          withNav
-            ? showGuestBanner
-              ? "pb-[calc(var(--safe-bottom)+176px)]"
-              : "pb-[calc(var(--safe-bottom)+112px)]"
-            : "pb-[calc(var(--safe-bottom)+1.5rem)]",
+          "app-screen-bg app-scroll mx-auto h-dvh w-full max-w-[430px] overflow-x-hidden overflow-y-auto px-4",
           className
         )}
+        style={{ paddingTop: "calc(var(--safe-top) + 0.75rem)", paddingBottom: bottomPadding }}
       >
         <div className="app-page-content">{children}</div>
       </main>
